@@ -67,13 +67,13 @@
 | CP-63 | Caja blanca (cobertura) | - | avanzar() acumula y devuelve el total (int y float). | `test_complementarias.py::test_cp63_reloj_simulado_acumula` | PASS |
 | CP-64 | Basada en requisitos | R07 | con motor encendido las luces altas quedan fijas, sin parpadeo (R07). | `test_requisitos.py::test_cp64_luces_altas_fijas_sin_parpadeo` | PASS |
 | CP-65 | Basada en requisitos | R01, R07 | con el motor apagado el testigo de luces altas no enciende (R01, R07). | `test_requisitos.py::test_cp65_luces_altas_apagadas_con_motor_apagado` | PASS |
-| CP-66 | Basada en requisitos | R01, R08 | con el motor apagado el testigo de falla de frenos no enciende (R01, R08). | `test_requisitos.py::test_cp66_frenos_apagado_con_motor_apagado` | XFAIL |
+| CP-66 | Basada en requisitos | R01, R08 | con el motor apagado el testigo de falla de frenos no enciende (R01, R08). | `test_requisitos.py::test_cp66_frenos_apagado_con_motor_apagado` | PASS |
 
 ## Resumen
 
 - Casos de prueba: 66
-- Pasaron: 65
-- Fallo esperado por defecto abierto (XFAIL): 1
+- Pasaron: 66
+- Fallo esperado por defecto abierto (XFAIL): 0
 - Fallaron / otros: 0
 
 ## Casos por requisito

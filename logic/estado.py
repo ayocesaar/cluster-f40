@@ -262,6 +262,8 @@ class EstadoCluster:
 
     @property
     def testigo_falla_frenos_encendido(self):
+        if not self._motor:
+            return False
         if not self._falla_frenos:
             return False
         return self._parpadeo(CICLO_FRENOS_MS)
