@@ -39,3 +39,19 @@ la especificación en orden.
 | docs/evidencias/ (capturas) | Falta (requiere la UI) |
 | informe/generar_informe.py | Falta (existe tools/informe.py, que solo genera Markdown) |
 | Informe_Pruebas_Cluster_F40.docx / .pdf | Falta |
+
+## Estado final (2026-10-29, Etapa 8e)
+
+| Requisito de la especificación | Estado |
+|---|---|
+| Repositorio git inicializado | Hecho |
+| logic/estado.py (R01-R08) | Hecho (DEF-01 rechazado según R08) |
+| logic/reloj.py (RelojReal/RelojSimulado) | Hecho |
+| ui/tablero.py (Tkinter) | Hecho (con ui/presentacion.py) |
+| main.py | Hecho |
+| tests/ (particiones, límites, transiciones, inválidas, aceptación) | Hecho |
+| requirements.txt | Hecho |
+| docs/bitacora_ia.md | Hecho hasta Etapa 8e |
+| docs/evidencias/ (capturas, pytest.txt, coverage.txt, htmlcov) | Hecho |
+| informe/generar_informe.py | Hecho |
+| Informe_Pruebas_Cluster_F40.docx / .pdf | Hecho (en informe/) |

@@ -111,3 +111,18 @@
   los casos y requisitos que ilustra y el estado de los 10 elementos en ese instante.
 - Qué generó la IA: el script y la selección de estados. Las imágenes son las que produjo la
   ejecución en la VM del usuario, sin edición posterior.
+
+## Etapa 8e — Ajuste visual e informe Word/PDF
+- Fecha: 2026-10-29
+- Ajuste visual: al revisar las capturas de la 8d se vio que la aguja tapaba la cifra en el mínimo y
+  que los interruptores tenían un recuadro de foco que parecía tachar el texto. Se corrigió en
+  ui/tablero.py, se repitió la regresión completa y se regeneraron las capturas.
+- Informe: informe/generar_informe.py produce Informe_Pruebas_Cluster_F40.docx y .pdf con la
+  estructura de 14 secciones de la especificación y 25 casos consolidados (CT-01 a CT-25). Los
+  resultados, conteos, versiones y porcentajes se leen de docs/evidencias/; el estado de cada CT se
+  calcula de junit.xml y aceptacion.txt. Las referencias en línea se verificaron el 29/10/2026; las
+  de iso.org quedaron como pendientes de verificar porque el sitio rechazó la consulta automática.
+- Qué generó la IA: el ajuste visual, el generador del informe y su texto. Antes de entregarlo se
+  probó el generador en Windows con evidencias de prueba (no reales) para revisar el formato. El
+  usuario ejecutó la etapa en su VM; el documento final usa solo las evidencias reales de esa
+  ejecución.
