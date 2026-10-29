@@ -134,3 +134,13 @@
   activo por defecto. Se fijó activeforeground en interruptores y selector, se repitió la regresión
   completa, se regeneraron capturas y evidencias, y se volvió a generar el informe Word/PDF.
 - Qué generó la IA: el diagnóstico (a partir del PDF) y el parche. El usuario ejecutó la etapa en su VM.
+
+## Etapa 8e.2 — Normas ISO y declaración de colaboración
+- Fecha: 2026-10-29
+- Qué se hizo: se verificaron las fichas oficiales de ISO/IEC/IEEE 29119-1:2022, 29119-2:2021,
+  29119-3:2021, 29119-4:2021 e ISO 26262-6:2018 mediante búsqueda web (iso.org rechazaba la descarga
+  directa), se quitaron las marcas de "pendiente de verificar", se agregó al informe una tabla de
+  marco normativo (cómo se aplicó cada norma, sin declarar conformidad) y una declaración breve de la
+  colaboración de Claude Code. Se regeneró el informe Word/PDF con las mismas evidencias.
+- Qué generó la IA: la verificación de referencias y los cambios al generador. El usuario ejecutó
+  la etapa en su VM.

@@ -308,6 +308,23 @@ RIESGOS = (
      "Se combinan técnicas de caja negra, aceptación y revisión de la especificación."),
 )
 
+NORMAS = (
+    ("ISO/IEC/IEEE 29119-1:2022", "Conceptos generales de prueba",
+     "Vocabulario del informe: caso de prueba, oráculo, cobertura, defecto, niveles y tipos de prueba."),
+    ("ISO/IEC/IEEE 29119-2:2021", "Procesos de prueba",
+     "El trabajo siguió las etapas de planificación (auditoría y alcance), diseño e implementación (casos "
+     "CP/CA), ejecución con registro de resultados, reporte de incidentes (DEF-01) y cierre (este informe)."),
+    ("ISO/IEC/IEEE 29119-3:2021", "Documentación de prueba",
+     "Estructura de este documento: alcance, ambiente y datos, especificación de casos con resultado esperado "
+     "y obtenido, registro de defectos, trazabilidad y resumen de completitud."),
+    ("ISO/IEC/IEEE 29119-4:2021", "Técnicas de prueba",
+     "Técnicas basadas en especificación (partición de equivalencia, valores límite, transición de estados) y "
+     "basadas en estructura (cobertura de sentencias y ramas)."),
+    ("ISO 26262-6:2018", "Seguridad funcional, software automotriz",
+     "Solo como contexto: distinción entre testigos críticos (9 y 10) e informativos y verificación por "
+     "requisitos. No se pide ni se demuestra conformidad."),
+)
+
 HERRAMIENTAS = (
     ("Python", lambda: platform.python_version(), "Lenguaje y ejecución",
      "https://docs.python.org/3/library/tkinter.html"),
@@ -325,13 +342,17 @@ HERRAMIENTAS = (
 
 REFERENCIAS = (
     "Especificación del proyecto Clúster F40, Sistemas Operativos, UAG (documento del curso).",
+    "ISO/IEC/IEEE 29119-1:2022, Software and systems engineering — Software testing — Part 1: General concepts. "
+    "https://www.iso.org/standard/81291.html (ficha verificada el 29/10/2026).",
     "ISO/IEC/IEEE 29119-2:2021, Software and systems engineering — Software testing — Part 2: Test processes. "
-    "Pendiente de verificar (iso.org rechazó la consulta automática el 29/10/2026).",
+    "https://www.iso.org/standard/79428.html (ficha verificada el 29/10/2026).",
     "ISO/IEC/IEEE 29119-3:2021, Software and systems engineering — Software testing — Part 3: Test documentation. "
-    "Pendiente de verificar (iso.org rechazó la consulta automática el 29/10/2026).",
+    "https://www.iso.org/standard/79429.html (ficha verificada el 29/10/2026).",
+    "ISO/IEC/IEEE 29119-4:2021, Software and systems engineering — Software testing — Part 4: Test techniques. "
+    "https://webstore.iec.ch/publication/71836 (ficha verificada el 29/10/2026).",
     "ISO 26262-6:2018, Road vehicles — Functional safety — Part 6: Product development at the software level. "
-    "Solo como contexto; no se pide demostrar conformidad. Pendiente de verificar (iso.org rechazó la consulta "
-    "automática el 29/10/2026).",
+    "https://www.iso.org/standard/68388.html (ficha verificada el 29/10/2026). Solo como contexto; no se "
+    "demuestra conformidad.",
     "pytest documentation. https://docs.pytest.org/en/stable/ (consultado el 29/10/2026).",
     "Coverage.py documentation. https://coverage.readthedocs.io/ (consultado el 29/10/2026).",
     "tkinter — Python interface to Tcl/Tk. https://docs.python.org/3/library/tkinter.html (consultado el 29/10/2026).",
@@ -627,6 +648,7 @@ def construir():
     tabla(doc, ["Campo", "Valor"], list(IDENTIFICACION) + [
         ("Fecha de ejecución de las pruebas", fecha_ejecucion or "no registrada en junit.xml"),
         ("Versión del software probado", version_software()),
+        ("Colaboración", "Claude Code (Anthropic), asistente de inteligencia artificial; ver sección 14"),
         ("Documento generado por", "informe/generar_informe.py a partir de las evidencias en docs/"),
     ], anchos=[5, 11.5])
     doc.add_heading("Contenido", level=2)
@@ -749,6 +771,10 @@ def construir():
     doc.add_paragraph("Tipos de prueba: funcional (caja negra), estructural (caja blanca con cobertura de ramas), "
                       "regresión (toda la suite se ejecuta tras cada cambio), manejo de errores y archivos, y "
                       "aceptación dirigida por datos.")
+    doc.add_heading("Marco normativo", level=2)
+    doc.add_paragraph("El proceso y este documento se inspiran en la serie ISO/IEC/IEEE 29119; ISO 26262-6 se "
+                      "usa solo como contexto automotriz. No se declara conformidad con ninguna de ellas.")
+    tabla(doc, ["Norma", "Tema", "Cómo se aplicó en este proyecto"], NORMAS, anchos=[4, 3.5, 9])
 
     # 7. Herramientas
     doc.add_heading("7. Herramientas", level=1)
@@ -866,6 +892,14 @@ def construir():
 
     # 14. Anexo IA
     doc.add_heading("14. Anexo: uso de inteligencia artificial", level=1)
+    doc.add_heading("Declaración de colaboración", level=2)
+    doc.add_paragraph(
+        "Claude Code, asistente de inteligencia artificial de Anthropic, colaboró con el Equipo 3 en la "
+        "realización de este proyecto: escribió el código del clúster y de su interfaz, diseñó y programó las "
+        "pruebas y los escenarios de aceptación, preparó los scripts de evidencia, revisó las capturas y "
+        "redactó este informe. Las decisiones sobre la especificación (D1–D7) las tomó el equipo, que además "
+        "ejecutó cada etapa en su propio equipo y validó los resultados reales antes de continuar.")
+    doc.add_heading("Detalle", level=2)
     doc.add_paragraph(
         "En este proyecto se usaron asistentes de inteligencia artificial. Según la bitácora, las Etapas 0 a 3 se "
         "trabajaron con un asistente en otra sesión y las Etapas 4 a 8e con Claude Code (Anthropic). La IA generó "
