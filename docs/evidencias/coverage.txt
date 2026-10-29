@@ -1,0 +1,11 @@
+Name                         Stmts   Miss Branch BrPart  Cover   Missing
+------------------------------------------------------------------------
+logic/estado.py                185      7     64      3    95%   138, 228-230, 241, 253, 266
+logic/reloj.py                  18      4      4      2    73%   15, 19, 32, 34
+tests/conftest.py               17      0      0      0   100%
+tests/test_invalidas.py         50      0      0      0   100%
+tests/test_limites.py           98      0      0      0   100%
+tests/test_particiones.py       44      0      0      0   100%
+tests/test_transiciones.py      99      0      6      0   100%
+------------------------------------------------------------------------
+TOTAL                          511     11     74      5    97%
