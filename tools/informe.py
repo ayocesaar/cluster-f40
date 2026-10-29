@@ -36,7 +36,7 @@ n_total = sum(total.values())
 cov = json.loads(pathlib.Path("docs/evidencias/coverage.json").read_text(encoding="utf-8"))
 registro = pathlib.Path("docs/registro_defectos.md").read_text(encoding="utf-8")
 n_def = registro.count("\n## DEF-")
-n_cerrados = registro.count("| Estado | Cerrado")
+n_abiertos = registro.count("| Estado | Abierto")
 matriz = pathlib.Path("docs/matriz_trazabilidad.md").read_text(encoding="utf-8")
 sin_casos = next((l for l in matriz.splitlines() if l.startswith("Requisitos sin casos:")),
                  "Requisitos sin casos: (no calculado)")
@@ -101,16 +101,27 @@ L += [
     "## 7. Defectos",
     "",
     f"- Defectos registrados: {n_def}",
-    f"- Defectos cerrados: {n_cerrados}",
-    "- DEF-01: el testigo de falla de frenos parpadeaba con el motor apagado",
-    "  (R01/R08). Se corrigio en `logic/estado.py` y CP-66 queda como prueba de",
-    "  regresion. Detalle en `docs/registro_defectos.md`.",
+    f"- Defectos abiertos: {n_abiertos}",
+    "- DEF-01 (testigo 10 parpadeando con el motor apagado) fue rechazado: R08",
+    "  no condiciona el testigo al motor. Se revirtio la correccion de la Etapa 7",
+    "  y CP-66 verifica el comportamiento correcto. Detalle en",
+    "  `docs/registro_defectos.md`.",
     "",
     "## 8. Decisiones de diseno y observaciones",
     "",
     "- Al apagar el motor (R01) se apagan tambien el testigo 9 y el ambar del",
     "  elemento 2, reiniciando sus temporizadores; de lo contrario se encenderian",
     "  falsamente porque R01 fuerza p_aceite a 0 (nota de diseno en `estado.py`).",
+    "- Los testigos informativos 6, 7 y 8 solo se muestran con el motor encendido;",
+    "  es el estado definido que R01 deja abierto (decision D2).",
+    "- El testigo 10 (critico) parpadea mientras falla_frenos=1 aunque el motor",
+    "  este apagado, porque R08 no lo condiciona al motor (decision D1).",
+    "- La especificacion distingue Encendido (elementos 1 y 4) y Motor activo",
+    "  (elementos 2, 3 y 5); el sistema usa un solo interruptor motor que",
+    "  representa ambas senales (decision D3).",
+    "- R02 se interpreta como tiempo continuo: entre 1.0 y 1.2 bar se reinician",
+    "  ambos temporizadores, asi que una presion que oscila entre 0.9 y 1.1 bar",
+    "  no enciende el testigo 9.",
     "- La velocidad no tiene una regla especifica en R01-R08; se valida como entrada",
     "  (rangos, tipos y valores limite).",
     "- Los casos CP-60 a CP-63 prueban la infraestructura de tiempo (reloj) y no",
@@ -121,18 +132,18 @@ L += [
     "- `docs/evidencias/pytest.txt`: salida completa de pytest -v.",
     "- `docs/evidencias/junit.xml`: resultados en formato JUnit.",
     "- `docs/evidencias/coverage.txt` y `coverage.json`: reporte de cobertura.",
-    "- `htmlcov/index.html`: reporte de cobertura navegable.",
+    "- `docs/evidencias/htmlcov/index.html`: reporte de cobertura navegable.",
     "- `docs/matriz_trazabilidad.md` y `docs/registro_defectos.md`.",
     "",
     "## 10. Conclusion",
     "",
 ]
-if total["FAIL"] == 0 and total["XFAIL"] == 0 and n_def == n_cerrados:
+if total["FAIL"] == 0 and total["XFAIL"] == 0 and n_abiertos == 0:
     L.append(f"Las {n_total} ejecuciones pasan, la cobertura de la logica es completa y "
              "no quedan defectos abiertos: la logica cumple R01-R08 segun las pruebas definidas.")
 else:
     L.append(f"Quedan {total['FAIL']} fallos, {total['XFAIL']} fallos esperados y "
-             f"{n_def - n_cerrados} defectos abiertos; la logica aun no se considera aceptada.")
+             f"{n_abiertos} defectos abiertos; la logica aun no se considera aceptada.")
 
 pathlib.Path("docs/informe_pruebas.md").write_text("\n".join(L) + "\n", encoding="utf-8")
 print(f"Informe generado: {n_total} ejecuciones, {total['PASS']} PASS")

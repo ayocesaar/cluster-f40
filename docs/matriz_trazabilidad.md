@@ -67,7 +67,7 @@
 | CP-63 | Caja blanca (cobertura) | - | avanzar() acumula y devuelve el total (int y float). | `test_complementarias.py::test_cp63_reloj_simulado_acumula` | PASS |
 | CP-64 | Basada en requisitos | R07 | con motor encendido las luces altas quedan fijas, sin parpadeo (R07). | `test_requisitos.py::test_cp64_luces_altas_fijas_sin_parpadeo` | PASS |
 | CP-65 | Basada en requisitos | R01, R07 | con el motor apagado el testigo de luces altas no enciende (R01, R07). | `test_requisitos.py::test_cp65_luces_altas_apagadas_con_motor_apagado` | PASS |
-| CP-66 | Basada en requisitos | R01, R08 | con el motor apagado el testigo de falla de frenos no enciende (R01, R08). | `test_requisitos.py::test_cp66_frenos_apagado_con_motor_apagado` | PASS |
+| CP-66 | Basada en requisitos | R01, R08 | el testigo 10 (critico) parpadea cada 300 ms aunque el motor este apagado y se apaga con falla_frenos=0 (R01, R08). | `test_requisitos.py::test_cp66_frenos_parpadea_aun_con_motor_apagado` | PASS |
 
 ## Resumen
 

@@ -58,3 +58,20 @@
 - Resultado real: 68 passed, cobertura 100% en logic/, DEF-01 cerrado. Commit 382a8d9.
 - Qué generó la IA (Etapas 4-7): Claude Code generó los comandos, pruebas, scripts y documentos. El
   usuario ejecutó cada bloque en su VM y pegó la salida real, que se revisó antes de continuar.
+
+## Etapa 8a.1 — Revisión contra la especificación y reversión de DEF-01
+- Fecha: 2026-10-29
+- Qué se hizo: el usuario proporcionó la especificación completa como texto. La IA comparó
+  numeración, rangos, ciclos y reglas R01-R08 contra logic/estado.py; la numeración y los
+  umbrales coinciden. Se identificaron seis puntos de decisión (D1-D6) y el usuario aceptó las
+  recomendaciones.
+- D1: DEF-01 se rechazó. La IA lo había registrado en la Etapa 6 interpretando R01 como apagado
+  general; la especificación (R08) no condiciona el testigo 10 al motor. Fue un error de
+  interpretación de la IA. Se revirtió el cambio de la Etapa 7 y CP-66 se reescribió con la
+  expectativa correcta.
+- D2: los testigos 6, 7 y 8 siguen dependiendo del motor, documentado como el estado definido de R01.
+- D3: un solo interruptor motor representa Encendido y Motor activo.
+- D4 y D5 se aplicarán en las Etapas 8c y 8e. D6: la portada usará la fecha de entrega de la
+  especificación (18/10/2026).
+- Qué generó la IA: el análisis comparativo, los cambios de código, prueba y documentación. El
+  usuario tomó las decisiones y ejecutó el bloque en su VM.

@@ -262,8 +262,8 @@ class EstadoCluster:
 
     @property
     def testigo_falla_frenos_encendido(self):
-        if not self._motor:
-            return False
+        """Testigo 10 (CRITICO, R08): parpadea cada 300 ms mientras
+        falla_frenos=1, aunque el motor este apagado (R08 no lo condiciona)."""
         if not self._falla_frenos:
             return False
         return self._parpadeo(CICLO_FRENOS_MS)

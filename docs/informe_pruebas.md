@@ -41,7 +41,7 @@ trazabilidad agrupa por caso de prueba (CP).
 
 | Modulo | Lineas | Ramas | Cobertura |
 |--------|--------|-------|-----------|
-| `logic/estado.py` | 187/187 | 66/66 | 100.0% |
+| `logic/estado.py` | 185/185 | 64/64 | 100.0% |
 | `logic/reloj.py` | 18/18 | 4/4 | 100.0% |
 
 ## 6. Trazabilidad
@@ -55,16 +55,27 @@ de las pruebas y el resultado de junit.
 ## 7. Defectos
 
 - Defectos registrados: 1
-- Defectos cerrados: 1
-- DEF-01: el testigo de falla de frenos parpadeaba con el motor apagado
-  (R01/R08). Se corrigio en `logic/estado.py` y CP-66 queda como prueba de
-  regresion. Detalle en `docs/registro_defectos.md`.
+- Defectos abiertos: 0
+- DEF-01 (testigo 10 parpadeando con el motor apagado) fue rechazado: R08
+  no condiciona el testigo al motor. Se revirtio la correccion de la Etapa 7
+  y CP-66 verifica el comportamiento correcto. Detalle en
+  `docs/registro_defectos.md`.
 
 ## 8. Decisiones de diseno y observaciones
 
 - Al apagar el motor (R01) se apagan tambien el testigo 9 y el ambar del
   elemento 2, reiniciando sus temporizadores; de lo contrario se encenderian
   falsamente porque R01 fuerza p_aceite a 0 (nota de diseno en `estado.py`).
+- Los testigos informativos 6, 7 y 8 solo se muestran con el motor encendido;
+  es el estado definido que R01 deja abierto (decision D2).
+- El testigo 10 (critico) parpadea mientras falla_frenos=1 aunque el motor
+  este apagado, porque R08 no lo condiciona al motor (decision D1).
+- La especificacion distingue Encendido (elementos 1 y 4) y Motor activo
+  (elementos 2, 3 y 5); el sistema usa un solo interruptor motor que
+  representa ambas senales (decision D3).
+- R02 se interpreta como tiempo continuo: entre 1.0 y 1.2 bar se reinician
+  ambos temporizadores, asi que una presion que oscila entre 0.9 y 1.1 bar
+  no enciende el testigo 9.
 - La velocidad no tiene una regla especifica en R01-R08; se valida como entrada
   (rangos, tipos y valores limite).
 - Los casos CP-60 a CP-63 prueban la infraestructura de tiempo (reloj) y no
@@ -75,7 +86,7 @@ de las pruebas y el resultado de junit.
 - `docs/evidencias/pytest.txt`: salida completa de pytest -v.
 - `docs/evidencias/junit.xml`: resultados en formato JUnit.
 - `docs/evidencias/coverage.txt` y `coverage.json`: reporte de cobertura.
-- `htmlcov/index.html`: reporte de cobertura navegable.
+- `docs/evidencias/htmlcov/index.html`: reporte de cobertura navegable.
 - `docs/matriz_trazabilidad.md` y `docs/registro_defectos.md`.
 
 ## 10. Conclusion

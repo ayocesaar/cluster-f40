@@ -60,7 +60,7 @@ tests/test_particiones.py::test_cp09_interruptores_booleanos_validos PASSED [ 77
 tests/test_particiones.py::test_cp10_velocidad_cero_particion_valida PASSED [ 79%]
 tests/test_requisitos.py::test_cp64_luces_altas_fijas_sin_parpadeo PASSED [ 80%]
 tests/test_requisitos.py::test_cp65_luces_altas_apagadas_con_motor_apagado PASSED [ 82%]
-tests/test_requisitos.py::test_cp66_frenos_apagado_con_motor_apagado PASSED [ 83%]
+tests/test_requisitos.py::test_cp66_frenos_parpadea_aun_con_motor_apagado PASSED [ 83%]
 tests/test_transiciones.py::test_cp27_rpm_histeresis_sube_y_baja PASSED  [ 85%]
 tests/test_transiciones.py::test_cp28_temp_histeresis_sube_y_baja PASSED [ 86%]
 tests/test_transiciones.py::test_cp29_turbo_histeresis_sube_y_baja PASSED [ 88%]
@@ -74,4 +74,4 @@ tests/test_transiciones.py::test_cp36_apagar_motor_fuerza_valores_seguros PASSED
 tests/test_transiciones.py::test_cp37_apagar_motor_apaga_testigo_aceite PASSED [100%]
 
 -- generated xml file: /home/ayocesaar/cluster-f40/docs/evidencias/junit.xml ---
-============================== 68 passed in 0.17s ==============================
+============================== 68 passed in 0.21s ==============================
