@@ -17,73 +17,73 @@ def test_cp39_velocidad_fuera_rango_superior(estado):
 
 
 def test_cp40_rpm_tipo_float_invalido(estado):
-    """CP-40: rpm debe ser entero; un float se rechaza con TypeError."""
+    """CP-40: rpm debe ser entero; un float se rechaza con TypeError. [R03]"""
     with pytest.raises(TypeError):
         estado.set_rpm(5000.0)
 
 
 def test_cp41_rpm_tipo_bool_invalido(estado):
-    """CP-41: rpm no acepta bool."""
+    """CP-41: rpm no acepta bool. [R03]"""
     with pytest.raises(TypeError):
         estado.set_rpm(True)
 
 
 def test_cp42_rpm_fuera_rango(estado):
-    """CP-42: rpm > 9000 es invalido (ValueError)."""
+    """CP-42: rpm > 9000 es invalido (ValueError). [R03]"""
     with pytest.raises(ValueError):
         estado.set_rpm(9001)
 
 
 def test_cp43_presion_aceite_fuera_rango(estado):
-    """CP-43: presion de aceite > 10 es invalida (ValueError)."""
+    """CP-43: presion de aceite > 10 es invalida (ValueError). [R02]"""
     with pytest.raises(ValueError):
         estado.set_presion_aceite(10.1)
 
 
 def test_cp44_presion_aceite_tipo_invalido(estado):
-    """CP-44: presion de aceite no acepta str (TypeError)."""
+    """CP-44: presion de aceite no acepta str (TypeError). [R02]"""
     with pytest.raises(TypeError):
         estado.set_presion_aceite("alta")
 
 
 def test_cp45_temp_agua_fuera_rango_inferior(estado):
-    """CP-45: temperatura < 40 es invalida (ValueError)."""
+    """CP-45: temperatura < 40 es invalida (ValueError). [R04]"""
     with pytest.raises(ValueError):
         estado.set_temp_agua(39.9)
 
 
 def test_cp46_temp_agua_fuera_rango_superior(estado):
-    """CP-46: temperatura > 130 es invalida (ValueError)."""
+    """CP-46: temperatura > 130 es invalida (ValueError). [R04]"""
     with pytest.raises(ValueError):
         estado.set_temp_agua(130.1)
 
 
 def test_cp47_presion_turbo_fuera_rango(estado):
-    """CP-47: presion de turbo > 2 es invalida (ValueError)."""
+    """CP-47: presion de turbo > 2 es invalida (ValueError). [R05]"""
     with pytest.raises(ValueError):
         estado.set_presion_turbo(2.1)
 
 
 def test_cp48_presion_turbo_bool_invalido(estado):
-    """CP-48: presion de turbo no acepta bool (TypeError)."""
+    """CP-48: presion de turbo no acepta bool (TypeError). [R05]"""
     with pytest.raises(TypeError):
         estado.set_presion_turbo(True)
 
 
 def test_cp49_direccional_desconocido(estado):
-    """CP-49: un direccional fuera de OFF/IZQ/DER es invalido (ValueError)."""
+    """CP-49: un direccional fuera de OFF/IZQ/DER es invalido (ValueError). [R06]"""
     with pytest.raises(ValueError):
         estado.set_direccional("ADELANTE")
 
 
 def test_cp50_direccional_tipo_invalido(estado):
-    """CP-50: direccional debe ser str; un entero se rechaza (TypeError)."""
+    """CP-50: direccional debe ser str; un entero se rechaza (TypeError). [R06]"""
     with pytest.raises(TypeError):
         estado.set_direccional(1)
 
 
 def test_cp51_motor_tipo_invalido(estado):
-    """CP-51: motor debe ser bool; un int se rechaza (TypeError)."""
+    """CP-51: motor debe ser bool; un int se rechaza (TypeError). [R01]"""
     with pytest.raises(TypeError):
         estado.set_motor(1)
 

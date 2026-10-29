@@ -7,6 +7,7 @@ tests/test_complementarias.py      53      0      6      0   100%
 tests/test_invalidas.py            50      0      0      0   100%
 tests/test_limites.py              98      0      0      0   100%
 tests/test_particiones.py          46      0      0      0   100%
+tests/test_requisitos.py           15      1      4      1    89%   25->exit, 27
 tests/test_transiciones.py        101      0      6      0   100%
 ---------------------------------------------------------------------------
-TOTAL                             568      0     80      0   100%
+TOTAL                             583      1     84      1    99%

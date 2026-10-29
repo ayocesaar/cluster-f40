@@ -2,7 +2,7 @@
 
 
 def test_cp27_rpm_histeresis_sube_y_baja(estado_encendido, reloj):
-    """CP-27: el indicador de rpm sube a rojo en 8000 y baja a normal en 7799."""
+    """CP-27: el indicador de rpm sube a rojo en 8000 y baja a normal en 7799. [R03]"""
     estado_encendido.set_rpm(8000)
     reloj.avanzar(100)
     estado_encendido.tick()
@@ -89,14 +89,14 @@ def test_cp33_emergencia_tiene_precedencia_sobre_direccional(estado_encendido):
 
 
 def test_cp34_sin_emergencia_no_hay_precedencia(estado_encendido):
-    """CP-34: sin emergencia activa, no hay precedencia aunque haya direccional."""
+    """CP-34: sin emergencia activa, no hay precedencia aunque haya direccional. [R07]"""
     estado_encendido.set_direccional("IZQ")
     estado_encendido.set_emergencia(False)
     assert estado_encendido.emergencia_tiene_precedencia is False
 
 
 def test_cp35_encender_motor_desde_apagado(estado, reloj):
-    """CP-35: al encender el motor, las lecturas empiezan a actualizarse segun su ciclo."""
+    """CP-35: al encender el motor, las lecturas empiezan a actualizarse segun su ciclo. [R01]"""
     estado.set_velocidad(50)
     estado.tick()
     assert estado.velocidad == 0
@@ -108,7 +108,7 @@ def test_cp35_encender_motor_desde_apagado(estado, reloj):
 
 
 def test_cp36_apagar_motor_fuerza_valores_seguros(estado_encendido, reloj):
-    """CP-36: al apagar el motor, todas las lecturas vuelven de inmediato a su valor seguro."""
+    """CP-36: al apagar el motor, todas las lecturas vuelven de inmediato a su valor seguro. [R01]"""
     estado_encendido.set_velocidad(200)
     estado_encendido.set_rpm(5000)
     estado_encendido.set_presion_aceite(5)
@@ -130,7 +130,7 @@ def test_cp36_apagar_motor_fuerza_valores_seguros(estado_encendido, reloj):
 
 
 def test_cp37_apagar_motor_apaga_testigo_aceite(estado_encendido, reloj):
-    """CP-37: al apagar el motor se apaga el testigo 9 y se reinicia su temporizador."""
+    """CP-37: al apagar el motor se apaga el testigo 9 y se reinicia su temporizador. [R01, R02]"""
     estado_encendido.set_presion_aceite(0.2)
     reloj.avanzar(100)
     estado_encendido.tick()

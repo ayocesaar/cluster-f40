@@ -6,7 +6,7 @@ from logic.reloj import RelojReal
 
 
 def test_cp53_motor_activo_refleja_set_motor(estado):
-    """CP-53: motor_activo refleja el ultimo valor de set_motor."""
+    """CP-53: motor_activo refleja el ultimo valor de set_motor. [R01]"""
     assert estado.motor_activo is False
     estado.set_motor(True)
     assert estado.motor_activo is True
@@ -15,7 +15,7 @@ def test_cp53_motor_activo_refleja_set_motor(estado):
 
 
 def test_cp54_color_aceite_motor_apagado_normal(estado):
-    """CP-54: con el motor apagado el elemento 2 siempre es normal."""
+    """CP-54: con el motor apagado el elemento 2 siempre es normal. [R01]"""
     assert estado.color_aceite == "normal"
 
 

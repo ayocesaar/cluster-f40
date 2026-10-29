@@ -18,7 +18,7 @@ def test_cp12_velocidad_limite_superior_360(estado_encendido, reloj):
 
 
 def test_cp13_rpm_7799_no_activa_rojo(estado_encendido, reloj):
-    """CP-13: 7799 rpm no activa rojo."""
+    """CP-13: 7799 rpm no activa rojo. [R03]"""
     estado_encendido.set_rpm(7799)
     reloj.avanzar(100)
     estado_encendido.tick()
@@ -26,7 +26,7 @@ def test_cp13_rpm_7799_no_activa_rojo(estado_encendido, reloj):
 
 
 def test_cp14_rpm_7800_zona_muerta_conserva_normal(estado_encendido, reloj):
-    """CP-14: 7800 rpm (zona muerta) conserva el estado previo (normal)."""
+    """CP-14: 7800 rpm (zona muerta) conserva el estado previo (normal). [R03]"""
     estado_encendido.set_rpm(7800)
     reloj.avanzar(100)
     estado_encendido.tick()
@@ -34,7 +34,7 @@ def test_cp14_rpm_7800_zona_muerta_conserva_normal(estado_encendido, reloj):
 
 
 def test_cp15_rpm_7999_conserva_rojo_si_ya_estaba_rojo(estado_encendido, reloj):
-    """CP-15: en zona muerta (7999) se conserva el estado previo, partiendo de rojo."""
+    """CP-15: en zona muerta (7999) se conserva el estado previo, partiendo de rojo. [R03]"""
     estado_encendido.set_rpm(8000)
     reloj.avanzar(100)
     estado_encendido.tick()
@@ -55,7 +55,7 @@ def test_cp16_rpm_8000_activa_rojo(estado_encendido, reloj):
 
 
 def test_cp17_aceite_099_bar_999ms_no_activa_testigo(estado_encendido, reloj):
-    """CP-17: 0.99 bar sostenido 999 ms NO activa el testigo 9 todavia."""
+    """CP-17: 0.99 bar sostenido 999 ms NO activa el testigo 9 todavia. [R02]"""
     estado_encendido.set_presion_aceite(0.99)
     reloj.avanzar(100)
     estado_encendido.tick()
@@ -75,7 +75,7 @@ def test_cp18_aceite_099_bar_1000ms_activa_testigo(estado_encendido, reloj):
 
 
 def test_cp19_aceite_10_bar_zona_muerta_no_activa(estado_encendido, reloj):
-    """CP-19: 1.0 bar esta en zona muerta: no activa el testigo aunque pase tiempo."""
+    """CP-19: 1.0 bar esta en zona muerta: no activa el testigo aunque pase tiempo. [R02]"""
     estado_encendido.set_presion_aceite(1.0)
     reloj.avanzar(100)
     estado_encendido.tick()
@@ -102,7 +102,7 @@ def test_cp20_aceite_12_bar_1000ms_apaga_testigo(estado_encendido, reloj):
 
 
 def test_cp21_temp_105_normal(estado_encendido, reloj):
-    """CP-21: 105 C: limite donde regresa a normal."""
+    """CP-21: 105 C: limite donde regresa a normal. [R04]"""
     estado_encendido.set_temp_agua(105)
     reloj.avanzar(500)
     estado_encendido.tick()
@@ -110,7 +110,7 @@ def test_cp21_temp_105_normal(estado_encendido, reloj):
 
 
 def test_cp22_temp_110_zona_muerta_conserva_previo(estado_encendido, reloj):
-    """CP-22: 110 C esta en zona muerta: conserva estado previo (normal)."""
+    """CP-22: 110 C esta en zona muerta: conserva estado previo (normal). [R04]"""
     estado_encendido.set_temp_agua(110)
     reloj.avanzar(500)
     estado_encendido.tick()
@@ -126,7 +126,7 @@ def test_cp23_temp_1101_activa_rojo(estado_encendido, reloj):
 
 
 def test_cp24_turbo_14_normal(estado_encendido, reloj):
-    """CP-24: 1.4 bar: limite donde el contorno regresa a normal."""
+    """CP-24: 1.4 bar: limite donde el contorno regresa a normal. [R05]"""
     estado_encendido.set_presion_turbo(1.4)
     reloj.avanzar(100)
     estado_encendido.tick()
@@ -134,7 +134,7 @@ def test_cp24_turbo_14_normal(estado_encendido, reloj):
 
 
 def test_cp25_turbo_15_zona_muerta_conserva_previo(estado_encendido, reloj):
-    """CP-25: 1.5 bar esta en zona muerta: conserva estado previo (normal)."""
+    """CP-25: 1.5 bar esta en zona muerta: conserva estado previo (normal). [R05]"""
     estado_encendido.set_presion_turbo(1.5)
     reloj.avanzar(100)
     estado_encendido.tick()

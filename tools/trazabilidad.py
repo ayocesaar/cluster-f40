@@ -12,6 +12,7 @@ TECNICAS = {
     "test_transiciones.py": "Transicion de estados",
     "test_invalidas.py": "Entradas invalidas",
     "test_complementarias.py": "Caja blanca (cobertura)",
+    "test_requisitos.py": "Basada en requisitos",
 }
 
 # Los casos parametrizados llegan como "test_x[param]": se agrupan por funcion
@@ -22,7 +23,8 @@ for caso in ET.parse("docs/evidencias/junit.xml").getroot().iter("testcase"):
     if caso.find("failure") is not None or caso.find("error") is not None:
         estado = "FAIL"
     elif caso.find("skipped") is not None:
-        estado = "SKIP"
+        tipo = caso.find("skipped").get("type", "")
+        estado = "XFAIL" if "xfail" in tipo else "SKIP"
     else:
         estado = "PASS"
     if resultados.get(nombre) != "FAIL":
@@ -60,7 +62,9 @@ for f in filas:
 total = len(filas)
 pasaron = sum(f["res"] == "PASS" for f in filas)
 lineas += ["", "## Resumen", "", f"- Casos de prueba: {total}",
-           f"- Pasaron: {pasaron}", f"- Fallaron / otros: {total - pasaron}", "",
+           f"- Pasaron: {pasaron}",
+           f"- Fallo esperado por defecto abierto (XFAIL): {sum(f['res'] == 'XFAIL' for f in filas)}",
+           f"- Fallaron / otros: {total - pasaron - sum(f['res'] == 'XFAIL' for f in filas)}", "",
            "## Casos por requisito", "", "| Requisito | Casos |", "|-----------|-------|"]
 por_req = {}
 for f in filas:
@@ -68,6 +72,9 @@ for f in filas:
         por_req.setdefault(r, []).append(f["cp"])
 for r in sorted(por_req):
     lineas.append(f"| {r} | {', '.join(por_req[r])} |")
+
+faltan = [f"R0{i}" for i in range(1, 9) if f"R0{i}" not in por_req]
+lineas += ["", f"Requisitos sin casos: {', '.join(faltan) or 'ninguno'}"]
 
 pathlib.Path("docs/matriz_trazabilidad.md").write_text("\n".join(lineas) + "\n", encoding="utf-8")
 print(f"Matriz generada: {total} casos, {pasaron} PASS")
