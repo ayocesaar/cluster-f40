@@ -10,8 +10,8 @@ pruebas automatizadas con pytest y medicion de cobertura con coverage.
 
 - Incluido: `logic/estado.py` (EstadoCluster, reglas R01-R08) y `logic/reloj.py`
   (RelojReal, RelojSimulado).
-- Excluido: la interfaz grafica, que no contiene logica de negocio: solo lee y
-  dibuja los valores calculados por EstadoCluster.
+- Pendiente: la interfaz grafica (`ui/tablero.py`) y `main.py` aun no existen;
+  sus pruebas (incluidas las de aceptacion) se agregaran al implementarlas.
 - El tiempo se controla con `RelojSimulado`, de modo que las pruebas de ciclos,
   parpadeos e histeresis son deterministas y no dependen de esperas reales.
 
