@@ -104,7 +104,7 @@ class Tablero:
             var = tk.BooleanVar(value=False)
             manejador = (lambda s=setter, v=var: self.enviar(s, bool(v.get())))
             tk.Checkbutton(interruptores, text=texto, variable=var, command=manejador, bg=FONDO,
-                           fg=COLOR_TEXTO, selectcolor="#2a2a2a", activebackground=FONDO, highlightthickness=0, bd=0,
+                           fg=COLOR_TEXTO, selectcolor="#2a2a2a", activebackground=FONDO, activeforeground=COLOR_TEXTO, highlightthickness=0, bd=0,
                            font=("DejaVu Sans", 11)).grid(row=fila, column=0, sticky="w", pady=4)
             self.variables[setter] = var
             self._manejadores[setter] = manejador
@@ -115,7 +115,7 @@ class Tablero:
                  font=("DejaVu Sans", 11)).grid(row=len(INTERRUPTORES), column=0, sticky="w", pady=(12, 0))
         for col, opcion in enumerate(("IZQ", "OFF", "DER")):
             tk.Radiobutton(interruptores, text=opcion, value=opcion, variable=var, command=manejador,
-                           bg=FONDO, fg=COLOR_TEXTO, selectcolor="#2a2a2a", activebackground=FONDO, highlightthickness=0, bd=0,
+                           bg=FONDO, fg=COLOR_TEXTO, selectcolor="#2a2a2a", activebackground=FONDO, activeforeground=COLOR_TEXTO, highlightthickness=0, bd=0,
                            font=("DejaVu Sans", 11)).grid(row=len(INTERRUPTORES) + 1 + col, column=0, sticky="w")
         self.variables["set_direccional"] = var
         self._manejadores["set_direccional"] = manejador

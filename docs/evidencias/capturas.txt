@@ -1,41 +1,41 @@
 Capturas de pantalla de la interfaz (generadas con tools/capturas.py sobre Xvfb)
 
-01_estado_inicial_seguro.png (920x786 px, 311 colores)
+01_estado_inicial_seguro.png (920x786 px, 293 colores)
   Descripcion: Estado inicial seguro: motor apagado, agujas en su minimo y testigos apagados
   Casos: CA-01 a CA-10 (paso inicial), CP-68, CP-74 | Requisitos: R01
   Estado dibujado: 1=0 normal, 2=0 normal, 3=0 normal, 4=40 normal, 5=0 normal, 6=apagado, 7=apagado, 8=apagado, 9=apagado, 10=apagado
 
-02_motor_encendido_valores_normales.png (920x786 px, 311 colores)
+02_motor_encendido_valores_normales.png (920x786 px, 293 colores)
   Descripcion: Motor encendido con lecturas dentro de rango: sin advertencias
   Casos: CA-01, CA-03, CA-04, CA-05 | Requisitos: R01
   Estado dibujado: 1=120 normal, 2=5 normal, 3=4500 normal, 4=90 normal, 5=1 normal, 6=apagado, 7=apagado, 8=apagado, 9=apagado, 10=apagado
 
-03_umbrales_de_lecturas.png (920x786 px, 579 colores)
+03_umbrales_de_lecturas.png (920x786 px, 561 colores)
   Descripcion: Umbrales cruzados: 2 y 5 en ambar, 3 y 4 en rojo
   Casos: CA-02, CA-03, CA-04, CA-05, CP-69 | Requisitos: R03, R04, R05
   Estado dibujado: 1=250 normal, 2=0.8 ambar, 3=8200 rojo, 4=115 rojo, 5=1.6 ambar, 6=apagado, 7=apagado, 8=apagado, 9=apagado, 10=apagado
 
-04_testigo_9_baja_presion_aceite.png (920x786 px, 500 colores)
+04_testigo_9_baja_presion_aceite.png (920x786 px, 483 colores)
   Descripcion: Presion de aceite bajo 1 bar por 1 s: testigo 9 rojo (critico)
   Casos: CA-09, CP-70 | Requisitos: R02
   Estado dibujado: 1=0 normal, 2=0.5 ambar, 3=0 normal, 4=90 normal, 5=0 normal, 6=apagado, 7=apagado, 8=apagado, 9=rojo, 10=apagado
 
-05_direccional_izq_y_luces_altas.png (920x786 px, 537 colores)
+05_direccional_izq_y_luces_altas.png (920x786 px, 520 colores)
   Descripcion: Direccional IZQ (6 verde) y luces altas (7 azul fijo)
   Casos: CA-06, CA-07 | Requisitos: R06, R07
   Estado dibujado: 1=60 normal, 2=0 ambar, 3=0 normal, 4=40 normal, 5=0 normal, 6=verde, 7=azul, 8=apagado, 9=apagado, 10=apagado
 
-06_emergencia_con_precedencia.png (920x786 px, 476 colores)
+06_emergencia_con_precedencia.png (920x786 px, 459 colores)
   Descripcion: Emergencia activa con direccional puesto: 8 ambar y 6 oculto (D7)
   Casos: CA-08, CP-71 | Requisitos: R06, R07
   Estado dibujado: 1=0 normal, 2=0 ambar, 3=0 normal, 4=40 normal, 5=0 normal, 6=apagado, 7=apagado, 8=ambar, 9=apagado, 10=apagado
 
-07_falla_frenos_motor_apagado.png (920x786 px, 380 colores)
+07_falla_frenos_motor_apagado.png (920x786 px, 363 colores)
   Descripcion: Falla de frenos con motor apagado: testigo 10 rojo (critico, D1)
   Casos: CA-10, CP-76 | Requisitos: R08
   Estado dibujado: 1=0 normal, 2=0 normal, 3=0 normal, 4=40 normal, 5=0 normal, 6=apagado, 7=apagado, 8=apagado, 9=apagado, 10=rojo
 
-08_entrada_rechazada.png (920x786 px, 531 colores)
+08_entrada_rechazada.png (920x786 px, 513 colores)
   Descripcion: Valor fuera de rango (9001 RPM) enviado por programa: mensaje en pantalla
   Casos: CP-77 | Requisitos: -
   Estado dibujado: 1=0 normal, 2=0 normal, 3=0 normal, 4=40 normal, 5=0 normal, 6=apagado, 7=apagado, 8=apagado, 9=apagado, 10=apagado

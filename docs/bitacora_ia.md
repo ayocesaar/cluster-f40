@@ -126,3 +126,11 @@
   probó el generador en Windows con evidencias de prueba (no reales) para revisar el formato. El
   usuario ejecutó la etapa en su VM; el documento final usa solo las evidencias reales de esa
   ejecución.
+
+## Etapa 8e.1 — Corrección visual detectada en el informe
+- Fecha: 2026-10-29
+- Qué se hizo: al revisar el PDF generado se vio que en las capturas el texto "7 Luces altas" salía
+  casi negro: en Xvfb el puntero queda sobre ese interruptor y Tkinter usaba el color de texto
+  activo por defecto. Se fijó activeforeground en interruptores y selector, se repitió la regresión
+  completa, se regeneraron capturas y evidencias, y se volvió a generar el informe Word/PDF.
+- Qué generó la IA: el diagnóstico (a partir del PDF) y el parche. El usuario ejecutó la etapa en su VM.
