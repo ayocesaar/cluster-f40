@@ -1,0 +1,73 @@
+escenario,paso,accion,valor,avanzar_ms,elemento,esperado,descripcion
+CA-01,1,-,,0,1,valor=0.0 km/h,Estado seguro inicial: velocimetro en 0
+CA-01,2,motor,1,0,1,valor=0.0 km/h,Encender motor sin mover velocidad
+CA-01,3,velocidad,120.5,50,1,valor=0.0 km/h,A los 50 ms aun no se cumple el ciclo de 100 ms
+CA-01,4,-,,50,1,valor=120.5 km/h,Al cumplirse 100 ms se muestra la velocidad
+CA-01,5,velocidad,360,100,1,valor=360.0 km/h,Limite superior 360 km/h
+CA-01,6,motor,0,0,1,valor=0.0 km/h,Apagar motor regresa la velocidad a 0 (R01)
+CA-02,1,-,,0,2,normal,Estado seguro: medidor 2 normal con motor apagado
+CA-02,2,motor,1,0,2,ambar,Motor encendido con 0 bar: ambar inmediato
+CA-02,3,presion_aceite,5,100,2,normal,Sube a 5 bar: normal
+CA-02,4,presion_aceite,0.99,100,2,ambar,Cruza bajando a 0.99 bar: ambar
+CA-02,5,presion_aceite,1.0,100,2,normal,Cruza subiendo a 1.0 bar: normal
+CA-02,6,motor,0,0,2,normal,Apagar motor: normal
+CA-03,1,motor,1,0,3,normal,Motor encendido con 0 RPM: normal
+CA-03,2,rpm,7999,100,3,normal,7999 RPM: normal
+CA-03,3,rpm,8000,100,3,rojo,Cruza subiendo a 8000 RPM: rojo
+CA-03,4,rpm,7800,100,3,rojo,Baja a 7800 (zona de histeresis): sigue rojo
+CA-03,5,rpm,7799,100,3,normal,Cruza bajando a 7799: normal
+CA-03,6,rpm,8000,100,3,rojo,Vuelve a 8000: rojo
+CA-03,7,motor,0,0,3,normal,Apagar motor: normal
+CA-03,8,-,,0,3,valor=0 RPM,Apagar motor regresa RPM a 0 (R01)
+CA-04,1,motor,1,0,4,normal,Motor encendido a 40 C: normal
+CA-04,2,temp_agua,110,500,4,normal,110 C (no mayor a 110): normal
+CA-04,3,temp_agua,110.1,500,4,rojo,Cruza subiendo a 110.1 C: rojo
+CA-04,4,temp_agua,105.1,500,4,rojo,Baja a 105.1 (zona de histeresis): sigue rojo
+CA-04,5,temp_agua,105,500,4,normal,Cruza bajando a 105 C: normal
+CA-04,6,temp_agua,120,250,4,normal,A los 250 ms aun no se cumple el ciclo de 500 ms
+CA-04,7,-,,250,4,rojo,Al cumplirse 500 ms se muestra 120 C: rojo
+CA-04,8,motor,0,0,4,normal,Apagar motor: normal
+CA-05,1,motor,1,0,5,normal,Motor encendido con 0 bar: normal
+CA-05,2,presion_turbo,1.5,100,5,normal,1.5 bar (no mayor a 1.5): normal
+CA-05,3,presion_turbo,1.51,100,5,ambar,Cruza subiendo a 1.51 bar: contorno ambar
+CA-05,4,presion_turbo,1.41,100,5,ambar,Baja a 1.41 (zona de histeresis): sigue ambar
+CA-05,5,presion_turbo,1.4,100,5,normal,Cruza bajando a 1.4 bar: normal
+CA-05,6,motor,0,0,5,normal,Apagar motor: normal
+CA-06,1,motor,1,0,6,apagado,Motor encendido con direccional OFF: apagado
+CA-06,2,direccional,IZQ,0,6,verde,Direccional IZQ en t=0 ms: verde
+CA-06,3,-,,500,6,apagado,t=500 ms: apagado (alterna cada 500 ms)
+CA-06,4,-,,500,6,verde,t=1000 ms: verde
+CA-06,5,direccional,DER,0,6,verde,Cambia a DER: verde
+CA-06,6,-,,500,6,apagado,t=1500 ms: apagado
+CA-06,7,direccional,OFF,500,6,apagado,Direccional OFF: queda apagado
+CA-07,1,luces_altas,1,0,7,apagado,Luces altas con motor apagado: apagado (D2)
+CA-07,2,motor,1,0,7,azul,Encender motor: azul
+CA-07,3,-,,250,7,azul,t=250 ms: sigue azul (fijo)
+CA-07,4,-,,250,7,azul,t=500 ms: sigue azul (sin parpadeo)
+CA-07,5,luces_altas,0,0,7,apagado,Apagar luces altas: apagado
+CA-08,1,motor,1,0,8,apagado,Motor encendido sin emergencia: apagado
+CA-08,2,direccional,IZQ,0,6,verde,Direccional IZQ en t=0 ms: testigo 6 verde
+CA-08,3,emergencia,1,0,8,ambar,Activar emergencia: testigo 8 ambar
+CA-08,4,-,,0,6,apagado,Precedencia: testigo 6 no se dibuja (D7)
+CA-08,5,-,,500,8,apagado,t=500 ms: testigo 8 apagado (alterna cada 500 ms)
+CA-08,6,-,,500,8,ambar,t=1000 ms: testigo 8 ambar
+CA-08,7,emergencia,0,0,8,apagado,Desactivar emergencia: testigo 8 apagado
+CA-08,8,-,,0,6,verde,Sin emergencia el testigo 6 vuelve a dibujarse
+CA-09,1,motor,1,0,9,apagado,Motor encendido: testigo 9 apagado
+CA-09,2,presion_aceite,5,100,9,apagado,Presion normal 5 bar: apagado
+CA-09,3,presion_aceite,0.5,100,9,apagado,Baja a 0.5 bar (t=200 ms): aun apagado
+CA-09,4,-,,900,9,apagado,900 ms bajo 1 bar: aun apagado
+CA-09,5,-,,100,9,rojo,1000 ms bajo 1 bar: testigo 9 rojo (R02)
+CA-09,6,presion_aceite,1.1,100,9,rojo,1.1 bar (zona de histeresis): sigue rojo
+CA-09,7,presion_aceite,1.2,100,9,rojo,Sube a 1.2 bar: sigue rojo hasta 1 s
+CA-09,8,-,,900,9,rojo,900 ms en 1.2 bar: sigue rojo
+CA-09,9,-,,100,9,apagado,1000 ms en 1.2 bar: se apaga (histeresis)
+CA-09,10,presion_aceite,0.5,100,9,apagado,Baja otra vez a 0.5 bar: apagado
+CA-09,11,-,,1000,9,rojo,1000 ms bajo 1 bar: rojo de nuevo
+CA-09,12,motor,0,0,9,apagado,Apagar motor: testigo 9 apagado
+CA-10,1,falla_frenos,1,0,10,rojo,Falla de frenos con motor apagado en t=0 ms: rojo (D1)
+CA-10,2,-,,300,10,apagado,t=300 ms: apagado (alterna cada 300 ms)
+CA-10,3,-,,300,10,rojo,t=600 ms: rojo
+CA-10,4,motor,1,0,10,rojo,Encender motor no cambia el testigo 10
+CA-10,5,-,,300,10,apagado,t=900 ms: apagado
+CA-10,6,falla_frenos,0,300,10,apagado,falla_frenos=0: queda apagado

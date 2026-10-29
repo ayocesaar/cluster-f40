@@ -15,6 +15,7 @@ TECNICAS = {
     "test_requisitos.py": "Basada en requisitos",
     "test_presentacion.py": "Presentacion (caja negra)",
     "test_tablero.py": "Integracion UI (Tkinter)",
+    "test_aceptacion.py": "Aceptacion (dirigida por datos)",
 }
 
 # Los casos parametrizados llegan como "test_x[param]": se agrupan por funcion
@@ -38,7 +39,7 @@ for archivo in sorted(pathlib.Path("tests").glob("test_*.py")):
     for nodo in arbol.body:
         if isinstance(nodo, ast.FunctionDef) and nodo.name.startswith("test_"):
             doc = ast.get_docstring(nodo) or ""
-            m = re.match(r"(CP-\d+):\s*(.*)", doc, re.S)
+            m = re.match(r"((?:CP|CA)-\d+):\s*(.*)", doc, re.S)
             cp, desc = (m.group(1), " ".join(m.group(2).split())) if m else ("-", doc)
             filas.append({
                 "cp": cp,
@@ -49,7 +50,7 @@ for archivo in sorted(pathlib.Path("tests").glob("test_*.py")):
                 "res": resultados.get(nodo.name, "NO EJECUTADA"),
             })
 
-filas.sort(key=lambda f: int(f["cp"][3:]) if f["cp"] != "-" else 999)
+filas.sort(key=lambda f: (f["cp"][:2], int(f["cp"][3:])) if f["cp"] != "-" else ("ZZ", 999))
 
 lineas = [
     "# Matriz de trazabilidad - Cluster F40",

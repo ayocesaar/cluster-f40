@@ -17,6 +17,7 @@ TECNICAS = {
     "test_requisitos": "Basada en requisitos",
     "test_presentacion": "Presentacion (caja negra)",
     "test_tablero": "Integracion UI (Tkinter)",
+    "test_aceptacion": "Aceptacion (dirigida por datos)",
 }
 
 por_tecnica = {}
@@ -59,7 +60,9 @@ L = [
     "- Incluido: `ui/presentacion.py` (lo que se dibuja de cada elemento),",
     "  `ui/tablero.py` y `main.py` (interfaz Tkinter), probados con Tkinter real",
     "  sobre una pantalla virtual (Xvfb).",
-    "- Pendiente: pruebas de aceptacion (Etapa 8c) y capturas (Etapa 8d).",
+    "- Incluido: pruebas de aceptacion CA-01 a CA-10 sobre la interfaz real,",
+    "  dirigidas por `tests/datos/escenarios_aceptacion.csv` (`aceptacion/escenarios.py`).",
+    "- Pendiente: capturas de pantalla (Etapa 8d).",
     "- El tiempo se controla con `RelojSimulado`, de modo que las pruebas de ciclos,",
     "  parpadeos e histeresis son deterministas y no dependen de esperas reales.",
     "",
@@ -88,7 +91,8 @@ L += [
     "| Modulo | Lineas | Ramas | Cobertura |",
     "|--------|--------|-------|-----------|",
 ]
-for ruta in ("logic/estado.py", "logic/reloj.py", "ui/presentacion.py", "ui/tablero.py", "main.py"):
+for ruta in ("logic/estado.py", "logic/reloj.py", "ui/presentacion.py", "ui/tablero.py", "main.py",
+             "aceptacion/escenarios.py"):
     if ruta not in cov["files"]:
         continue
     s = cov["files"][ruta]["summary"]
@@ -137,6 +141,7 @@ L += [
     "",
     "- `docs/evidencias/pytest.txt`: salida completa de pytest -v.",
     "- `docs/evidencias/junit.xml`: resultados en formato JUnit.",
+    "- `docs/evidencias/aceptacion.txt`: salida paso a paso de CA-01 a CA-10.",
     "- `docs/evidencias/coverage.txt` y `coverage.json`: reporte de cobertura.",
     "- `docs/evidencias/htmlcov/index.html`: reporte de cobertura navegable.",
     "- `docs/matriz_trazabilidad.md` y `docs/registro_defectos.md`.",

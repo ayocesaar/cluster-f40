@@ -69,3 +69,10 @@ def test_cp78_main_arranca_y_cierra(estado):
     _requiere_display()
     from main import main
     assert main(["--salir-tras-ms", "300"]) == 0
+
+
+def test_cp86_detener_dos_veces_no_falla(tablero):
+    """CP-86: detener el refresco dos veces no produce error (cierre seguro de la ventana)."""
+    tablero.detener()
+    tablero.detener()
+    assert tablero._id_after is None

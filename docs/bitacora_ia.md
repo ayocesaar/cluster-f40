@@ -82,10 +82,23 @@
   Tkinter), ui/tablero.py (5 deslizadores, 4 interruptores, selector de direccional; agujas 1-5,
   testigos 6-10, críticos 9 y 10 como rectángulos con borde rojo) y main.py. Pruebas CP-67 a CP-78
   (presentación e integración con Tkinter real bajo Xvfb).
-- Decisión D7 (propuesta por la IA, pendiente de visto bueno del usuario): la precedencia visual de
+- Decisión D7 (propuesta por la IA y aprobada por el usuario): la precedencia visual de
   R07 se implementa ocultando el testigo 6 mientras la emergencia está activa.
 - Incidencias: el primer intento de pegar el bloque completo en la terminal SSH se corrompió por su
   tamaño (la terminal quedó esperando el cierre de un heredoc). Se cambió el método: la IA escribió
   los archivos en Windows, el usuario los copió a la VM con scp y ejecutó un script.
 - Qué generó la IA: todo el código de la interfaz, sus pruebas y el script de la etapa. El usuario
   instaló Xvfb, copió los archivos y ejecutó el script en su VM.
+
+## Etapa 8c — Pruebas de aceptación dirigidas por datos
+- Fecha: 2026-10-29
+- Qué se hizo: aceptacion/escenarios.py carga escenarios desde tests/datos/escenarios_aceptacion.csv,
+  los ejecuta sobre la interfaz Tkinter real (reloj simulado, ventana nueva en estado seguro por
+  escenario) y compara lo dibujado en pantalla con lo esperado. Diez escenarios CA-01 a CA-10, uno
+  por elemento, que recorren los 10 controles y cruzan cada umbral en ambos sentidos. Pruebas de
+  manejo del archivo (CP-79 a CP-85, CP-87 a CP-90: inexistente, vacío, columnas faltantes, filas
+  inválidas) y CP-86 para el hueco de cobertura de detener(). Decisión D4 aplicada.
+- Evidencia: docs/evidencias/aceptacion.txt con la salida real paso a paso.
+- Qué generó la IA: el cargador y ejecutor, el CSV de escenarios con sus valores esperados
+  (calculados a partir de las reglas R01-R08 y de los ciclos), y las pruebas. El usuario copió los
+  archivos a la VM y ejecutó el script; los resultados son los de esa ejecución.

@@ -13,7 +13,9 @@ pruebas automatizadas con pytest y medicion de cobertura con coverage.
 - Incluido: `ui/presentacion.py` (lo que se dibuja de cada elemento),
   `ui/tablero.py` y `main.py` (interfaz Tkinter), probados con Tkinter real
   sobre una pantalla virtual (Xvfb).
-- Pendiente: pruebas de aceptacion (Etapa 8c) y capturas (Etapa 8d).
+- Incluido: pruebas de aceptacion CA-01 a CA-10 sobre la interfaz real,
+  dirigidas por `tests/datos/escenarios_aceptacion.csv` (`aceptacion/escenarios.py`).
+- Pendiente: capturas de pantalla (Etapa 8d).
 - El tiempo se controla con `RelojSimulado`, de modo que las pruebas de ciclos,
   parpadeos e histeresis son deterministas y no dependen de esperas reales.
 
@@ -28,15 +30,16 @@ pruebas automatizadas con pytest y medicion de cobertura con coverage.
 
 | Tecnica | Ejecuciones | Pasaron | Fallaron | XFAIL |
 |---------|-------------|---------|----------|-------|
+| Aceptacion (dirigida por datos) | 27 | 27 | 0 | 0 |
 | Caja blanca (cobertura) | 13 | 13 | 0 | 0 |
 | Entradas invalidas | 15 | 15 | 0 | 0 |
 | Valores limite | 16 | 16 | 0 | 0 |
 | Particion de equivalencia | 10 | 10 | 0 | 0 |
 | Presentacion (caja negra) | 7 | 7 | 0 | 0 |
 | Basada en requisitos | 3 | 3 | 0 | 0 |
-| Integracion UI (Tkinter) | 5 | 5 | 0 | 0 |
+| Integracion UI (Tkinter) | 6 | 6 | 0 | 0 |
 | Transicion de estados | 11 | 11 | 0 | 0 |
-| **Total** | **80** | **80** | **0** | **0** |
+| **Total** | **108** | **108** | **0** | **0** |
 
 Las ejecuciones cuentan cada variante parametrizada por separado; la matriz de
 trazabilidad agrupa por caso de prueba (CP).
@@ -48,8 +51,9 @@ trazabilidad agrupa por caso de prueba (CP).
 | `logic/estado.py` | 185/185 | 64/64 | 100.0% |
 | `logic/reloj.py` | 18/18 | 4/4 | 100.0% |
 | `ui/presentacion.py` | 19/19 | 0/0 | 100.0% |
-| `ui/tablero.py` | 112/112 | 19/20 | 99.2% |
+| `ui/tablero.py` | 112/112 | 20/20 | 100.0% |
 | `main.py` | 15/15 | 1/2 | 94.1% |
+| `aceptacion/escenarios.py` | 131/131 | 40/40 | 100.0% |
 
 ## 6. Trazabilidad
 
@@ -92,10 +96,11 @@ de las pruebas y el resultado de junit.
 
 - `docs/evidencias/pytest.txt`: salida completa de pytest -v.
 - `docs/evidencias/junit.xml`: resultados en formato JUnit.
+- `docs/evidencias/aceptacion.txt`: salida paso a paso de CA-01 a CA-10.
 - `docs/evidencias/coverage.txt` y `coverage.json`: reporte de cobertura.
 - `docs/evidencias/htmlcov/index.html`: reporte de cobertura navegable.
 - `docs/matriz_trazabilidad.md` y `docs/registro_defectos.md`.
 
 ## 10. Conclusion
 
-Las 80 ejecuciones pasan, la cobertura de la logica es completa y no quedan defectos abiertos: la logica cumple R01-R08 segun las pruebas definidas.
+Las 108 ejecuciones pasan, la cobertura de la logica es completa y no quedan defectos abiertos: la logica cumple R01-R08 segun las pruebas definidas.

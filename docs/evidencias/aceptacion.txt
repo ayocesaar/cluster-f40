@@ -1,0 +1,83 @@
+CA-01: APROBADO
+  OK paso 1: Estado seguro inicial: velocimetro en 0 | -=- +0 ms | elemento 1: esperado=valor=0.0 km/h observado=valor=0.0 km/h
+  OK paso 2: Encender motor sin mover velocidad | motor=True +0 ms | elemento 1: esperado=valor=0.0 km/h observado=valor=0.0 km/h
+  OK paso 3: A los 50 ms aun no se cumple el ciclo de 100 ms | velocidad=120.5 +50 ms | elemento 1: esperado=valor=0.0 km/h observado=valor=0.0 km/h
+  OK paso 4: Al cumplirse 100 ms se muestra la velocidad | -=- +50 ms | elemento 1: esperado=valor=120.5 km/h observado=valor=120.5 km/h
+  OK paso 5: Limite superior 360 km/h | velocidad=360.0 +100 ms | elemento 1: esperado=valor=360.0 km/h observado=valor=360.0 km/h
+  OK paso 6: Apagar motor regresa la velocidad a 0 (R01) | motor=False +0 ms | elemento 1: esperado=valor=0.0 km/h observado=valor=0.0 km/h
+CA-02: APROBADO
+  OK paso 1: Estado seguro: medidor 2 normal con motor apagado | -=- +0 ms | elemento 2: esperado=normal observado=normal
+  OK paso 2: Motor encendido con 0 bar: ambar inmediato | motor=True +0 ms | elemento 2: esperado=ambar observado=ambar
+  OK paso 3: Sube a 5 bar: normal | presion_aceite=5.0 +100 ms | elemento 2: esperado=normal observado=normal
+  OK paso 4: Cruza bajando a 0.99 bar: ambar | presion_aceite=0.99 +100 ms | elemento 2: esperado=ambar observado=ambar
+  OK paso 5: Cruza subiendo a 1.0 bar: normal | presion_aceite=1.0 +100 ms | elemento 2: esperado=normal observado=normal
+  OK paso 6: Apagar motor: normal | motor=False +0 ms | elemento 2: esperado=normal observado=normal
+CA-03: APROBADO
+  OK paso 1: Motor encendido con 0 RPM: normal | motor=True +0 ms | elemento 3: esperado=normal observado=normal
+  OK paso 2: 7999 RPM: normal | rpm=7999.0 +100 ms | elemento 3: esperado=normal observado=normal
+  OK paso 3: Cruza subiendo a 8000 RPM: rojo | rpm=8000.0 +100 ms | elemento 3: esperado=rojo observado=rojo
+  OK paso 4: Baja a 7800 (zona de histeresis): sigue rojo | rpm=7800.0 +100 ms | elemento 3: esperado=rojo observado=rojo
+  OK paso 5: Cruza bajando a 7799: normal | rpm=7799.0 +100 ms | elemento 3: esperado=normal observado=normal
+  OK paso 6: Vuelve a 8000: rojo | rpm=8000.0 +100 ms | elemento 3: esperado=rojo observado=rojo
+  OK paso 7: Apagar motor: normal | motor=False +0 ms | elemento 3: esperado=normal observado=normal
+  OK paso 8: Apagar motor regresa RPM a 0 (R01) | -=- +0 ms | elemento 3: esperado=valor=0 RPM observado=valor=0 RPM
+CA-04: APROBADO
+  OK paso 1: Motor encendido a 40 C: normal | motor=True +0 ms | elemento 4: esperado=normal observado=normal
+  OK paso 2: 110 C (no mayor a 110): normal | temp_agua=110.0 +500 ms | elemento 4: esperado=normal observado=normal
+  OK paso 3: Cruza subiendo a 110.1 C: rojo | temp_agua=110.1 +500 ms | elemento 4: esperado=rojo observado=rojo
+  OK paso 4: Baja a 105.1 (zona de histeresis): sigue rojo | temp_agua=105.1 +500 ms | elemento 4: esperado=rojo observado=rojo
+  OK paso 5: Cruza bajando a 105 C: normal | temp_agua=105.0 +500 ms | elemento 4: esperado=normal observado=normal
+  OK paso 6: A los 250 ms aun no se cumple el ciclo de 500 ms | temp_agua=120.0 +250 ms | elemento 4: esperado=normal observado=normal
+  OK paso 7: Al cumplirse 500 ms se muestra 120 C: rojo | -=- +250 ms | elemento 4: esperado=rojo observado=rojo
+  OK paso 8: Apagar motor: normal | motor=False +0 ms | elemento 4: esperado=normal observado=normal
+CA-05: APROBADO
+  OK paso 1: Motor encendido con 0 bar: normal | motor=True +0 ms | elemento 5: esperado=normal observado=normal
+  OK paso 2: 1.5 bar (no mayor a 1.5): normal | presion_turbo=1.5 +100 ms | elemento 5: esperado=normal observado=normal
+  OK paso 3: Cruza subiendo a 1.51 bar: contorno ambar | presion_turbo=1.51 +100 ms | elemento 5: esperado=ambar observado=ambar
+  OK paso 4: Baja a 1.41 (zona de histeresis): sigue ambar | presion_turbo=1.41 +100 ms | elemento 5: esperado=ambar observado=ambar
+  OK paso 5: Cruza bajando a 1.4 bar: normal | presion_turbo=1.4 +100 ms | elemento 5: esperado=normal observado=normal
+  OK paso 6: Apagar motor: normal | motor=False +0 ms | elemento 5: esperado=normal observado=normal
+CA-06: APROBADO
+  OK paso 1: Motor encendido con direccional OFF: apagado | motor=True +0 ms | elemento 6: esperado=apagado observado=apagado
+  OK paso 2: Direccional IZQ en t=0 ms: verde | direccional=IZQ +0 ms | elemento 6: esperado=verde observado=verde
+  OK paso 3: t=500 ms: apagado (alterna cada 500 ms) | -=- +500 ms | elemento 6: esperado=apagado observado=apagado
+  OK paso 4: t=1000 ms: verde | -=- +500 ms | elemento 6: esperado=verde observado=verde
+  OK paso 5: Cambia a DER: verde | direccional=DER +0 ms | elemento 6: esperado=verde observado=verde
+  OK paso 6: t=1500 ms: apagado | -=- +500 ms | elemento 6: esperado=apagado observado=apagado
+  OK paso 7: Direccional OFF: queda apagado | direccional=OFF +500 ms | elemento 6: esperado=apagado observado=apagado
+CA-07: APROBADO
+  OK paso 1: Luces altas con motor apagado: apagado (D2) | luces_altas=True +0 ms | elemento 7: esperado=apagado observado=apagado
+  OK paso 2: Encender motor: azul | motor=True +0 ms | elemento 7: esperado=azul observado=azul
+  OK paso 3: t=250 ms: sigue azul (fijo) | -=- +250 ms | elemento 7: esperado=azul observado=azul
+  OK paso 4: t=500 ms: sigue azul (sin parpadeo) | -=- +250 ms | elemento 7: esperado=azul observado=azul
+  OK paso 5: Apagar luces altas: apagado | luces_altas=False +0 ms | elemento 7: esperado=apagado observado=apagado
+CA-08: APROBADO
+  OK paso 1: Motor encendido sin emergencia: apagado | motor=True +0 ms | elemento 8: esperado=apagado observado=apagado
+  OK paso 2: Direccional IZQ en t=0 ms: testigo 6 verde | direccional=IZQ +0 ms | elemento 6: esperado=verde observado=verde
+  OK paso 3: Activar emergencia: testigo 8 ambar | emergencia=True +0 ms | elemento 8: esperado=ambar observado=ambar
+  OK paso 4: Precedencia: testigo 6 no se dibuja (D7) | -=- +0 ms | elemento 6: esperado=apagado observado=apagado
+  OK paso 5: t=500 ms: testigo 8 apagado (alterna cada 500 ms) | -=- +500 ms | elemento 8: esperado=apagado observado=apagado
+  OK paso 6: t=1000 ms: testigo 8 ambar | -=- +500 ms | elemento 8: esperado=ambar observado=ambar
+  OK paso 7: Desactivar emergencia: testigo 8 apagado | emergencia=False +0 ms | elemento 8: esperado=apagado observado=apagado
+  OK paso 8: Sin emergencia el testigo 6 vuelve a dibujarse | -=- +0 ms | elemento 6: esperado=verde observado=verde
+CA-09: APROBADO
+  OK paso 1: Motor encendido: testigo 9 apagado | motor=True +0 ms | elemento 9: esperado=apagado observado=apagado
+  OK paso 2: Presion normal 5 bar: apagado | presion_aceite=5.0 +100 ms | elemento 9: esperado=apagado observado=apagado
+  OK paso 3: Baja a 0.5 bar (t=200 ms): aun apagado | presion_aceite=0.5 +100 ms | elemento 9: esperado=apagado observado=apagado
+  OK paso 4: 900 ms bajo 1 bar: aun apagado | -=- +900 ms | elemento 9: esperado=apagado observado=apagado
+  OK paso 5: 1000 ms bajo 1 bar: testigo 9 rojo (R02) | -=- +100 ms | elemento 9: esperado=rojo observado=rojo
+  OK paso 6: 1.1 bar (zona de histeresis): sigue rojo | presion_aceite=1.1 +100 ms | elemento 9: esperado=rojo observado=rojo
+  OK paso 7: Sube a 1.2 bar: sigue rojo hasta 1 s | presion_aceite=1.2 +100 ms | elemento 9: esperado=rojo observado=rojo
+  OK paso 8: 900 ms en 1.2 bar: sigue rojo | -=- +900 ms | elemento 9: esperado=rojo observado=rojo
+  OK paso 9: 1000 ms en 1.2 bar: se apaga (histeresis) | -=- +100 ms | elemento 9: esperado=apagado observado=apagado
+  OK paso 10: Baja otra vez a 0.5 bar: apagado | presion_aceite=0.5 +100 ms | elemento 9: esperado=apagado observado=apagado
+  OK paso 11: 1000 ms bajo 1 bar: rojo de nuevo | -=- +1000 ms | elemento 9: esperado=rojo observado=rojo
+  OK paso 12: Apagar motor: testigo 9 apagado | motor=False +0 ms | elemento 9: esperado=apagado observado=apagado
+CA-10: APROBADO
+  OK paso 1: Falla de frenos con motor apagado en t=0 ms: rojo (D1) | falla_frenos=True +0 ms | elemento 10: esperado=rojo observado=rojo
+  OK paso 2: t=300 ms: apagado (alterna cada 300 ms) | -=- +300 ms | elemento 10: esperado=apagado observado=apagado
+  OK paso 3: t=600 ms: rojo | -=- +300 ms | elemento 10: esperado=rojo observado=rojo
+  OK paso 4: Encender motor no cambia el testigo 10 | motor=True +0 ms | elemento 10: esperado=rojo observado=rojo
+  OK paso 5: t=900 ms: apagado | -=- +300 ms | elemento 10: esperado=apagado observado=apagado
+  OK paso 6: falla_frenos=0: queda apagado | falla_frenos=False +300 ms | elemento 10: esperado=apagado observado=apagado
+Resumen: 10/10 escenarios aprobados

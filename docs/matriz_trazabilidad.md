@@ -2,6 +2,16 @@
 
 | CP | Tecnica | Requisito | Descripcion | Prueba | Resultado |
 |----|---------|-----------|-------------|--------|-----------|
+| CA-01 | Aceptacion (dirigida por datos) | R01 | velocimetro: estado seguro, ciclo de 100 ms, limite 360 km/h y regreso a 0 al apagar (R01). | `test_aceptacion.py::test_ca01_velocimetro` | PASS |
+| CA-02 | Aceptacion (dirigida por datos) | R01 | medidor 2 ambar bajo 1 bar con motor activo, cruzando el umbral en ambos sentidos (R01). | `test_aceptacion.py::test_ca02_presion_aceite` | PASS |
+| CA-03 | Aceptacion (dirigida por datos) | R01, R03 | tacometro rojo en 8000, histeresis hasta 7799 y RPM a 0 al apagar (R01, R03). | `test_aceptacion.py::test_ca03_tacometro` | PASS |
+| CA-04 | Aceptacion (dirigida por datos) | R04 | temperatura roja sobre 110, histeresis hasta 105 y ciclo de 500 ms (R04). | `test_aceptacion.py::test_ca04_temperatura_agua` | PASS |
+| CA-05 | Aceptacion (dirigida por datos) | R05 | contorno ambar sobre 1.5 bar e histeresis hasta 1.4 bar (R05). | `test_aceptacion.py::test_ca05_presion_turbo` | PASS |
+| CA-06 | Aceptacion (dirigida por datos) | R06 | testigo 6 verde alternando cada 500 ms con IZQ y DER, apagado con OFF (R06). | `test_aceptacion.py::test_ca06_direccionales` | PASS |
+| CA-07 | Aceptacion (dirigida por datos) | R01, R07 | testigo 7 azul fijo con motor encendido y apagado con motor apagado (R01, R07). | `test_aceptacion.py::test_ca07_luces_altas` | PASS |
+| CA-08 | Aceptacion (dirigida por datos) | R06, R07 | testigo 8 ambar alternando cada 500 ms con precedencia visual sobre el 6 (R06, R07). | `test_aceptacion.py::test_ca08_emergencia_y_precedencia` | PASS |
+| CA-09 | Aceptacion (dirigida por datos) | R01, R02 | testigo 9 rojo tras 1 s bajo 1 bar y apagado tras 1 s en 1.2 bar (R01, R02). | `test_aceptacion.py::test_ca09_baja_presion_aceite` | PASS |
+| CA-10 | Aceptacion (dirigida por datos) | R01, R08 | testigo 10 rojo alternando cada 300 ms aun con motor apagado (R01, R08). | `test_aceptacion.py::test_ca10_falla_frenos` | PASS |
 | CP-01 | Particion de equivalencia | - | velocidad dentro de 0-360 se aplica tras su ciclo (100 ms). | `test_particiones.py::test_cp01_velocidad_valida_se_aplica` | PASS |
 | CP-02 | Particion de equivalencia | R03 | rpm entero dentro de 0-9000 se aplica tras su ciclo (100 ms). [R03] | `test_particiones.py::test_cp02_rpm_valido_se_aplica` | PASS |
 | CP-03 | Particion de equivalencia | R02 | presion de aceite dentro de 0-10 se aplica tras su ciclo (100 ms). [R02] | `test_particiones.py::test_cp03_presion_aceite_valida_se_aplica` | PASS |
@@ -80,11 +90,23 @@
 | CP-76 | Integracion UI (Tkinter) | R08 | 9 y 10 son rectangulos con borde rojo; 6-8 son circulos; el 10 se enciende rojo (R08). | `test_tablero.py::test_cp76_testigos_criticos_visualmente_distintos` | PASS |
 | CP-77 | Integracion UI (Tkinter) | - | un valor invalido muestra un mensaje en pantalla y no modifica el estado. | `test_tablero.py::test_cp77_entrada_rechazada_se_informa_y_no_cambia_estado` | PASS |
 | CP-78 | Integracion UI (Tkinter) | - | main.py abre la aplicacion con el reloj real y se cierra sola (prueba de humo). | `test_tablero.py::test_cp78_main_arranca_y_cierra` | PASS |
+| CP-79 | Aceptacion (dirigida por datos) | - | un archivo de escenarios inexistente se informa con un error claro. | `test_aceptacion.py::test_cp79_archivo_inexistente` | PASS |
+| CP-80 | Aceptacion (dirigida por datos) | - | un archivo vacio o solo con cabecera se rechaza. | `test_aceptacion.py::test_cp80_archivo_vacio_o_sin_pasos` | PASS |
+| CP-81 | Aceptacion (dirigida por datos) | - | si falta una columna obligatoria se informa cual. | `test_aceptacion.py::test_cp81_columna_faltante` | PASS |
+| CP-82 | Aceptacion (dirigida por datos) | - | un control que no existe se rechaza indicando la linea. | `test_aceptacion.py::test_cp82_control_desconocido` | PASS |
+| CP-83 | Aceptacion (dirigida por datos) | - | un valor no numerico para un deslizador se rechaza. | `test_aceptacion.py::test_cp83_valor_no_numerico` | PASS |
+| CP-84 | Aceptacion (dirigida por datos) | - | filas con esperado, elemento, tiempo, numero de paso o valor invalidos se rechazan. | `test_aceptacion.py::test_cp84_filas_invalidas` | PASS |
+| CP-85 | Aceptacion (dirigida por datos) | - | el CSV de aceptacion define CA-01 a CA-10 y recorre los 10 controles. | `test_aceptacion.py::test_cp85_archivo_real_cubre_10_escenarios_y_todos_los_controles` | PASS |
+| CP-86 | Integracion UI (Tkinter) | - | detener el refresco dos veces no produce error (cierre seguro de la ventana). | `test_tablero.py::test_cp86_detener_dos_veces_no_falla` | PASS |
+| CP-87 | Aceptacion (dirigida por datos) | - | el ejecutor de aceptacion sin archivo muestra el uso y devuelve 2. | `test_aceptacion.py::test_cp87_main_sin_argumentos` | PASS |
+| CP-88 | Aceptacion (dirigida por datos) | - | el ejecutor con un archivo inexistente muestra ERROR y devuelve 2. | `test_aceptacion.py::test_cp88_main_archivo_inexistente` | PASS |
+| CP-89 | Aceptacion (dirigida por datos) | - | el ejecutor con el CSV real aprueba los 10 escenarios y devuelve 0. | `test_aceptacion.py::test_cp89_main_con_archivo_real` | PASS |
+| CP-90 | Aceptacion (dirigida por datos) | - | el oraculo detecta una diferencia: una expectativa falsa da FALLIDO y devuelve 1. | `test_aceptacion.py::test_cp90_main_detecta_expectativa_incorrecta` | PASS |
 
 ## Resumen
 
-- Casos de prueba: 78
-- Pasaron: 78
+- Casos de prueba: 100
+- Pasaron: 100
 - Fallo esperado por defecto abierto (XFAIL): 0
 - Fallaron / otros: 0
 
@@ -92,13 +114,13 @@
 
 | Requisito | Casos |
 |-----------|-------|
-| R01 | CP-35, CP-36, CP-37, CP-51, CP-53, CP-54, CP-65, CP-66, CP-68, CP-73, CP-74 |
-| R02 | CP-03, CP-17, CP-18, CP-19, CP-20, CP-37, CP-43, CP-44, CP-70 |
-| R03 | CP-02, CP-13, CP-14, CP-15, CP-16, CP-27, CP-40, CP-41, CP-42, CP-69, CP-75 |
-| R04 | CP-04, CP-21, CP-22, CP-23, CP-28, CP-45, CP-46, CP-69 |
-| R05 | CP-05, CP-24, CP-25, CP-26, CP-29, CP-47, CP-48, CP-69 |
-| R06 | CP-06, CP-07, CP-08, CP-30, CP-49, CP-50, CP-57, CP-71 |
-| R07 | CP-09, CP-31, CP-33, CP-34, CP-58, CP-64, CP-65, CP-71, CP-72 |
-| R08 | CP-09, CP-32, CP-59, CP-66, CP-72, CP-76 |
+| R01 | CA-01, CA-02, CA-03, CA-07, CA-09, CA-10, CP-35, CP-36, CP-37, CP-51, CP-53, CP-54, CP-65, CP-66, CP-68, CP-73, CP-74 |
+| R02 | CA-09, CP-03, CP-17, CP-18, CP-19, CP-20, CP-37, CP-43, CP-44, CP-70 |
+| R03 | CA-03, CP-02, CP-13, CP-14, CP-15, CP-16, CP-27, CP-40, CP-41, CP-42, CP-69, CP-75 |
+| R04 | CA-04, CP-04, CP-21, CP-22, CP-23, CP-28, CP-45, CP-46, CP-69 |
+| R05 | CA-05, CP-05, CP-24, CP-25, CP-26, CP-29, CP-47, CP-48, CP-69 |
+| R06 | CA-06, CA-08, CP-06, CP-07, CP-08, CP-30, CP-49, CP-50, CP-57, CP-71 |
+| R07 | CA-07, CA-08, CP-09, CP-31, CP-33, CP-34, CP-58, CP-64, CP-65, CP-71, CP-72 |
+| R08 | CA-10, CP-09, CP-32, CP-59, CP-66, CP-72, CP-76 |
 
 Requisitos sin casos: ninguno
