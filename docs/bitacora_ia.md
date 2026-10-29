@@ -102,3 +102,12 @@
 - Qué generó la IA: el cargador y ejecutor, el CSV de escenarios con sus valores esperados
   (calculados a partir de las reglas R01-R08 y de los ciclos), y las pruebas. El usuario copió los
   archivos a la VM y ejecutó el script; los resultados son los de esa ejecución.
+
+## Etapa 8d — Capturas de pantalla como evidencia
+- Fecha: 2026-10-29
+- Qué se hizo: tools/capturas.py abre la interfaz real sobre Xvfb (pantalla virtual de 1280x1024,
+  24 bits), la lleva a 8 estados representativos con el reloj simulado y fotografía la ventana con
+  Pillow. Cada imagen se valida (no vacía) y se registra en docs/evidencias/capturas.txt junto con
+  los casos y requisitos que ilustra y el estado de los 10 elementos en ese instante.
+- Qué generó la IA: el script y la selección de estados. Las imágenes son las que produjo la
+  ejecución en la VM del usuario, sin edición posterior.

@@ -15,7 +15,8 @@ pruebas automatizadas con pytest y medicion de cobertura con coverage.
   sobre una pantalla virtual (Xvfb).
 - Incluido: pruebas de aceptacion CA-01 a CA-10 sobre la interfaz real,
   dirigidas por `tests/datos/escenarios_aceptacion.csv` (`aceptacion/escenarios.py`).
-- Pendiente: capturas de pantalla (Etapa 8d).
+- Evidencia visual: capturas reales de la interfaz en `docs/evidencias/capturas/`
+  (generadas con `tools/capturas.py` sobre Xvfb).
 - El tiempo se controla con `RelojSimulado`, de modo que las pruebas de ciclos,
   parpadeos e histeresis son deterministas y no dependen de esperas reales.
 
@@ -97,6 +98,7 @@ de las pruebas y el resultado de junit.
 - `docs/evidencias/pytest.txt`: salida completa de pytest -v.
 - `docs/evidencias/junit.xml`: resultados en formato JUnit.
 - `docs/evidencias/aceptacion.txt`: salida paso a paso de CA-01 a CA-10.
+- `docs/evidencias/capturas/` e indice `docs/evidencias/capturas.txt`.
 - `docs/evidencias/coverage.txt` y `coverage.json`: reporte de cobertura.
 - `docs/evidencias/htmlcov/index.html`: reporte de cobertura navegable.
 - `docs/matriz_trazabilidad.md` y `docs/registro_defectos.md`.
