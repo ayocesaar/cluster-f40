@@ -13,6 +13,8 @@ TECNICAS = {
     "test_invalidas.py": "Entradas invalidas",
     "test_complementarias.py": "Caja blanca (cobertura)",
     "test_requisitos.py": "Basada en requisitos",
+    "test_presentacion.py": "Presentacion (caja negra)",
+    "test_tablero.py": "Integracion UI (Tkinter)",
 }
 
 # Los casos parametrizados llegan como "test_x[param]": se agrupan por funcion

@@ -68,11 +68,23 @@
 | CP-64 | Basada en requisitos | R07 | con motor encendido las luces altas quedan fijas, sin parpadeo (R07). | `test_requisitos.py::test_cp64_luces_altas_fijas_sin_parpadeo` | PASS |
 | CP-65 | Basada en requisitos | R01, R07 | con el motor apagado el testigo de luces altas no enciende (R01, R07). | `test_requisitos.py::test_cp65_luces_altas_apagadas_con_motor_apagado` | PASS |
 | CP-66 | Basada en requisitos | R01, R08 | el testigo 10 (critico) parpadea cada 300 ms aunque el motor este apagado y se apaga con falla_frenos=0 (R01, R08). | `test_requisitos.py::test_cp66_frenos_parpadea_aun_con_motor_apagado` | PASS |
+| CP-67 | Presentacion (caja negra) | - | la vista expone los 10 elementos con la numeracion y categorias oficiales. | `test_presentacion.py::test_cp67_diez_elementos_con_numeracion_y_categoria` | PASS |
+| CP-68 | Presentacion (caja negra) | R01 | al iniciar, agujas en su minimo, colores normales y testigos apagados (R01). | `test_presentacion.py::test_cp68_estado_inicial_seguro` | PASS |
+| CP-69 | Presentacion (caja negra) | R03, R04, R05 | 2 ambar (<1 bar), 3 rojo (>=8000), 4 rojo (>110), 5 ambar (>1.5) (R03, R04, R05). | `test_presentacion.py::test_cp69_colores_de_advertencia_de_lecturas` | PASS |
+| CP-70 | Presentacion (caja negra) | R02 | el medidor 2 cambia a ambar de inmediato y el testigo 9 solo tras 1 s (R02). | `test_presentacion.py::test_cp70_testigo_9_distinto_del_medidor_2` | PASS |
+| CP-71 | Presentacion (caja negra) | R06, R07 | con emergencia activa el testigo 6 no se dibuja y el 8 si; sin ella, el 6 vuelve (R06, R07). | `test_presentacion.py::test_cp71_emergencia_tiene_precedencia_visual_sobre_giro` | PASS |
+| CP-72 | Presentacion (caja negra) | R07, R08 | el testigo 7 se dibuja azul y el 10 rojo (R07, R08). | `test_presentacion.py::test_cp72_luces_altas_azul_y_frenos_rojo` | PASS |
+| CP-73 | Presentacion (caja negra) | R01 | la aguja se ubica en proporcion al rango (180 km/h = mitad, 9000 RPM = tope) (R01). | `test_presentacion.py::test_cp73_posicion_de_aguja_proporcional` | PASS |
+| CP-74 | Integracion UI (Tkinter) | R01 | los controles inician en estado seguro y los testigos se dibujan apagados (R01). | `test_tablero.py::test_cp74_ventana_arranca_en_estado_seguro` | PASS |
+| CP-75 | Integracion UI (Tkinter) | R03 | encender el motor y llevar RPM a 8000 dibuja el tacometro en rojo (R03). | `test_tablero.py::test_cp75_mover_controles_actualiza_el_dibujo` | PASS |
+| CP-76 | Integracion UI (Tkinter) | R08 | 9 y 10 son rectangulos con borde rojo; 6-8 son circulos; el 10 se enciende rojo (R08). | `test_tablero.py::test_cp76_testigos_criticos_visualmente_distintos` | PASS |
+| CP-77 | Integracion UI (Tkinter) | - | un valor invalido muestra un mensaje en pantalla y no modifica el estado. | `test_tablero.py::test_cp77_entrada_rechazada_se_informa_y_no_cambia_estado` | PASS |
+| CP-78 | Integracion UI (Tkinter) | - | main.py abre la aplicacion con el reloj real y se cierra sola (prueba de humo). | `test_tablero.py::test_cp78_main_arranca_y_cierra` | PASS |
 
 ## Resumen
 
-- Casos de prueba: 66
-- Pasaron: 66
+- Casos de prueba: 78
+- Pasaron: 78
 - Fallo esperado por defecto abierto (XFAIL): 0
 - Fallaron / otros: 0
 
@@ -80,13 +92,13 @@
 
 | Requisito | Casos |
 |-----------|-------|
-| R01 | CP-35, CP-36, CP-37, CP-51, CP-53, CP-54, CP-65, CP-66 |
-| R02 | CP-03, CP-17, CP-18, CP-19, CP-20, CP-37, CP-43, CP-44 |
-| R03 | CP-02, CP-13, CP-14, CP-15, CP-16, CP-27, CP-40, CP-41, CP-42 |
-| R04 | CP-04, CP-21, CP-22, CP-23, CP-28, CP-45, CP-46 |
-| R05 | CP-05, CP-24, CP-25, CP-26, CP-29, CP-47, CP-48 |
-| R06 | CP-06, CP-07, CP-08, CP-30, CP-49, CP-50, CP-57 |
-| R07 | CP-09, CP-31, CP-33, CP-34, CP-58, CP-64, CP-65 |
-| R08 | CP-09, CP-32, CP-59, CP-66 |
+| R01 | CP-35, CP-36, CP-37, CP-51, CP-53, CP-54, CP-65, CP-66, CP-68, CP-73, CP-74 |
+| R02 | CP-03, CP-17, CP-18, CP-19, CP-20, CP-37, CP-43, CP-44, CP-70 |
+| R03 | CP-02, CP-13, CP-14, CP-15, CP-16, CP-27, CP-40, CP-41, CP-42, CP-69, CP-75 |
+| R04 | CP-04, CP-21, CP-22, CP-23, CP-28, CP-45, CP-46, CP-69 |
+| R05 | CP-05, CP-24, CP-25, CP-26, CP-29, CP-47, CP-48, CP-69 |
+| R06 | CP-06, CP-07, CP-08, CP-30, CP-49, CP-50, CP-57, CP-71 |
+| R07 | CP-09, CP-31, CP-33, CP-34, CP-58, CP-64, CP-65, CP-71, CP-72 |
+| R08 | CP-09, CP-32, CP-59, CP-66, CP-72, CP-76 |
 
 Requisitos sin casos: ninguno

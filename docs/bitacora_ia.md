@@ -75,3 +75,17 @@
   especificación (18/10/2026).
 - Qué generó la IA: el análisis comparativo, los cambios de código, prueba y documentación. El
   usuario tomó las decisiones y ejecutó el bloque en su VM.
+
+## Etapa 8b — Interfaz Tkinter y main.py
+- Fecha: 2026-10-29
+- Qué se hizo: ui/presentacion.py (traduce el estado a lo que se dibuja de los 10 elementos, sin
+  Tkinter), ui/tablero.py (5 deslizadores, 4 interruptores, selector de direccional; agujas 1-5,
+  testigos 6-10, críticos 9 y 10 como rectángulos con borde rojo) y main.py. Pruebas CP-67 a CP-78
+  (presentación e integración con Tkinter real bajo Xvfb).
+- Decisión D7 (propuesta por la IA, pendiente de visto bueno del usuario): la precedencia visual de
+  R07 se implementa ocultando el testigo 6 mientras la emergencia está activa.
+- Incidencias: el primer intento de pegar el bloque completo en la terminal SSH se corrompió por su
+  tamaño (la terminal quedó esperando el cierre de un heredoc). Se cambió el método: la IA escribió
+  los archivos en Windows, el usuario los copió a la VM con scp y ejecutó un script.
+- Qué generó la IA: todo el código de la interfaz, sus pruebas y el script de la etapa. El usuario
+  instaló Xvfb, copió los archivos y ejecutó el script en su VM.

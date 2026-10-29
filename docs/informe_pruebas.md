@@ -10,8 +10,10 @@ pruebas automatizadas con pytest y medicion de cobertura con coverage.
 
 - Incluido: `logic/estado.py` (EstadoCluster, reglas R01-R08) y `logic/reloj.py`
   (RelojReal, RelojSimulado).
-- Pendiente: la interfaz grafica (`ui/tablero.py`) y `main.py` aun no existen;
-  sus pruebas (incluidas las de aceptacion) se agregaran al implementarlas.
+- Incluido: `ui/presentacion.py` (lo que se dibuja de cada elemento),
+  `ui/tablero.py` y `main.py` (interfaz Tkinter), probados con Tkinter real
+  sobre una pantalla virtual (Xvfb).
+- Pendiente: pruebas de aceptacion (Etapa 8c) y capturas (Etapa 8d).
 - El tiempo se controla con `RelojSimulado`, de modo que las pruebas de ciclos,
   parpadeos e histeresis son deterministas y no dependen de esperas reales.
 
@@ -30,9 +32,11 @@ pruebas automatizadas con pytest y medicion de cobertura con coverage.
 | Entradas invalidas | 15 | 15 | 0 | 0 |
 | Valores limite | 16 | 16 | 0 | 0 |
 | Particion de equivalencia | 10 | 10 | 0 | 0 |
+| Presentacion (caja negra) | 7 | 7 | 0 | 0 |
 | Basada en requisitos | 3 | 3 | 0 | 0 |
+| Integracion UI (Tkinter) | 5 | 5 | 0 | 0 |
 | Transicion de estados | 11 | 11 | 0 | 0 |
-| **Total** | **68** | **68** | **0** | **0** |
+| **Total** | **80** | **80** | **0** | **0** |
 
 Las ejecuciones cuentan cada variante parametrizada por separado; la matriz de
 trazabilidad agrupa por caso de prueba (CP).
@@ -43,6 +47,9 @@ trazabilidad agrupa por caso de prueba (CP).
 |--------|--------|-------|-----------|
 | `logic/estado.py` | 185/185 | 64/64 | 100.0% |
 | `logic/reloj.py` | 18/18 | 4/4 | 100.0% |
+| `ui/presentacion.py` | 19/19 | 0/0 | 100.0% |
+| `ui/tablero.py` | 112/112 | 19/20 | 99.2% |
+| `main.py` | 15/15 | 1/2 | 94.1% |
 
 ## 6. Trazabilidad
 
@@ -91,4 +98,4 @@ de las pruebas y el resultado de junit.
 
 ## 10. Conclusion
 
-Las 68 ejecuciones pasan, la cobertura de la logica es completa y no quedan defectos abiertos: la logica cumple R01-R08 segun las pruebas definidas.
+Las 80 ejecuciones pasan, la cobertura de la logica es completa y no quedan defectos abiertos: la logica cumple R01-R08 segun las pruebas definidas.

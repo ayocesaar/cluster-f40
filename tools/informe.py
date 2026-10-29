@@ -15,6 +15,8 @@ TECNICAS = {
     "test_invalidas": "Entradas invalidas",
     "test_complementarias": "Caja blanca (cobertura)",
     "test_requisitos": "Basada en requisitos",
+    "test_presentacion": "Presentacion (caja negra)",
+    "test_tablero": "Integracion UI (Tkinter)",
 }
 
 por_tecnica = {}
@@ -54,8 +56,10 @@ L = [
     "",
     "- Incluido: `logic/estado.py` (EstadoCluster, reglas R01-R08) y `logic/reloj.py`",
     "  (RelojReal, RelojSimulado).",
-    "- Pendiente: la interfaz grafica (`ui/tablero.py`) y `main.py` aun no existen;",
-    "  sus pruebas (incluidas las de aceptacion) se agregaran al implementarlas.",
+    "- Incluido: `ui/presentacion.py` (lo que se dibuja de cada elemento),",
+    "  `ui/tablero.py` y `main.py` (interfaz Tkinter), probados con Tkinter real",
+    "  sobre una pantalla virtual (Xvfb).",
+    "- Pendiente: pruebas de aceptacion (Etapa 8c) y capturas (Etapa 8d).",
     "- El tiempo se controla con `RelojSimulado`, de modo que las pruebas de ciclos,",
     "  parpadeos e histeresis son deterministas y no dependen de esperas reales.",
     "",
@@ -84,7 +88,9 @@ L += [
     "| Modulo | Lineas | Ramas | Cobertura |",
     "|--------|--------|-------|-----------|",
 ]
-for ruta in ("logic/estado.py", "logic/reloj.py"):
+for ruta in ("logic/estado.py", "logic/reloj.py", "ui/presentacion.py", "ui/tablero.py", "main.py"):
+    if ruta not in cov["files"]:
+        continue
     s = cov["files"][ruta]["summary"]
     L.append(f"| `{ruta}` | {s['covered_lines']}/{s['num_statements']} "
              f"| {s['covered_branches']}/{s['num_branches']} | {round(s['percent_covered'], 1)}% |")
