@@ -70,6 +70,8 @@ def test_cp09_interruptores_booleanos_validos(estado_encendido):
     estado_encendido.set_emergencia(False)
     estado_encendido.set_falla_frenos(True)
     assert estado_encendido.testigo_luces_altas_encendido is True
+    assert estado_encendido.testigo_emergencia_encendido is False
+    assert estado_encendido.testigo_falla_frenos_encendido is True
 
 
 def test_cp10_velocidad_cero_particion_valida(estado_encendido, reloj):

@@ -66,6 +66,7 @@ def test_cp31_parpadeo_emergencia_500ms(estado_encendido, reloj):
         reloj.avanzar(500)
     assert estados[0] != estados[1]
     assert estados[1] != estados[2]
+    assert estados[2] != estados[3]
 
 
 def test_cp32_parpadeo_frenos_300ms(estado_encendido, reloj):
@@ -77,6 +78,7 @@ def test_cp32_parpadeo_frenos_300ms(estado_encendido, reloj):
         reloj.avanzar(300)
     assert estados[0] != estados[1]
     assert estados[1] != estados[2]
+    assert estados[2] != estados[3]
 
 
 def test_cp33_emergencia_tiene_precedencia_sobre_direccional(estado_encendido):
