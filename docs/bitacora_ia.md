@@ -167,3 +167,12 @@
   encima de la aguja. No se modificó ninguna prueba; se repitió la regresión completa.
 - Qué generó la IA: el diagnóstico (a partir de la captura) y el ajuste. La IA ejecutó la etapa en la VM
   por SSH con la llave autorizada por el usuario.
+
+## Etapa 10 — Material de estudio y comparación con la guía oficial
+- Fecha: 2026-11-09
+- Qué se hizo: el usuario compartió la guía oficial del proyecto final. Se agregó la carpeta estudio/ con
+  la guía en PDF, cómo abrir el proyecto en la VM, una guía de estudio para la demostración y una
+  comparación punto por punto con la guía. La comparación muestra pendientes: datos desde archivos
+  externos, configuración, bitácoras eventos.log/errores.log, comunicación y sincronización, permisos,
+  pruebas P08, P11 y P12 e informe técnico con las secciones 4.1–4.7.
+- Qué generó la IA: los documentos de estudio. Los pendientes quedan a decisión del equipo.

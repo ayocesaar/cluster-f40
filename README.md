@@ -54,3 +54,7 @@ xvfb-run -a python -m aceptacion.escenarios tests/datos/escenarios_aceptacion.cs
 
 Las evidencias de cada ejecución, la matriz de trazabilidad, el registro de defectos y el informe
 (`informe/Informe_Pruebas_Cluster_F40.pdf`) están en `docs/` e `informe/`.
+
+## Material de estudio
+
+La carpeta [estudio/](estudio/) tiene la guía del profesor, cómo abrir el proyecto en la máquina virtual, la guía de estudio para la demostración y el estado de cumplimiento de la guía.
