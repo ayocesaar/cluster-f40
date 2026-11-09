@@ -52,7 +52,7 @@ trazabilidad agrupa por caso de prueba (CP).
 | `logic/estado.py` | 185/185 | 64/64 | 100.0% |
 | `logic/reloj.py` | 18/18 | 4/4 | 100.0% |
 | `ui/presentacion.py` | 19/19 | 0/0 | 100.0% |
-| `ui/tablero.py` | 209/209 | 52/52 | 100.0% |
+| `ui/tablero.py` | 211/211 | 54/54 | 100.0% |
 | `main.py` | 15/15 | 1/2 | 94.1% |
 | `aceptacion/escenarios.py` | 131/131 | 40/40 | 100.0% |
 

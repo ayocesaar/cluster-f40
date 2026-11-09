@@ -195,6 +195,9 @@ class Tablero:
             inicio, fin = (10, r - 22) if grande else (6, r - 15)
             bloques = [self._pixel(cx, cy, paso, COLOR_NORMAL) for _ in range(inicio, fin, paso)]
             self._pixel(cx - 6, cy - 6, 12, MARCA)
+            if grande:
+                # Ventana tipo LCD: la cifra queda por encima de la aguja cuando esta pasa por debajo.
+                self.canvas.create_rectangle(cx - 72, cy + 21, cx + 72, cy + 51, fill=CARA, outline=BISEL, width=2)
 
             valor = self.canvas.create_text(cx, cy + (36 if grande else 44), text="", fill=COLOR_NORMAL,
                                             font=(FUENTE, 18 if grande else 10, "bold"))

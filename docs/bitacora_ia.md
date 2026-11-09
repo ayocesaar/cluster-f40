@@ -159,3 +159,11 @@
   Store, que a veces no puede leer su propio init.tcl. La ejecución oficial es la de la VM.
 - Qué generó la IA: el rediseño, los lanzadores, el README y la actualización del informe. El usuario
   pidió el cambio, encendió la VM y autorizó la llave SSH con la que la IA ejecutó la etapa.
+
+## Etapa 9.1 — Ajuste visual de la cifra digital
+- Fecha: 2026-11-09
+- Qué se hizo: al revisar las capturas de la Etapa 9 se vio que, con la aguja en cero, esta cruzaba la
+  cifra digital del velocímetro y del tacómetro. Se agregó una ventana tipo LCD detrás de la cifra, por
+  encima de la aguja. No se modificó ninguna prueba; se repitió la regresión completa.
+- Qué generó la IA: el diagnóstico (a partir de la captura) y el ajuste. La IA ejecutó la etapa en la VM
+  por SSH con la llave autorizada por el usuario.

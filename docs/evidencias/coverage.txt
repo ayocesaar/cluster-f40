@@ -17,6 +17,6 @@ tests/test_tablero.py              50      2      0      0    96%   15-16
 tests/test_transiciones.py        101      0      6      0   100%
 ui/__init__.py                      0      0      0      0   100%
 ui/presentacion.py                 19      0      0      0   100%
-ui/tablero.py                     209      0     52      0   100%
+ui/tablero.py                     211      0     54      0   100%
 ---------------------------------------------------------------------------
-TOTAL                            1139      4    178      1    99%
+TOTAL                            1141      4    180      1    99%

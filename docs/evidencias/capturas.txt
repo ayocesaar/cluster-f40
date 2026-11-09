@@ -5,12 +5,12 @@ Capturas de pantalla de la interfaz (generadas con tools/capturas.py sobre Xvfb)
   Casos: CA-01 a CA-10 (paso inicial), CP-68, CP-74 | Requisitos: R01
   Estado dibujado: 1=0 normal, 2=0 normal, 3=0 normal, 4=40 normal, 5=0 normal, 6=apagado, 7=apagado, 8=apagado, 9=apagado, 10=apagado
 
-02_motor_encendido_valores_normales.png (1298x639 px, 1399 colores)
+02_motor_encendido_valores_normales.png (1298x639 px, 1403 colores)
   Descripcion: Motor encendido con lecturas dentro de rango: sin advertencias
   Casos: CA-01, CA-03, CA-04, CA-05 | Requisitos: R01
   Estado dibujado: 1=120 normal, 2=5 normal, 3=4500 normal, 4=90 normal, 5=1 normal, 6=apagado, 7=apagado, 8=apagado, 9=apagado, 10=apagado
 
-03_umbrales_de_lecturas.png (1298x639 px, 1558 colores)
+03_umbrales_de_lecturas.png (1298x639 px, 1567 colores)
   Descripcion: Umbrales cruzados: 2 y 5 en ambar, 3 y 4 en rojo
   Casos: CA-02, CA-03, CA-04, CA-05, CP-69 | Requisitos: R03, R04, R05
   Estado dibujado: 1=250 normal, 2=0.8 ambar, 3=8200 rojo, 4=115 rojo, 5=1.6 ambar, 6=apagado, 7=apagado, 8=apagado, 9=apagado, 10=apagado

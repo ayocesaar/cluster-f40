@@ -114,4 +114,4 @@ tests/test_transiciones.py::test_cp36_apagar_motor_fuerza_valores_seguros PASSED
 tests/test_transiciones.py::test_cp37_apagar_motor_apaga_testigo_aceite PASSED [100%]
 
 -- generated xml file: /home/ayocesaar/cluster-f40/docs/evidencias/junit.xml ---
-============================= 108 passed in 9.75s ==============================
+============================= 108 passed in 7.74s ==============================
