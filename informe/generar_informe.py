@@ -668,6 +668,11 @@ def construir():
         "ECU ni a sensores: los valores se introducen con controles en pantalla (5 deslizadores, 4 interruptores y "
         "un selector de direccional) y el clúster los muestra en 5 medidores de aguja y 5 testigos luminosos. "
         "Los rangos y umbrales son parámetros didácticos definidos por la especificación del curso.")
+    doc.add_paragraph(
+        "La interfaz tiene una estética 8-bit inspirada en la distribución del tablero del F40: velocímetro y "
+        "tacómetro grandes al centro, medidores chicos a los lados y los dos testigos críticos arriba, entre las "
+        "esferas. Agujas, esferas y escalas se dibujan con bloques de pixeles; los testigos 6, 7 y 8 van dentro de "
+        "las esferas. Se abre en Windows, Linux y macOS con Python 3.10 o superior (ver README.md).")
     doc.add_paragraph("Arquitectura del software:")
     tabla(doc, ["Módulo", "Responsabilidad"], [
         ("logic/estado.py", "Estado del clúster y reglas R01–R08; valida las entradas; sin dependencias de interfaz."),
@@ -728,7 +733,8 @@ def construir():
         "sudo apt-get install -y python3-tk python3-venv xvfb",
         "sudo apt-get install -y --no-install-recommends libreoffice-writer-nogui fonts-liberation",
         "python3 -m venv .venv && source .venv/bin/activate",
-        "pip install -r requirements.txt"])
+        "pip install -r requirements.txt",
+        "Abrir la aplicación: bash abrir_cluster.sh (Linux/macOS) o doble clic en abrir_cluster.bat (Windows)"])
     doc.add_heading("Archivos y datos de prueba", level=2)
     tabla(doc, ["Archivo", "Contenido"], [
         ("tests/conftest.py", "Fixtures: reloj simulado, estado inicial y estado con motor encendido."),

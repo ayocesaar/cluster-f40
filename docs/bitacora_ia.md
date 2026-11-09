@@ -144,3 +144,18 @@
   colaboración de Claude Code. Se regeneró el informe Word/PDF con las mismas evidencias.
 - Qué generó la IA: la verificación de referencias y los cambios al generador. El usuario ejecutó
   la etapa en su VM.
+
+## Etapa 9 — Interfaz 8-bit y apertura en Windows, Linux y macOS
+- Fecha: 2026-11-09
+- Qué se hizo: se rediseñó ui/tablero.py con estética 8-bit inspirada en la distribución del tablero
+  del F40 (velocímetro y tacómetro grandes al centro, medidores chicos a los lados, testigos críticos
+  9 y 10 arriba entre las esferas, testigos 6, 7 y 8 dentro de las esferas), con agujas, esferas y
+  escalas hechas de bloques de pixeles. Se cambió la paleta en ui/presentacion.py. Se agregaron
+  abrir_cluster.bat (Windows), abrir_cluster.sh (Linux/macOS) y README.md con instrucciones.
+- Pruebas: no se modificó ninguna prueba. La interfaz conserva lo que las pruebas observan (color de
+  aguja y de testigo, texto de cada lectura, círculos para 6-8 y rectángulos para 9-10, controles y
+  mensajes). Antes de llevarlo a la VM se corrió la suite completa en Windows: 107 aprobadas y sin
+  fallos atribuibles al código; los fallos intermitentes observados se debieron al Python de Microsoft
+  Store, que a veces no puede leer su propio init.tcl. La ejecución oficial es la de la VM.
+- Qué generó la IA: el rediseño, los lanzadores, el README y la actualización del informe. El usuario
+  pidió el cambio, encendió la VM y autorizó la llave SSH con la que la IA ejecutó la etapa.
