@@ -1,0 +1,28 @@
+Prueba P12 - ejecucion prolongada con metricas reales
+Duracion medida: 60.0 s (solicitada 60 s)
+Configuracion: lectura cada 100 ms, refresco cada 50 ms, bitacoras de 16384 bytes con 2 respaldos
+Productor: proceso tools/simulador.py escribiendo el archivo de datos cada 100 ms (escritura atomica)
+
+Intervalo real de actualizacion del tablero (ms):
+  ciclos=1169 promedio=51.3 mediana=51.0 p95=52.7 maximo=146.1
+
+Datos procesados:
+  lecturas completas del archivo=391 snapshots aplicados por la interfaz=391
+  
+  eventos registrados: INFO=1179 WARN=15 ERROR=0
+  lineas presentes en bitacoras: eventos=353 errores=0 (las antiguas se descartan al rotar)
+
+Memoria (RSS):
+  inicio=28780 KB fin=29100 KB diferencia=320 KB
+
+Bitacoras (bytes):
+  inicio={'errores.log': 0, 'eventos.log': 110}
+  fin={'errores.log': 0, 'eventos.log': 1429, 'eventos.log.1': 16325, 'eventos.log.2': 16330}
+  total final=34084 limite teorico=49152 acotado=si
+
+ps al inicio:
+PID    PPID STAT %CPU %MEM   RSS    VSZ CMD
+   1198    1185 Sl    7.0  1.4 28780 120672 python tools/ejecucion_prolongada.py --duracion-s 60
+ps al final:
+PID    PPID STAT %CPU %MEM   RSS    VSZ CMD
+   1198    1185 Sl    3.0  1.4 29100 120672 python tools/ejecucion_prolongada.py --duracion-s 60

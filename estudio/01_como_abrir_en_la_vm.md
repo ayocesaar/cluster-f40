@@ -50,7 +50,32 @@ xvfb-run -a python -m aceptacion.escenarios tests/datos/escenarios_aceptacion.cs
 python -m coverage run --branch -m pytest -q && python -m coverage report -m        # cobertura (con xvfb-run delante)
 ```
 
-Resultado esperado: `108 passed` y `Resumen: 10/10 escenarios aprobados`.
+Resultado esperado: todas las pruebas aprobadas (el número exacto está en `docs/evidencias/pytest.txt`) y
+`Resumen: 10/10 escenarios aprobados`.
+
+Evidencias que se pueden regenerar en la VM:
+
+```bash
+python tools/demo_bitacoras.py                                  # ejemplos de bitácoras (exitosa y con errores)
+xvfb-run -a python tools/ejecucion_prolongada.py --duracion-s 60 # P12: métricas de memoria, intervalo y bitácoras
+```
+
+## 4b. Datos externos y bitácoras (para la demostración)
+
+El tablero lee `datos/vehiculo.conf` cada 100 ms. Abre **dos terminales SSH**:
+
+```bash
+# Terminal 1: bitácoras en vivo
+cd ~/cluster-f40 && tail -f logs/eventos.log logs/errores.log
+
+# Terminal 2: cambiar datos sin reiniciar
+cd ~/cluster-f40 && source .venv/bin/activate
+python tools/escribir_dato.py motor=1 velocidad=120 rpm=8200
+python tools/escribir_dato.py --sin-validar temp_agua=abc     # error controlado
+python tools/simulador.py --duracion-s 30                      # recorrido automático
+```
+
+Para que esto haga algo, el tablero debe estar corriendo: `./iniciar.sh` en Windows o con X11 (sección 5).
 
 ## 5. Ver la ventana del tablero
 
@@ -74,7 +99,7 @@ ls docs/evidencias/capturas/
    $env:DISPLAY = "127.0.0.1:0.0"
    ssh -Y -p 2222 ayocesaar@127.0.0.1
    ```
-3. Ya en la VM: `cd ~/cluster-f40 && python3 main.py`.
+3. Ya en la VM: `cd ~/cluster-f40 && ./iniciar.sh`.
 
 ## 6. Montar el proyecto en otra VM (la de Ian)
 

@@ -3,3 +3,5 @@ __pycache__/
 .coverage
 htmlcov/
 *.pyc
+# bitacoras generadas al ejecutar (los ejemplos versionados estan en docs/evidencias/bitacoras)
+logs/

@@ -51,10 +51,11 @@ TECNICAS = {
     "test_presentacion": "Presentacion (caja negra)",
     "test_tablero": "Integracion UI (Tkinter)",
     "test_aceptacion": "Aceptacion (dirigida por datos)",
+    "test_sistema": "Sistema (archivos, bitacoras, concurrencia)",
 }
 
 PRODUCCION = ("logic/estado.py", "logic/reloj.py", "ui/presentacion.py", "ui/tablero.py",
-              "main.py", "aceptacion/escenarios.py")
+              "main.py", "aceptacion/escenarios.py", "sistema/config.py", "sistema/lector.py", "sistema/bitacora.py", "sistema/monitor.py")
 
 ELEMENTOS = (
     ("1", "Velocímetro", "Decimal", "0–360 km/h", "100 ms", "Encendido = 1", "Aguja y cifra", "Lectura continua"),
@@ -681,6 +682,9 @@ def construir():
         ("ui/tablero.py", "Interfaz Tkinter: dibuja medidores y testigos y envía los controles al estado."),
         ("main.py", "Punto de entrada de la aplicación."),
         ("aceptacion/escenarios.py", "Carga y ejecuta los escenarios de aceptación desde un archivo CSV."),
+        ("sistema/lector.py", "Hilo lector de datos/vehiculo.conf: valida y publica el último estado válido."),
+        ("sistema/bitacora.py, sistema/monitor.py", "Bitácoras eventos.log y errores.log con rotación; eventos de seguridad."),
+        ("sistema/config.py", "Configuración externa: rutas, intervalos y rangos (config/cluster.ini)."),
     ], anchos=[4.5, 12])
     figura(doc, EVID / "capturas" / "02_motor_encendido_valores_normales.png",
            "Figura 1. Vista general del clúster con el motor encendido (captura 02).")

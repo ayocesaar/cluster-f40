@@ -141,6 +141,15 @@ class EstadoCluster:
     def direccional(self):
         return self._direccional
 
+    @property
+    def falla_frenos_activa(self):
+        """Entrada falla_frenos tal como llego (el testigo 10 parpadea a partir de ella)."""
+        return self._falla_frenos
+
+    @property
+    def emergencia_activa(self):
+        return self._emergencia
+
     def tick(self):
         """Avanza un paso del estado segun el tiempo transcurrido en el reloj
         inyectado. Debe llamarse periodicamente (UI real: con after(); en

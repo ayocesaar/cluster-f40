@@ -2,9 +2,14 @@ Name                            Stmts   Miss Branch BrPart  Cover   Missing
 ---------------------------------------------------------------------------
 aceptacion/__init__.py              0      0      0      0   100%
 aceptacion/escenarios.py          131      0     40      0   100%
-logic/estado.py                   185      0     64      0   100%
+logic/estado.py                   191      0     64      0   100%
 logic/reloj.py                     18      0      4      0   100%
-main.py                            15      0      2      1    94%   19->21
+main.py                            56      0      8      1    98%   73->75
+sistema/__init__.py                 0      0      0      0   100%
+sistema/bitacora.py                62      0      8      2    97%   47->49, 56->58
+sistema/config.py                  69      0     16      0   100%
+sistema/lector.py                 214      4     70      6    96%   133->135, 135->exit, 144->146, 189, 205->exit, 212, 220->224, 248-249
+sistema/monitor.py                 30      0     18      0   100%
 tests/conftest.py                  17      0      0      0   100%
 tests/test_aceptacion.py           81      2      0      0    98%   20-21
 tests/test_complementarias.py      53      0      6      0   100%
@@ -13,10 +18,13 @@ tests/test_limites.py              98      0      0      0   100%
 tests/test_particiones.py          46      0      0      0   100%
 tests/test_presentacion.py         49      0      0      0   100%
 tests/test_requisitos.py           17      0      4      0   100%
+tests/test_sistema.py             377      2     38      0    99%   407-408
 tests/test_tablero.py              50      2      0      0    96%   15-16
 tests/test_transiciones.py        101      0      6      0   100%
+tools/escribir_dato.py             37      0     10      0   100%
+tools/simulador.py                 42      0      6      0   100%
 ui/__init__.py                      0      0      0      0   100%
 ui/presentacion.py                 19      0      0      0   100%
-ui/tablero.py                     211      0     54      0   100%
+ui/tablero.py                     230      0     60      0   100%
 ---------------------------------------------------------------------------
-TOTAL                            1141      4    180      1    99%
+TOTAL                            2038     10    358      9    99%

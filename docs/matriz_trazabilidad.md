@@ -102,11 +102,40 @@
 | CP-88 | Aceptacion (dirigida por datos) | - | el ejecutor con un archivo inexistente muestra ERROR y devuelve 2. | `test_aceptacion.py::test_cp88_main_archivo_inexistente` | PASS |
 | CP-89 | Aceptacion (dirigida por datos) | - | el ejecutor con el CSV real aprueba los 10 escenarios y devuelve 0. | `test_aceptacion.py::test_cp89_main_con_archivo_real` | PASS |
 | CP-90 | Aceptacion (dirigida por datos) | - | el oraculo detecta una diferencia: una expectativa falsa da FALLIDO y devuelve 1. | `test_aceptacion.py::test_cp90_main_detecta_expectativa_incorrecta` | PASS |
+| CP-91 | Sistema (archivos, bitacoras, concurrencia) | R01 | P01 un valor valido del archivo actualiza el indicador y deja un evento INFO (R01). | `test_sistema.py::test_cp91_p01_valor_normal_actualiza_y_registra_info` | PASS |
+| CP-92 | Sistema (archivos, bitacoras, concurrencia) | R01, R02, R03, R04, R05 | P02 los valores minimos permitidos se aceptan sin error (R01, R02, R03, R04, R05). | `test_sistema.py::test_cp92_p02_limites_inferiores_aceptados` | PASS |
+| CP-93 | Sistema (archivos, bitacoras, concurrencia) | R01, R02, R03, R04, R05 | P03 los valores maximos permitidos se aceptan sin error (R01, R02, R03, R04, R05). | `test_sistema.py::test_cp93_p03_limites_superiores_aceptados` | PASS |
+| CP-94 | Sistema (archivos, bitacoras, concurrencia) | R01, R03, R04, R05 | P04 un valor fuera de rango se rechaza, se conserva el ultimo valido y se registra ERROR (R01, R03, R04, R05). | `test_sistema.py::test_cp94_p04_fuera_de_rango_se_rechaza` | PASS |
+| CP-95 | Sistema (archivos, bitacoras, concurrencia) | - | P05 texto donde se espera otro tipo: continua con el ultimo valor valido y registra ERROR. | `test_sistema.py::test_cp95_p05_formato_incorrecto_conserva_ultimo_valido` | PASS |
+| CP-96 | Sistema (archivos, bitacoras, concurrencia) | R01 | P06 archivo vacio o clave faltante: se conserva el estado definido y se registra el error (R01). | `test_sistema.py::test_cp96_p06_dato_ausente_estado_definido` | PASS |
+| CP-97 | Sistema (archivos, bitacoras, concurrencia) | - | P07 si el archivo se retira el sistema no termina; al volver se recupera y lo registra. | `test_sistema.py::test_cp97_p07_archivo_inexistente_no_termina` | PASS |
+| CP-98 | Sistema (archivos, bitacoras, concurrencia) | - | P08 un escritor y el hilo lector trabajan a la vez: nunca se lee un valor parcial ni corrupto. | `test_sistema.py::test_cp98_p08_actualizacion_concurrente_sin_lecturas_parciales` | PASS |
+| CP-99 | Sistema (archivos, bitacoras, concurrencia) | R02, R08 | P09 al superar un umbral critico se enciende el testigo y se registra un WARN prioritario (R02, R08). | `test_sistema.py::test_cp99_p09_advertencia_testigo_y_evento_prioritario` | PASS |
+| CP-100 | Sistema (archivos, bitacoras, concurrencia) | - | P10 tras una entrada invalida, al corregirla se retoma la operacion sin reiniciar. | `test_sistema.py::test_cp100_p10_recuperacion_sin_reinicio` | PASS |
+| CP-101 | Sistema (archivos, bitacoras, concurrencia) | - | P11 un archivo sin permiso de lectura se rechaza y se registra; al restaurar el permiso se recupera. | `test_sistema.py::test_cp101_p11_lectura_no_autorizada` | PASS |
+| CP-102 | Sistema (archivos, bitacoras, concurrencia) | - | P11 un archivo de datos que cualquiera puede escribir no se usa y se registra el error. | `test_sistema.py::test_cp102_p11_archivo_escribible_por_cualquiera_se_rechaza` | PASS |
+| CP-103 | Sistema (archivos, bitacoras, concurrencia) | - | P11 las bitacoras se crean solo para el dueno y su grupo (640) y la carpeta con 750. | `test_sistema.py::test_cp103_p11_bitacoras_con_minimo_privilegio` | PASS |
+| CP-104 | Sistema (archivos, bitacoras, concurrencia) | - | P12 3000 ciclos con datos cambiantes: las bitacoras rotan y no crecen sin limite. | `test_sistema.py::test_cp104_p12_ejecucion_prolongada_acotada` | PASS |
+| CP-105 | Sistema (archivos, bitacoras, concurrencia) | - | eventos.log lleva INFO y WARN, errores.log solo ERROR; cada linea tiene fecha, nivel, componente y evento. | `test_sistema.py::test_cp105_bitacoras_separadas_y_con_formato` | PASS |
+| CP-106 | Sistema (archivos, bitacoras, concurrencia) | - | la configuracion se lee del archivo; si falta o es invalida se usan valores por defecto y se informa. | `test_sistema.py::test_cp106_configuracion_externa_y_valores_por_defecto` | PASS |
+| CP-107 | Sistema (archivos, bitacoras, concurrencia) | - | lineas sin formato, claves desconocidas, duplicadas, valores enormes y archivos grandes se rechazan. | `test_sistema.py::test_cp107_entrada_maliciosa_no_se_usa` | PASS |
+| CP-108 | Sistema (archivos, bitacoras, concurrencia) | - | el buzon productor-consumidor nunca acumula: guarda solo el snapshot mas reciente. | `test_sistema.py::test_cp108_buzon_conserva_solo_el_dato_mas_reciente` | PASS |
+| CP-109 | Sistema (archivos, bitacoras, concurrencia) | - | cada tipo se codifica en el archivo y se decodifica sin perdida (booleano, entero, decimal, enumeracion). | `test_sistema.py::test_cp109_conversion_y_formato_son_inversos` | PASS |
+| CP-110 | Sistema (archivos, bitacoras, concurrencia) | - | el mismo dato invalido o el mismo archivo ausente se registran una sola vez mientras duran. | `test_sistema.py::test_cp110_errores_repetidos_no_inundan_la_bitacora` | PASS |
+| CP-111 | Sistema (archivos, bitacoras, concurrencia) | - | si la lectura falla de forma inesperada, el hilo lo registra y sigue funcionando. | `test_sistema.py::test_cp111_hilo_lector_registra_fallos_inesperados_y_sigue` | PASS |
+| CP-112 | Sistema (archivos, bitacoras, concurrencia) | - | si el renombrado falla, el archivo original queda intacto y no quedan temporales. | `test_sistema.py::test_cp112_escritura_atomica_limpia_temporales_si_falla` | PASS |
+| CP-113 | Sistema (archivos, bitacoras, concurrencia) | - | tools/escribir_dato.py valida y escribe de forma atomica; con --sin-validar permite provocar errores. | `test_sistema.py::test_cp113_herramienta_escribir_dato` | PASS |
+| CP-114 | Sistema (archivos, bitacoras, concurrencia) | - | el proceso simulador escribe valores siempre validos para todo el recorrido. | `test_sistema.py::test_cp114_simulador_produce_datos_validos` | PASS |
+| CP-115 | Sistema (archivos, bitacoras, concurrencia) | R01, R03, R08 | con la aplicacion abierta, cambiar el archivo de datos actualiza el tablero sin reiniciar (R01, R03, R08). | `test_sistema.py::test_cp115_aplicacion_lee_el_archivo_y_actualiza_sin_reiniciar` | PASS |
+| CP-116 | Sistema (archivos, bitacoras, concurrencia) | - | sin archivo de configuracion se usan valores por defecto y se registra; un error de la interfaz se registra y no termina la aplicacion. | `test_sistema.py::test_cp116_modo_manual_y_errores_de_configuracion_e_interfaz` | PASS |
+| CP-117 | Sistema (archivos, bitacoras, concurrencia) | R01, R02, R03, R04, R05, R07, R08 | el monitor registra encendido y apagado de cada advertencia una sola vez (R01, R02, R03, R04, R05, R07, R08). | `test_sistema.py::test_cp117_monitor_registra_cada_transicion_una_vez` | PASS |
+| CP-118 | Sistema (archivos, bitacoras, concurrencia) | - | un archivo de datos con codificacion invalida y una configuracion sin secciones se rechazan sin detenerse. | `test_sistema.py::test_cp118_archivos_corruptos_no_detienen_el_sistema` | PASS |
+| CP-119 | Sistema (archivos, bitacoras, concurrencia) | - | el proceso simulador termina limpio al recibir Ctrl+C. | `test_sistema.py::test_cp119_simulador_se_detiene_limpio_con_ctrl_c` | PASS |
 
 ## Resumen
 
-- Casos de prueba: 100
-- Pasaron: 100
+- Casos de prueba: 129
+- Pasaron: 129
 - Fallo esperado por defecto abierto (XFAIL): 0
 - Fallaron / otros: 0
 
@@ -114,13 +143,13 @@
 
 | Requisito | Casos |
 |-----------|-------|
-| R01 | CA-01, CA-02, CA-03, CA-07, CA-09, CA-10, CP-35, CP-36, CP-37, CP-51, CP-53, CP-54, CP-65, CP-66, CP-68, CP-73, CP-74 |
-| R02 | CA-09, CP-03, CP-17, CP-18, CP-19, CP-20, CP-37, CP-43, CP-44, CP-70 |
-| R03 | CA-03, CP-02, CP-13, CP-14, CP-15, CP-16, CP-27, CP-40, CP-41, CP-42, CP-69, CP-75 |
-| R04 | CA-04, CP-04, CP-21, CP-22, CP-23, CP-28, CP-45, CP-46, CP-69 |
-| R05 | CA-05, CP-05, CP-24, CP-25, CP-26, CP-29, CP-47, CP-48, CP-69 |
+| R01 | CA-01, CA-02, CA-03, CA-07, CA-09, CA-10, CP-35, CP-36, CP-37, CP-51, CP-53, CP-54, CP-65, CP-66, CP-68, CP-73, CP-74, CP-91, CP-92, CP-93, CP-94, CP-96, CP-115, CP-117 |
+| R02 | CA-09, CP-03, CP-17, CP-18, CP-19, CP-20, CP-37, CP-43, CP-44, CP-70, CP-92, CP-93, CP-99, CP-117 |
+| R03 | CA-03, CP-02, CP-13, CP-14, CP-15, CP-16, CP-27, CP-40, CP-41, CP-42, CP-69, CP-75, CP-92, CP-93, CP-94, CP-115, CP-117 |
+| R04 | CA-04, CP-04, CP-21, CP-22, CP-23, CP-28, CP-45, CP-46, CP-69, CP-92, CP-93, CP-94, CP-117 |
+| R05 | CA-05, CP-05, CP-24, CP-25, CP-26, CP-29, CP-47, CP-48, CP-69, CP-92, CP-93, CP-94, CP-117 |
 | R06 | CA-06, CA-08, CP-06, CP-07, CP-08, CP-30, CP-49, CP-50, CP-57, CP-71 |
-| R07 | CA-07, CA-08, CP-09, CP-31, CP-33, CP-34, CP-58, CP-64, CP-65, CP-71, CP-72 |
-| R08 | CA-10, CP-09, CP-32, CP-59, CP-66, CP-72, CP-76 |
+| R07 | CA-07, CA-08, CP-09, CP-31, CP-33, CP-34, CP-58, CP-64, CP-65, CP-71, CP-72, CP-117 |
+| R08 | CA-10, CP-09, CP-32, CP-59, CP-66, CP-72, CP-76, CP-99, CP-115, CP-117 |
 
 Requisitos sin casos: ninguno

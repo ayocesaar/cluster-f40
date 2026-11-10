@@ -16,6 +16,7 @@ TECNICAS = {
     "test_presentacion.py": "Presentacion (caja negra)",
     "test_tablero.py": "Integracion UI (Tkinter)",
     "test_aceptacion.py": "Aceptacion (dirigida por datos)",
+    "test_sistema.py": "Sistema (archivos, bitacoras, concurrencia)",
 }
 
 # Los casos parametrizados llegan como "test_x[param]": se agrupan por funcion

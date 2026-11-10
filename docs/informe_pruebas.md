@@ -38,9 +38,10 @@ pruebas automatizadas con pytest y medicion de cobertura con coverage.
 | Particion de equivalencia | 10 | 10 | 0 | 0 |
 | Presentacion (caja negra) | 7 | 7 | 0 | 0 |
 | Basada en requisitos | 3 | 3 | 0 | 0 |
+| Sistema (archivos, bitacoras, concurrencia) | 37 | 37 | 0 | 0 |
 | Integracion UI (Tkinter) | 6 | 6 | 0 | 0 |
 | Transicion de estados | 11 | 11 | 0 | 0 |
-| **Total** | **108** | **108** | **0** | **0** |
+| **Total** | **145** | **145** | **0** | **0** |
 
 Las ejecuciones cuentan cada variante parametrizada por separado; la matriz de
 trazabilidad agrupa por caso de prueba (CP).
@@ -49,11 +50,11 @@ trazabilidad agrupa por caso de prueba (CP).
 
 | Modulo | Lineas | Ramas | Cobertura |
 |--------|--------|-------|-----------|
-| `logic/estado.py` | 185/185 | 64/64 | 100.0% |
+| `logic/estado.py` | 191/191 | 64/64 | 100.0% |
 | `logic/reloj.py` | 18/18 | 4/4 | 100.0% |
 | `ui/presentacion.py` | 19/19 | 0/0 | 100.0% |
-| `ui/tablero.py` | 211/211 | 54/54 | 100.0% |
-| `main.py` | 15/15 | 1/2 | 94.1% |
+| `ui/tablero.py` | 230/230 | 60/60 | 100.0% |
+| `main.py` | 56/56 | 7/8 | 98.4% |
 | `aceptacion/escenarios.py` | 131/131 | 40/40 | 100.0% |
 
 ## 6. Trazabilidad
@@ -105,4 +106,4 @@ de las pruebas y el resultado de junit.
 
 ## 10. Conclusion
 
-Las 108 ejecuciones pasan, la cobertura de la logica es completa y no quedan defectos abiertos: la logica cumple R01-R08 segun las pruebas definidas.
+Las 145 ejecuciones pasan, la cobertura de la logica es completa y no quedan defectos abiertos: la logica cumple R01-R08 segun las pruebas definidas.

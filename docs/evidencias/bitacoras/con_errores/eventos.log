@@ -1,0 +1,11 @@
+2026-11-10T17:40:53-06:00 INFO  sistema inicio modo=archivo=vehiculo.conf
+2026-11-10T17:40:53-06:00 INFO  lector_datos archivo_recuperado ruta=vehiculo.conf resultado=aceptado
+2026-11-10T17:40:53-06:00 INFO  lector_datos valor_actualizado motor=1 resultado=aceptado
+2026-11-10T17:40:53-06:00 INFO  lector_datos valor_actualizado presion_aceite=5.0 resultado=aceptado
+2026-11-10T17:40:53-06:00 INFO  modelo_vehiculo motor_encendido (R01)
+2026-11-10T17:40:53-06:00 INFO  lector_datos archivo_recuperado ruta=vehiculo.conf resultado=aceptado
+2026-11-10T17:40:53-06:00 INFO  lector_datos valor_actualizado presion_aceite=0.4 resultado=aceptado
+2026-11-10T17:40:53-06:00 WARN  monitor_seguridad testigo_9_encendido presion_aceite=0.4 bar durante >= 1 s (R02)
+2026-11-10T17:40:53-06:00 INFO  lector_datos valor_actualizado presion_aceite=5.0 resultado=aceptado
+2026-11-10T17:40:53-06:00 INFO  monitor_seguridad testigo_9_apagado presion_aceite=5 bar
+2026-11-10T17:40:53-06:00 INFO  sistema fin info=9 warn=1 error=5

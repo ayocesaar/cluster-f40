@@ -115,6 +115,12 @@ class Tablero:
 
         raiz.title("Cluster F40 (simulado)")
         raiz.configure(bg=FONDO)
+        # Ganchos opcionales del ciclo (los usa main.py): antes del tick se consumen
+        # los datos externos; despues, el monitor registra los eventos.
+        self.antes_del_tick = None
+        self.despues_del_tick = None
+        self.periodo_ms = PERIODO_REFRESCO_MS
+        self._controles = []
         self.canvas = tk.Canvas(raiz, width=ANCHO, height=ALTO, bg=FONDO, highlightthickness=0)
         self.canvas.grid(row=0, column=0, columnspan=2, padx=10, pady=10)
         self._dibujar_carcasa()
@@ -242,6 +248,8 @@ class Tablero:
         self.canvas.create_text(x0 + 12, y0 + 70, text="RELOJ", anchor="w", fill=COLOR_TEXTO, font=(FUENTE, 9, "bold"))
         self._txt_reloj = self.canvas.create_text(x0 + 12, y0 + 94, text="", anchor="w", fill=VERDE_TEXTO,
                                                   font=(FUENTE, 14, "bold"))
+        self._txt_fuente = self.canvas.create_text(x0 + 12, y0 + 116, text="FUENTE: MANUAL", anchor="w",
+                                                   fill=COLOR_TEXTO, font=(FUENTE, 7, "bold"))
 
     # ------------------------------------------------------------------ controles
 
@@ -252,10 +260,12 @@ class Tablero:
         for i, (setter, etiqueta, minimo, maximo, resolucion, convertir) in enumerate(DESLIZADORES):
             var = tk.DoubleVar(value=minimo)
             manejador = (lambda s=setter, c=convertir, v=var: self.enviar(s, c(v.get())))
-            tk.Scale(deslizadores, label=etiqueta, from_=minimo, to=maximo, resolution=resolucion,
-                     orient="horizontal", length=300, variable=var, command=lambda _v, m=manejador: m(),
-                     troughcolor=BISEL, activebackground=COLOR_AMBAR, sliderrelief="flat", bd=0,
-                     highlightthickness=0, **estilo).grid(row=i // 3, column=i % 3, sticky="w", padx=(0, 16), pady=2)
+            control = tk.Scale(deslizadores, label=etiqueta, from_=minimo, to=maximo, resolution=resolucion,
+                               orient="horizontal", length=300, variable=var, command=lambda _v, m=manejador: m(),
+                               troughcolor=BISEL, activebackground=COLOR_AMBAR, sliderrelief="flat", bd=0,
+                               highlightthickness=0, **estilo)
+            control.grid(row=i // 3, column=i % 3, sticky="w", padx=(0, 16), pady=2)
+            self._controles.append(control)
             self.variables[setter] = var
             self._manejadores[setter] = manejador
 
@@ -266,8 +276,9 @@ class Tablero:
         for i, (setter, texto) in enumerate(INTERRUPTORES):
             var = tk.BooleanVar(value=False)
             manejador = (lambda s=setter, v=var: self.enviar(s, bool(v.get())))
-            tk.Checkbutton(interruptores, text=texto, variable=var, command=manejador,
-                           **botones).grid(row=i // 2, column=i % 2, sticky="w", padx=(0, 12), pady=4)
+            control = tk.Checkbutton(interruptores, text=texto, variable=var, command=manejador, **botones)
+            control.grid(row=i // 2, column=i % 2, sticky="w", padx=(0, 12), pady=4)
+            self._controles.append(control)
             self.variables[setter] = var
             self._manejadores[setter] = manejador
 
@@ -277,10 +288,17 @@ class Tablero:
         fila.grid(row=2, column=0, columnspan=2, sticky="w", pady=(10, 0))
         tk.Label(fila, text="6 Direccional", **estilo).pack(side="left", padx=(0, 10))
         for opcion in ("IZQ", "OFF", "DER"):
-            tk.Radiobutton(fila, text=opcion, value=opcion, variable=var, command=manejador,
-                           **botones).pack(side="left", padx=(0, 8))
+            control = tk.Radiobutton(fila, text=opcion, value=opcion, variable=var, command=manejador, **botones)
+            control.pack(side="left", padx=(0, 8))
+            self._controles.append(control)
         self.variables["set_direccional"] = var
         self._manejadores["set_direccional"] = manejador
+
+    def modo_externo(self, origen):
+        """Los valores llegan de un archivo: los controles solo muestran lo leido."""
+        for control in self._controles:
+            control.configure(state="disabled")
+        self.canvas.itemconfigure(self._txt_fuente, text=f"FUENTE: {origen}"[:22])
 
     def enviar(self, setter, valor):
         """Envia un valor a EstadoCluster; si se rechaza, lo muestra en pantalla."""
@@ -343,12 +361,16 @@ class Tablero:
         return v
 
     def ciclo(self):
+        if self.antes_del_tick is not None:
+            self.antes_del_tick()
         self.estado.tick()
+        if self.despues_del_tick is not None:
+            self.despues_del_tick(self.estado)
         return self.refrescar()
 
     def _programar(self):
         self.ciclo()
-        self._id_after = self.raiz.after(PERIODO_REFRESCO_MS, self._programar)
+        self._id_after = self.raiz.after(self.periodo_ms, self._programar)
 
     def detener(self):
         if self._id_after is not None:

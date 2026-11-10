@@ -18,6 +18,7 @@ TECNICAS = {
     "test_presentacion": "Presentacion (caja negra)",
     "test_tablero": "Integracion UI (Tkinter)",
     "test_aceptacion": "Aceptacion (dirigida por datos)",
+    "test_sistema": "Sistema (archivos, bitacoras, concurrencia)",
 }
 
 por_tecnica = {}

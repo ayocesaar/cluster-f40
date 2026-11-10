@@ -176,3 +176,22 @@
   externos, configuración, bitácoras eventos.log/errores.log, comunicación y sincronización, permisos,
   pruebas P08, P11 y P12 e informe técnico con las secciones 4.1–4.7.
 - Qué generó la IA: los documentos de estudio. Los pendientes quedan a decisión del equipo.
+
+## Etapa 11 — Proyecto completo según la guía oficial
+- Fecha: 2026-11-10
+- Qué se hizo: se construyó lo que pedía la guía del proyecto final y faltaba:
+  - entrada por archivo externo (datos/vehiculo.conf, clave=valor) con un hilo lector que valida cada
+    clave y conserva el último valor válido;
+  - configuración externa (config/cluster.ini) con rutas relativas, intervalos, rangos y rotación;
+  - bitácoras logs/eventos.log (INFO, WARN) y logs/errores.log (ERROR) con fecha, nivel, componente,
+    evento y resultado, rotación por tamaño y permisos 640/750;
+  - comunicación productor-consumidor (archivo con escritura atómica → hilo lector →
+    queue.Queue(maxsize=1) → interfaz) y monitor de eventos de seguridad;
+  - iniciar.sh, tools/escribir_dato.py, tools/simulador.py (proceso productor),
+    tools/ejecucion_prolongada.py (P12 con métricas) y tools/demo_bitacoras.py;
+  - pruebas P01–P12 y de sistema (CP-91 a CP-119) sin modificar ninguna prueba anterior;
+  - diagramas, informe técnico con las 10 secciones de la guía y material de estudio actualizado.
+- Hallazgo: en Windows, abrir el archivo justo cuando otro proceso lo reemplaza da un PermissionError
+  momentáneo; la prueba P08 lo detectó y el lector ahora reintenta antes de registrarlo.
+- Qué generó la IA: todo el código, las pruebas y los documentos de esta etapa. Se probó primero en
+  Windows y la ejecución oficial fue en la VM por SSH; luego se subió a GitHub.
