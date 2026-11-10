@@ -108,8 +108,7 @@ def main(argv=None):
     inicio = time.monotonic()
     raiz.mainloop()
     duracion = time.monotonic() - inicio
-    simulador.terminate()
-    salida_sim = simulador.communicate(timeout=10)[0].strip()
+    salida_sim = simulador.communicate(timeout=30)[0].strip()   # termina solo: corre 3 s mas que la prueba
 
     intervalos = [(b - a) * 1000 for a, b in zip(marcas, marcas[1:])]
     errores_log = (trabajo / "logs" / "errores.log")

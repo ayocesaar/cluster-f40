@@ -1,5 +1,5 @@
-2026-11-10T17:40:53-06:00 ERROR lector_datos archivo_inexistente ruta=vehiculo.conf se conserva el ultimo valor valido resultado=rechazado
-2026-11-10T17:40:53-06:00 ERROR lector_datos dato_invalido temp_agua entrada="abc" (se espera un numero decimal) resultado=rechazado
-2026-11-10T17:40:53-06:00 ERROR lector_datos fuera_de_rango velocidad=500 (rango 0-360) resultado=rechazado
-2026-11-10T17:40:53-06:00 ERROR lector_datos clave_faltante rpm se conserva 0 resultado=rechazado
-2026-11-10T17:40:53-06:00 ERROR lector_datos permisos_inseguros ruta=vehiculo.conf modo=0o666 escribible por cualquiera resultado=rechazado
+2026-11-10T17:43:31-06:00 ERROR lector_datos archivo_inexistente ruta=vehiculo.conf se conserva el ultimo valor valido resultado=rechazado
+2026-11-10T17:43:31-06:00 ERROR lector_datos dato_invalido temp_agua entrada="abc" (se espera un numero decimal) resultado=rechazado
+2026-11-10T17:43:31-06:00 ERROR lector_datos fuera_de_rango velocidad=500 (rango 0-360) resultado=rechazado
+2026-11-10T17:43:31-06:00 ERROR lector_datos clave_faltante rpm se conserva 0 resultado=rechazado
+2026-11-10T17:43:31-06:00 ERROR lector_datos permisos_inseguros ruta=vehiculo.conf modo=0o666 escribible por cualquiera resultado=rechazado

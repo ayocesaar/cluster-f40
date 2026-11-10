@@ -18,7 +18,7 @@ tests/test_limites.py              98      0      0      0   100%
 tests/test_particiones.py          46      0      0      0   100%
 tests/test_presentacion.py         49      0      0      0   100%
 tests/test_requisitos.py           17      0      4      0   100%
-tests/test_sistema.py             377      2     38      0    99%   407-408
+tests/test_sistema.py             382      2     38      0    99%   416-417
 tests/test_tablero.py              50      2      0      0    96%   15-16
 tests/test_transiciones.py        101      0      6      0   100%
 tools/escribir_dato.py             37      0     10      0   100%
@@ -27,4 +27,4 @@ ui/__init__.py                      0      0      0      0   100%
 ui/presentacion.py                 19      0      0      0   100%
 ui/tablero.py                     230      0     60      0   100%
 ---------------------------------------------------------------------------
-TOTAL                            2038     10    358      9    99%
+TOTAL                            2043     10    358      9    99%

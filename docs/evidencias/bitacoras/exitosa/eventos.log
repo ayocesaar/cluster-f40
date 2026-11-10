@@ -1,29 +1,29 @@
-2026-11-10T17:40:53-06:00 INFO  sistema inicio modo=archivo=vehiculo.conf
-2026-11-10T17:40:53-06:00 INFO  lector_datos valor_actualizado motor=1 resultado=aceptado
-2026-11-10T17:40:53-06:00 INFO  lector_datos valor_actualizado presion_aceite=5.0 resultado=aceptado
-2026-11-10T17:40:53-06:00 INFO  lector_datos valor_actualizado temp_agua=85.0 resultado=aceptado
-2026-11-10T17:40:53-06:00 INFO  modelo_vehiculo motor_encendido (R01)
-2026-11-10T17:40:53-06:00 INFO  lector_datos valor_actualizado velocidad=72.0 resultado=aceptado
-2026-11-10T17:40:53-06:00 INFO  lector_datos valor_actualizado rpm=2450 resultado=aceptado
-2026-11-10T17:40:53-06:00 INFO  lector_datos valor_actualizado presion_turbo=0.8 resultado=aceptado
-2026-11-10T17:40:53-06:00 INFO  lector_datos valor_actualizado velocidad=180.0 resultado=aceptado
-2026-11-10T17:40:53-06:00 INFO  lector_datos valor_actualizado rpm=8100 resultado=aceptado
-2026-11-10T17:40:53-06:00 INFO  lector_datos valor_actualizado presion_turbo=1.6 resultado=aceptado
-2026-11-10T17:40:53-06:00 INFO  lector_datos valor_actualizado luces_altas=1 resultado=aceptado
-2026-11-10T17:40:53-06:00 WARN  modelo_vehiculo tacometro_rojo rpm=8100 (R03)
-2026-11-10T17:40:53-06:00 WARN  modelo_vehiculo turbo_ambar presion_turbo=1.6 bar (R05)
-2026-11-10T17:40:53-06:00 INFO  lector_datos valor_actualizado rpm=6000 resultado=aceptado
-2026-11-10T17:40:53-06:00 INFO  lector_datos valor_actualizado presion_turbo=0.9 resultado=aceptado
-2026-11-10T17:40:53-06:00 INFO  lector_datos valor_actualizado direccional=izquierda resultado=aceptado
-2026-11-10T17:40:53-06:00 INFO  modelo_vehiculo tacometro_normal rpm=6000 (R03)
-2026-11-10T17:40:53-06:00 INFO  modelo_vehiculo turbo_normal presion_turbo=0.9 bar (R05)
-2026-11-10T17:40:53-06:00 INFO  lector_datos valor_actualizado direccional=off resultado=aceptado
-2026-11-10T17:40:53-06:00 INFO  lector_datos valor_actualizado falla_frenos=1 resultado=aceptado
-2026-11-10T17:40:53-06:00 WARN  monitor_seguridad testigo_10_encendido falla_frenos=1 parpadeo cada 300 ms (R08)
-2026-11-10T17:40:53-06:00 INFO  lector_datos valor_actualizado motor=0 resultado=aceptado
-2026-11-10T17:40:53-06:00 INFO  lector_datos valor_actualizado velocidad=0.0 resultado=aceptado
-2026-11-10T17:40:53-06:00 INFO  lector_datos valor_actualizado rpm=0 resultado=aceptado
-2026-11-10T17:40:53-06:00 INFO  lector_datos valor_actualizado falla_frenos=0 resultado=aceptado
-2026-11-10T17:40:53-06:00 INFO  monitor_seguridad testigo_10_apagado falla_frenos=0
-2026-11-10T17:40:53-06:00 INFO  modelo_vehiculo motor_apagado (R01)
-2026-11-10T17:40:53-06:00 INFO  sistema fin info=25 warn=3 error=0
+2026-11-10T17:43:31-06:00 INFO  sistema inicio modo=archivo=vehiculo.conf
+2026-11-10T17:43:31-06:00 INFO  lector_datos valor_actualizado motor=1 resultado=aceptado
+2026-11-10T17:43:31-06:00 INFO  lector_datos valor_actualizado presion_aceite=5.0 resultado=aceptado
+2026-11-10T17:43:31-06:00 INFO  lector_datos valor_actualizado temp_agua=85.0 resultado=aceptado
+2026-11-10T17:43:31-06:00 INFO  modelo_vehiculo motor_encendido (R01)
+2026-11-10T17:43:31-06:00 INFO  lector_datos valor_actualizado velocidad=72.0 resultado=aceptado
+2026-11-10T17:43:31-06:00 INFO  lector_datos valor_actualizado rpm=2450 resultado=aceptado
+2026-11-10T17:43:31-06:00 INFO  lector_datos valor_actualizado presion_turbo=0.8 resultado=aceptado
+2026-11-10T17:43:31-06:00 INFO  lector_datos valor_actualizado velocidad=180.0 resultado=aceptado
+2026-11-10T17:43:31-06:00 INFO  lector_datos valor_actualizado rpm=8100 resultado=aceptado
+2026-11-10T17:43:31-06:00 INFO  lector_datos valor_actualizado presion_turbo=1.6 resultado=aceptado
+2026-11-10T17:43:31-06:00 INFO  lector_datos valor_actualizado luces_altas=1 resultado=aceptado
+2026-11-10T17:43:31-06:00 WARN  modelo_vehiculo tacometro_rojo rpm=8100 (R03)
+2026-11-10T17:43:31-06:00 WARN  modelo_vehiculo turbo_ambar presion_turbo=1.6 bar (R05)
+2026-11-10T17:43:31-06:00 INFO  lector_datos valor_actualizado rpm=6000 resultado=aceptado
+2026-11-10T17:43:31-06:00 INFO  lector_datos valor_actualizado presion_turbo=0.9 resultado=aceptado
+2026-11-10T17:43:31-06:00 INFO  lector_datos valor_actualizado direccional=izquierda resultado=aceptado
+2026-11-10T17:43:31-06:00 INFO  modelo_vehiculo tacometro_normal rpm=6000 (R03)
+2026-11-10T17:43:31-06:00 INFO  modelo_vehiculo turbo_normal presion_turbo=0.9 bar (R05)
+2026-11-10T17:43:31-06:00 INFO  lector_datos valor_actualizado direccional=off resultado=aceptado
+2026-11-10T17:43:31-06:00 INFO  lector_datos valor_actualizado falla_frenos=1 resultado=aceptado
+2026-11-10T17:43:31-06:00 WARN  monitor_seguridad testigo_10_encendido falla_frenos=1 parpadeo cada 300 ms (R08)
+2026-11-10T17:43:31-06:00 INFO  lector_datos valor_actualizado motor=0 resultado=aceptado
+2026-11-10T17:43:31-06:00 INFO  lector_datos valor_actualizado velocidad=0.0 resultado=aceptado
+2026-11-10T17:43:31-06:00 INFO  lector_datos valor_actualizado rpm=0 resultado=aceptado
+2026-11-10T17:43:31-06:00 INFO  lector_datos valor_actualizado falla_frenos=0 resultado=aceptado
+2026-11-10T17:43:31-06:00 INFO  monitor_seguridad testigo_10_apagado falla_frenos=0
+2026-11-10T17:43:31-06:00 INFO  modelo_vehiculo motor_apagado (R01)
+2026-11-10T17:43:31-06:00 INFO  sistema fin info=25 warn=3 error=0

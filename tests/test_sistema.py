@@ -2,6 +2,7 @@
 externos, validacion, bitacoras, configuracion, permisos, concurrencia y
 ejecucion prolongada. Cada caso usa carpetas temporales propias."""
 
+import gc
 import os
 import queue
 import re
@@ -21,6 +22,14 @@ tk = pytest.importorskip("tkinter")
 RANGOS = dict(configuracion.RANGOS_ESPECIFICACION)
 FORMATO_LINEA = re.compile(r"^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d[+-]\d\d:\d\d (INFO |WARN |ERROR) \S+ \S+")
 POSIX_SIN_ROOT = os.name == "posix" and os.geteuid() != 0
+
+
+@pytest.fixture(autouse=True)
+def _recolectar_en_hilo_principal():
+    """Libera aqui, en el hilo principal, los objetos de Tk que dejaron pruebas anteriores.
+    Si el recolector los liberara dentro del hilo lector, Tk avisaria que no esta en su hilo."""
+    gc.collect()
+    yield
 
 
 @pytest.fixture
