@@ -195,3 +195,16 @@
   momentáneo; la prueba P08 lo detectó y el lector ahora reintenta antes de registrarlo.
 - Qué generó la IA: todo el código, las pruebas y los documentos de esta etapa. Se probó primero en
   Windows y la ejecución oficial fue en la VM por SSH; luego se subió a GitHub.
+
+## Etapa 12 — Documento completo de pruebas (Tarea 2)
+- Fecha: 2026-11-16
+- Qué se hizo: informe/generar_documento_pruebas.py genera Documento_Completo_de_Pruebas_F40 (PDF y
+  DOCX) con la estructura obligatoria de la Tarea 2: control documental e historial, requisitos REQ por
+  elemento, estrategia, ambiente, riesgos con probabilidad, criterios de entrada, salida, suspensión y
+  reanudación, 25 casos con la distribución por categoría, trazabilidad, defectos (DEF-01 rechazado y
+  DEF-02 cerrado), métricas de la tarea y anexos (evidencias, historial git, actividades previas, uso de
+  IA y defensa). El estado de cada caso sale de junit.xml y metricas.txt.
+- Pendiente (no inventado): los tres casos de la práctica en clase, la revisión cruzada, el escenario
+  sorpresa y las observaciones del profesor todavía no ocurren; quedan con su formato listo en el anexo C.
+- Qué generó la IA: el generador y el contenido del documento. El equipo confirmó qué actividades
+  previas existen (solo la Tarea 1).
