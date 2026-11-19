@@ -89,6 +89,9 @@ def tabla(doc, encabezados, filas, anchos):
             if encabezados[0] == "Campo" and i == 0:
                 r.bold = True
                 sombrear(celdas[i], "F2F2F2")
+    t.autofit = False
+    for i, a in enumerate(anchos):
+        t.columns[i].width = Cm(a)  # LibreOffice usa el ancho de la columna, no el de la celda
     for fila in t.rows:
         for i, a in enumerate(anchos):
             fila.cells[i].width = Cm(a)

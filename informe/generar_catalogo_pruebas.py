@@ -27,7 +27,18 @@ from docx.shared import Cm, Pt, RGBColor  # noqa: E402
 import generar_documento_pruebas as dcp  # noqa: E402
 import generar_informe_tecnico as tec  # noqa: E402
 from generar_informe import (IDENTIFICACION, TECNICAS, cargar_aceptacion, cargar_defectos, cargar_junit,  # noqa: E402
-                             codigo, convertir_pdf, leer, numero_pagina, sistema_operativo, tabla, version_software)
+                             codigo, convertir_pdf, leer, numero_pagina, sistema_operativo, version_software)
+from generar_informe import tabla as _tabla  # noqa: E402
+
+
+def tabla(doc, encabezados, filas, anchos=None):
+    """Como generar_informe.tabla, pero fija el ancho de cada columna (LibreOffice ignora el de las celdas)."""
+    t = _tabla(doc, encabezados, filas, anchos)
+    if anchos:
+        t.autofit = False
+        for i, ancho in enumerate(anchos):
+            t.columns[i].width = Cm(ancho)
+    return t
 
 RAIZ = pathlib.Path(__file__).resolve().parent.parent
 DOCS = RAIZ / "docs"
@@ -62,7 +73,7 @@ def metrica(lineas, patron):
 
 def construir():
     casos, fecha = cargar_junit()
-    aceptacion, total_aceptacion = cargar_aceptacion()
+    aceptacion, _ = cargar_aceptacion()
     metricas = leer(EVID / "metricas.txt").splitlines()
     cov = json.loads(leer(EVID / "coverage.json"))
     matriz = cargar_matriz()
@@ -133,8 +144,6 @@ def construir():
          f"({round(tot['percent_covered'])}%)", "docs/evidencias/coverage.json"),
     ]
     tabla(doc, ["Conjunto", "Tamaño", "Resultado", "Fuente"], filas, anchos=[4.2, 4, 5.3, 3.5])
-    if total_aceptacion:
-        doc.add_paragraph(f"Aceptación: {total_aceptacion}")
     doc.add_paragraph(
         "Cómo se relacionan: los casos CP y CA son las pruebas automatizadas. Las pruebas P01–P12 de la guía y los "
         "casos CT del Documento de Pruebas son vistas de más alto nivel y cada una se respalda con casos CP o CA, por "
