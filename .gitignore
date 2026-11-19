@@ -5,3 +5,6 @@ htmlcov/
 *.pyc
 # bitacoras generadas al ejecutar (los ejemplos versionados estan en docs/evidencias/bitacoras)
 logs/
+# kilometraje generado al ejecutar
+datos/odometro.txt
+datos/odometro.txt.bak

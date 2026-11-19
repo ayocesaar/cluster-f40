@@ -9,7 +9,8 @@ EstadoCluster; no contiene reglas de negocio."""
 import math
 import tkinter as tk
 
-from ui.presentacion import COLOR_AMBAR, COLOR_APAGADO, COLOR_NORMAL, COLOR_ROJO, CRITICA, ELEMENTOS, vista
+from ui.presentacion import (COLOR_AMBAR, COLOR_APAGADO, COLOR_NORMAL, COLOR_ROJO, CRITICA, ELEMENTOS, vista,
+                             vista_odometro)
 
 PERIODO_REFRESCO_MS = 50
 ANCHO, ALTO = 1040, 470
@@ -130,6 +131,9 @@ class Tablero:
         self._crear_controles()
         self.mensaje = tk.Label(raiz, text="", fg=COLOR_AMBAR, bg=FONDO, font=(FUENTE, 10, "bold"))
         self.mensaje.grid(row=2, column=0, columnspan=2, sticky="w", padx=10, pady=(0, 10))
+        # Avisos del sistema (por ejemplo, un odometro restaurado); no los borra la siguiente entrada valida.
+        self.aviso = tk.Label(raiz, text="", fg=COLOR_AMBAR, bg=FONDO, font=(FUENTE, 10, "bold"))
+        self.aviso.grid(row=3, column=0, columnspan=2, sticky="w", padx=10, pady=(0, 10))
         self._programar()
 
     # ------------------------------------------------------------------ dibujo fijo
@@ -199,6 +203,14 @@ class Tablero:
             # Aguja: bloques en linea recta que saltan de casilla en casilla.
             paso = 5 if grande else 4
             inicio, fin = (10, r - 22) if grande else (6, r - 15)
+            if numero == 1:
+                # Elemento 11: odometro de 6 digitos en la esfera del velocimetro, como en el F40.
+                # Se dibuja antes que la aguja para que esta pase por encima.
+                caja = self.canvas.create_rectangle(cx - 50, cy - 70, cx + 50, cy - 44, fill=CARA, outline=BISEL, width=2)
+                texto = self.canvas.create_text(cx, cy - 57, text="000000", fill=COLOR_NORMAL,
+                                                font=(FUENTE, 15, "bold"))
+                self.canvas.create_text(cx, cy - 80, text="11 ODOMETRO KM", fill=COLOR_TEXTO, font=(FUENTE, 7, "bold"))
+                self.items[11] = {"caja": caja, "valor": texto}
             bloques = [self._pixel(cx, cy, paso, COLOR_NORMAL) for _ in range(inicio, fin, paso)]
             self._pixel(cx - 6, cy - 6, 12, MARCA)
             if grande:
@@ -294,6 +306,10 @@ class Tablero:
         self.variables["set_direccional"] = var
         self._manejadores["set_direccional"] = manejador
 
+    def avisar(self, texto):
+        """Muestra un aviso del sistema que permanece hasta que se reemplace."""
+        self.aviso.configure(text=texto)
+
     def modo_externo(self, origen):
         """Los valores llegan de un archivo: los controles solo muestran lo leido."""
         for control in self._controles:
@@ -358,6 +374,7 @@ class Tablero:
         self.canvas.itemconfigure(self._txt_motor, text="ON" if motor else "OFF",
                                   fill=VERDE_TEXTO if motor else COLOR_TEXTO)
         self.canvas.itemconfigure(self._txt_reloj, text=f"{self.estado.reloj.ahora_ms() / 1000:.1f} s")
+        self.canvas.itemconfigure(self.items[11]["valor"], text=vista_odometro(self.estado)["texto"])
         return v
 
     def ciclo(self):

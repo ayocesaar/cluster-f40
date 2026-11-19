@@ -131,11 +131,29 @@
 | CP-117 | Sistema (archivos, bitacoras, concurrencia) | R01, R02, R03, R04, R05, R07, R08 | el monitor registra encendido y apagado de cada advertencia una sola vez (R01, R02, R03, R04, R05, R07, R08). | `test_sistema.py::test_cp117_monitor_registra_cada_transicion_una_vez` | PASS |
 | CP-118 | Sistema (archivos, bitacoras, concurrencia) | - | un archivo de datos con codificacion invalida y una configuracion sin secciones se rechazan sin detenerse. | `test_sistema.py::test_cp118_archivos_corruptos_no_detienen_el_sistema` | PASS |
 | CP-119 | Sistema (archivos, bitacoras, concurrencia) | - | el proceso simulador termina limpio al recibir Ctrl+C. | `test_sistema.py::test_cp119_simulador_se_detiene_limpio_con_ctrl_c` | PASS |
+| CP-120 | Odometro (elemento 11) | - | CP-ODO-01 a 120 km/h durante 45 s el odometro pasa de 000062 a 000063 (1.5 km). | `test_odometro.py::test_cp120_odo01_acumula_la_distancia_recorrida` | PASS |
+| CP-121 | Odometro (elemento 11) | - | 300 ciclos de 100 ms a 120 km/h suman exactamente 1 km; el redondeo no deja 62.999. | `test_odometro.py::test_cp121_odo01_un_kilometro_exacto_sin_error_de_redondeo` | PASS |
+| CP-122 | Odometro (elemento 11) | - | CP-ODO-02 desde 999999, a 360 km/h durante 15 s (1.5 km) el contador vuelve a 000000. | `test_odometro.py::test_cp122_odo02_vuelve_a_cero_al_pasar_del_maximo` | PASS |
+| CP-123 | Odometro (elemento 11) | R01 | con velocidad 0 o con el motor apagado (R01) el odometro no avanza. | `test_odometro.py::test_cp123_no_avanza_detenido_ni_con_motor_apagado` | PASS |
+| CP-124 | Odometro (elemento 11) | - | el valor inicial debe ser numerico y estar en 0-999999; velocidades o tiempos negativos no restan. | `test_odometro.py::test_cp124_odometro_valida_sus_entradas_y_nunca_retrocede` | PASS |
+| CP-125 | Odometro (elemento 11) | - | CP-ODO-03 si datos/odometro.txt contiene abc, se inicia en 000000, se avisa y se registra ERROR. | `test_odometro.py::test_cp125_odo03_archivo_corrupto_inicia_en_cero_con_aviso` | PASS |
+| CP-126 | Odometro (elemento 11) | - | si el archivo principal esta corrupto o falta, se recupera del respaldo .bak. | `test_odometro.py::test_cp126_respaldo_recupera_el_kilometraje` | PASS |
+| CP-127 | Odometro (elemento 11) | - | guardar escribe el principal y el respaldo; al cargar se recupera el mismo kilometraje. | `test_odometro.py::test_cp127_persistencia_atomica_con_respaldo` | PASS |
+| CP-128 | Odometro (elemento 11) | - | la primera vez, sin archivo ni respaldo, se inicia en 000000 sin error. | `test_odometro.py::test_cp128_primer_arranque_sin_archivos` | PASS |
+| CP-129 | Odometro (elemento 11) | - | un valor fuera de rango, negativo o un archivo demasiado grande se rechazan. | `test_odometro.py::test_cp129_valores_invalidos_del_archivo` | PASS |
+| CP-130 | Odometro (elemento 11) | - | un archivo con bytes que no son UTF-8 se rechaza sin detener el sistema. | `test_odometro.py::test_cp130_archivo_ilegible_o_con_codificacion_invalida` | PASS |
+| CP-131 | Odometro (elemento 11) | - | un odometro.txt escribible por cualquiera se rechaza: nadie mas que el dueno puede alterar el kilometraje. | `test_odometro.py::test_cp131_kilometraje_manipulable_por_otros_se_rechaza` | PASS |
+| CP-132 | Odometro (elemento 11) | - | un odometro.txt sin permiso de lectura se rechaza y se registra. | `test_odometro.py::test_cp132_kilometraje_sin_permiso_de_lectura` | PASS |
+| CP-133 | Odometro (elemento 11) | - | odometro=999999 en datos/vehiculo.conf se rechaza (clave_no_permitida) y lo demas se aplica. | `test_odometro.py::test_cp133_el_odometro_no_se_escribe_desde_el_archivo_de_datos` | PASS |
+| CP-134 | Odometro (elemento 11) | - | la ruta y la frecuencia de guardado del odometro se leen de la configuracion y se validan. | `test_odometro.py::test_cp134_configuracion_del_odometro` | PASS |
+| CP-135 | Odometro (elemento 11) | - | la ventana dibuja el odometro de 6 digitos en el velocimetro y lo actualiza con la marcha. | `test_odometro.py::test_cp135_el_tablero_muestra_el_odometro` | PASS |
+| CP-136 | Odometro (elemento 11) | - | la aplicacion recupera el kilometraje al iniciar, lo guarda al cerrar y avisa si el archivo es invalido. | `test_odometro.py::test_cp136_la_aplicacion_carga_y_guarda_el_kilometraje` | PASS |
+| CP-137 | Odometro (elemento 11) | - | eventos.log registra INFO odometro_actualizado al cambiar el kilometro mostrado, incluida la vuelta a 000000. | `test_odometro.py::test_cp137_el_monitor_registra_cada_kilometro` | PASS |
 
 ## Resumen
 
-- Casos de prueba: 129
-- Pasaron: 129
+- Casos de prueba: 147
+- Pasaron: 147
 - Fallo esperado por defecto abierto (XFAIL): 0
 - Fallaron / otros: 0
 
@@ -143,7 +161,7 @@
 
 | Requisito | Casos |
 |-----------|-------|
-| R01 | CA-01, CA-02, CA-03, CA-07, CA-09, CA-10, CP-35, CP-36, CP-37, CP-51, CP-53, CP-54, CP-65, CP-66, CP-68, CP-73, CP-74, CP-91, CP-92, CP-93, CP-94, CP-96, CP-115, CP-117 |
+| R01 | CA-01, CA-02, CA-03, CA-07, CA-09, CA-10, CP-35, CP-36, CP-37, CP-51, CP-53, CP-54, CP-65, CP-66, CP-68, CP-73, CP-74, CP-91, CP-92, CP-93, CP-94, CP-96, CP-115, CP-117, CP-123 |
 | R02 | CA-09, CP-03, CP-17, CP-18, CP-19, CP-20, CP-37, CP-43, CP-44, CP-70, CP-92, CP-93, CP-99, CP-117 |
 | R03 | CA-03, CP-02, CP-13, CP-14, CP-15, CP-16, CP-27, CP-40, CP-41, CP-42, CP-69, CP-75, CP-92, CP-93, CP-94, CP-115, CP-117 |
 | R04 | CA-04, CP-04, CP-21, CP-22, CP-23, CP-28, CP-45, CP-46, CP-69, CP-92, CP-93, CP-94, CP-117 |

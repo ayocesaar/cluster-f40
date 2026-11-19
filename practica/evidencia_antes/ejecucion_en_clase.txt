@@ -1,0 +1,26 @@
+Ejecucion real de los casos de la practica contra la version actual del cluster
+
+== CP-ODO-01_normal ==
+segundos ejecutados: 30
+velocidad aplicada: 120.0 km/h
+textos del tablero con 6 digitos (odometro): ninguno
+lineas de bitacora que mencionan el odometro: 0
+
+== CP-ODO-02_limite ==
+segundos ejecutados: 10
+velocidad aplicada: 360.0 km/h
+textos del tablero con 6 digitos (odometro): ninguno
+lineas de bitacora que mencionan el odometro: 0
+
+== SONDA_odometro_en_vehiculo_conf ==
+segundos ejecutados: 3
+velocidad aplicada: 360.0 km/h
+textos del tablero con 6 digitos (odometro): ninguno
+lineas de bitacora que mencionan el odometro: 1
+  2026-11-18T18:18:48-06:00 ERROR lector_datos clave_desconocida linea 11 clave='odometro' resultado=rechazado
+
+== CP-ODO-03_archivo_corrupto ==
+segundos ejecutados: 5
+velocidad aplicada: 120.0 km/h
+textos del tablero con 6 digitos (odometro): ninguno
+lineas de bitacora que mencionan el odometro: 0

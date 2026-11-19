@@ -19,6 +19,7 @@ TECNICAS = {
     "test_tablero": "Integracion UI (Tkinter)",
     "test_aceptacion": "Aceptacion (dirigida por datos)",
     "test_sistema": "Sistema (archivos, bitacoras, concurrencia)",
+    "test_odometro": "Odometro (elemento 11)",
 }
 
 por_tecnica = {}
@@ -93,7 +94,7 @@ L += [
     "| Modulo | Lineas | Ramas | Cobertura |",
     "|--------|--------|-------|-----------|",
 ]
-for ruta in ("logic/estado.py", "logic/reloj.py", "ui/presentacion.py", "ui/tablero.py", "main.py",
+for ruta in ("logic/estado.py", "logic/reloj.py", "logic/odometro.py", "ui/presentacion.py", "ui/tablero.py", "main.py",
              "aceptacion/escenarios.py"):
     if ruta not in cov["files"]:
         continue

@@ -4,25 +4,25 @@ Configuracion: lectura cada 100 ms, refresco cada 50 ms, bitacoras de 16384 byte
 Productor: proceso tools/simulador.py escribiendo el archivo de datos cada 100 ms (escritura atomica)
 
 Intervalo real de actualizacion del tablero (ms):
-  ciclos=1158 promedio=51.8 mediana=51.0 p95=53.0 maximo=324.3
+  ciclos=1170 promedio=51.2 mediana=51.0 p95=52.3 maximo=139.4
 
 Datos procesados:
-  lecturas completas del archivo=283 snapshots aplicados por la interfaz=283
-  simulador: 288 escrituras atomicas en vehiculo.conf
-  eventos registrados: INFO=837 WARN=14 ERROR=0
-  lineas presentes en bitacoras: eventos=345 errores=0 (las antiguas se descartan al rotar)
+  lecturas completas del archivo=564 snapshots aplicados por la interfaz=563
+  simulador: 592 escrituras atomicas en vehiculo.conf
+  eventos registrados: INFO=1575 WARN=18 ERROR=0
+  lineas presentes en bitacoras: eventos=414 errores=0 (las antiguas se descartan al rotar)
 
 Memoria (RSS):
-  inicio=28584 KB fin=28904 KB diferencia=320 KB
+  inicio=28760 KB fin=29020 KB diferencia=260 KB
 
 Bitacoras (bytes):
-  inicio={'errores.log': 0, 'eventos.log': 110}
-  fin={'errores.log': 0, 'eventos.log': 690, 'eventos.log.1': 16366, 'eventos.log.2': 16293}
-  total final=33349 limite teorico=49152 acotado=si
+  inicio={'errores.log': 0, 'eventos.log': 585}
+  fin={'errores.log': 0, 'eventos.log': 7187, 'eventos.log.1': 16368, 'eventos.log.2': 16346}
+  total final=39901 limite teorico=49152 acotado=si
 
 ps al inicio:
 PID    PPID STAT %CPU %MEM   RSS    VSZ CMD
-   1647    1634 Sl   14.0  1.4 28584 120668 python tools/ejecucion_prolongada.py --duracion-s 60
+   2327    2314 Sl   10.6  1.4 29020 120712 python tools/ejecucion_prolongada.py --duracion-s 60
 ps al final:
 PID    PPID STAT %CPU %MEM   RSS    VSZ CMD
-   1647    1634 Sl    3.4  1.4 28904 120668 python tools/ejecucion_prolongada.py --duracion-s 60
+   2327    2314 Sl    3.0  1.4 29020 120712 python tools/ejecucion_prolongada.py --duracion-s 60

@@ -41,6 +41,11 @@ def _testigo(encendido, color):
     return {"encendido": encendido, "color": color if encendido else COLOR_APAGADO}
 
 
+def vista_odometro(estado):
+    """Elemento 11 (odometro): los 6 digitos que muestra el tablero."""
+    return {"km": estado.odometro.valor, "texto": estado.odometro.texto}
+
+
 def vista(estado):
     """Devuelve {numero: descripcion} de los 10 elementos tal como se dibujan."""
     # R07: con emergencia activa y direccional puesto, el testigo 8 tiene

@@ -1,0 +1,6 @@
+CP-ODO-01|30|000062 -> 000063 (1 km) e INFO odometro_actualizado|tablero sin contador de 6 digitos; 0 lineas de bitacora del odometro|Fallido
+CP-ODO-01 v2|45|000062 -> 000063 (1.5 km) e INFO odometro_actualizado|tablero sin contador de 6 digitos; 0 lineas de bitacora del odometro|Fallido
+CP-ODO-02|10|999999 -> 000000 (1 km) y la vuelta registrada|tablero sin contador de 6 digitos; 0 lineas de bitacora del odometro|Fallido
+CP-ODO-02 v2|15|999999 -> 000000 (1.5 km) y la vuelta registrada|tablero sin contador de 6 digitos; 0 lineas de bitacora del odometro|Fallido
+CP-ODO-03|5|000000, aviso en pantalla y ERROR odometro_invalido|tablero sin contador de 6 digitos; 0 lineas de bitacora del odometro|Bloqueado (DEF-03)
+SONDA|3|odometro= rechazado por el lector; el resto se aplica|velocidad aplicada 360 km/h; lector: ERROR lector_datos clave_desconocida linea 11 clave='odometro' resultado=rechazado|Rechazado como clave_desconocida

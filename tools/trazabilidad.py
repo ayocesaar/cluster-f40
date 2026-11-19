@@ -17,6 +17,7 @@ TECNICAS = {
     "test_tablero.py": "Integracion UI (Tkinter)",
     "test_aceptacion.py": "Aceptacion (dirigida por datos)",
     "test_sistema.py": "Sistema (archivos, bitacoras, concurrencia)",
+    "test_odometro.py": "Odometro (elemento 11)",
 }
 
 # Los casos parametrizados llegan como "test_x[param]": se agrupan por funcion

@@ -1,0 +1,9 @@
+2026-11-18T18:50:48-06:00 INFO  sistema inicio modo=archivo=datos/vehiculo.conf lectura_ms=100 refresco_ms=50
+2026-11-18T18:50:48-06:00 INFO  lector_datos valor_actualizado motor=1 resultado=aceptado
+2026-11-18T18:50:48-06:00 INFO  lector_datos valor_actualizado velocidad=120 resultado=aceptado
+2026-11-18T18:50:48-06:00 INFO  lector_datos valor_actualizado rpm=3000 resultado=aceptado
+2026-11-18T18:50:48-06:00 INFO  lector_datos valor_actualizado presion_aceite=5 resultado=aceptado
+2026-11-18T18:50:48-06:00 INFO  lector_datos valor_actualizado temp_agua=90 resultado=aceptado
+2026-11-18T18:50:48-06:00 INFO  lector_datos valor_actualizado presion_turbo=0.8 resultado=aceptado
+2026-11-18T18:50:48-06:00 INFO  modelo_vehiculo motor_encendido (R01)
+2026-11-18T18:51:33-06:00 INFO  sistema fin info=8 warn=0 error=0

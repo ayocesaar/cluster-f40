@@ -52,10 +52,12 @@ TECNICAS = {
     "test_tablero": "Integracion UI (Tkinter)",
     "test_aceptacion": "Aceptacion (dirigida por datos)",
     "test_sistema": "Sistema (archivos, bitacoras, concurrencia)",
+    "test_odometro": "Odometro (elemento 11)",
 }
 
 PRODUCCION = ("logic/estado.py", "logic/reloj.py", "ui/presentacion.py", "ui/tablero.py",
-              "main.py", "aceptacion/escenarios.py", "sistema/config.py", "sistema/lector.py", "sistema/bitacora.py", "sistema/monitor.py")
+              "main.py", "aceptacion/escenarios.py", "sistema/config.py", "sistema/lector.py", "sistema/bitacora.py", "sistema/monitor.py",
+              "logic/odometro.py", "sistema/odometro_archivo.py")
 
 ELEMENTOS = (
     ("1", "Velocímetro", "Decimal", "0–360 km/h", "100 ms", "Encendido = 1", "Aguja y cifra", "Lectura continua"),
@@ -68,6 +70,8 @@ ELEMENTOS = (
     ("8", "Intermitentes (emergencia)", "Booleano", "—", "500 ms", "—", "Ámbar intermitente", "Testigo informativo"),
     ("9", "Baja presión de aceite", "Booleano", "—", "—", "Motor activo (R02)", "Rojo fijo", "Testigo de seguridad (CRÍTICA)"),
     ("10", "Falla de frenos", "Booleano", "—", "300 ms", "—", "Rojo parpadeante", "Testigo de seguridad (CRÍTICA)"),
+    ("11", "Odómetro", "Decimal (se muestra entero)", "0–999 999 km", "Cada ciclo (50 ms)", "Motor activo y velocidad > 0",
+     "Contador de 6 dígitos; vuelve a 000000", "Información en línea"),
 )
 
 REGLAS = (
@@ -678,13 +682,15 @@ def construir():
     tabla(doc, ["Módulo", "Responsabilidad"], [
         ("logic/estado.py", "Estado del clúster y reglas R01–R08; valida las entradas; sin dependencias de interfaz."),
         ("logic/reloj.py", "Reloj inyectable: real (time.monotonic) o simulado para pruebas deterministas."),
-        ("ui/presentacion.py", "Traduce el estado a lo que se dibuja de cada uno de los 10 elementos."),
+        ("logic/odometro.py", "Odómetro (elemento 11): integra la velocidad en el tiempo; 6 dígitos con vuelta a cero."),
+        ("ui/presentacion.py", "Traduce el estado a lo que se dibuja de cada uno de los 11 elementos."),
         ("ui/tablero.py", "Interfaz Tkinter: dibuja medidores y testigos y envía los controles al estado."),
         ("main.py", "Punto de entrada de la aplicación."),
         ("aceptacion/escenarios.py", "Carga y ejecuta los escenarios de aceptación desde un archivo CSV."),
         ("sistema/lector.py", "Hilo lector de datos/vehiculo.conf: valida y publica el último estado válido."),
         ("sistema/bitacora.py, sistema/monitor.py", "Bitácoras eventos.log y errores.log con rotación; eventos de seguridad."),
         ("sistema/config.py", "Configuración externa: rutas, intervalos y rangos (config/cluster.ini)."),
+        ("sistema/odometro_archivo.py", "Kilometraje en datos/odometro.txt con respaldo .bak y escritura atómica."),
     ], anchos=[4.5, 12])
     figura(doc, EVID / "capturas" / "02_motor_encendido_valores_normales.png",
            "Figura 1. Vista general del clúster con el motor encendido (captura 02).")
@@ -692,7 +698,9 @@ def construir():
     # 3. Elementos y reglas
     doc.add_heading("3. Los diez elementos y las reglas", level=1)
     doc.add_paragraph("Categorías: 1–5 lecturas continuas; 6–8 testigos informativos; 9–10 testigos de "
-                      "seguridad. El testigo 9 es distinto del medidor continuo 2.")
+                      "seguridad; 11 información en línea. El testigo 9 es distinto del medidor continuo 2. El odómetro "
+                      "(11) se agregó tras la práctica en clase; sus casos son CT-26 a CT-28 del Documento completo de "
+                      "pruebas v2.1 y las pruebas CP-120 a CP-137.")
     tabla(doc, ["N.º", "Elemento", "Tipo", "Rango", "Ciclo", "Condición", "Comportamiento", "Categoría"],
           ELEMENTOS)
     doc.add_heading("Reglas de funcionamiento", level=2)
@@ -830,7 +838,8 @@ def construir():
           anchos=[2, 5, 9.5])
     doc.add_heading("Elementos y casos", level=2)
     tabla(doc, ["Elemento", "Casos del informe"], [
-        (f"{n} {nombre}", ", ".join(c["id"] for c in CASOS if _incluye(c["elementos"], int(n))))
+        (f"{n} {nombre}", ", ".join(c["id"] for c in CASOS if _incluye(c["elementos"], int(n)))
+         or "CT-26 a CT-28 del Documento completo de pruebas v2.1 (CP-120 a CP-137)")
         for n, nombre, *_ in ELEMENTOS], anchos=[5, 11.5])
     sin_caso = [regla for regla, cts, _ in filas if cts == "—"]
     doc.add_paragraph("Requisitos sin casos: " + (", ".join(sin_caso) if sin_caso else "ninguno") + ".")

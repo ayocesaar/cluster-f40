@@ -30,6 +30,7 @@ ENTEROS = (
     ("intervalos", "refresco_ms", 10, 1000, 50),
     ("bitacora", "max_bytes", 1024, 10_485_760, 262_144),
     ("bitacora", "respaldos", 1, 10, 3),
+    ("odometro", "guardar_cada_s", 1, 3600, 5),
 )
 
 
@@ -38,10 +39,12 @@ class Configuracion:
     raiz: pathlib.Path
     archivo_datos: pathlib.Path
     dir_logs: pathlib.Path
+    archivo_odometro: pathlib.Path
     lectura_ms: int = 100
     refresco_ms: int = 50
     max_bytes: int = 262_144
     respaldos: int = 3
+    guardar_cada_s: int = 5
     rangos: dict = field(default_factory=lambda: dict(RANGOS_ESPECIFICACION))
     errores: list = field(default_factory=list)
 
@@ -81,7 +84,9 @@ def cargar(ruta=None, raiz=RAIZ):
     datos = _ruta_segura(raiz, ini.get("rutas", "datos", fallback="datos/vehiculo.conf"),
                          "datos/vehiculo.conf", "datos", errores)
     logs = _ruta_segura(raiz, ini.get("rutas", "logs", fallback="logs"), "logs", "logs", errores)
-    cfg = Configuracion(raiz=raiz, archivo_datos=datos, dir_logs=logs, errores=errores)
+    odometro = _ruta_segura(raiz, ini.get("rutas", "odometro", fallback="datos/odometro.txt"),
+                            "datos/odometro.txt", "odometro", errores)
+    cfg = Configuracion(raiz=raiz, archivo_datos=datos, dir_logs=logs, archivo_odometro=odometro, errores=errores)
 
     for seccion, clave, minimo, maximo, defecto in ENTEROS:
         texto = ini.get(seccion, clave, fallback=None)

@@ -1,0 +1,69 @@
+Casos de la practica del odometro - version antes (codigo: 749d580)
+fecha: 2026-11-18T18:50:18-0600
+
+== CP-ODO-01 (CP-ODO-01_normal_30s) ==
+segundos ejecutados: 30
+velocidad aplicada: 120 km/h
+esperado: 000062 -> 000063 (1 km) e INFO odometro_actualizado
+textos del tablero con 6 digitos: ninguno
+km internos: no existe el odometro
+aviso en pantalla: (ninguno)
+odometro.txt al cerrar: 62
+lineas de bitacora que mencionan el odometro: 0
+estado: Fallido
+
+== CP-ODO-01 v2 (CP-ODO-01_v2_normal_45s) ==
+segundos ejecutados: 45
+velocidad aplicada: 120 km/h
+esperado: 000062 -> 000063 (1.5 km) e INFO odometro_actualizado
+textos del tablero con 6 digitos: ninguno
+km internos: no existe el odometro
+aviso en pantalla: (ninguno)
+odometro.txt al cerrar: 62
+lineas de bitacora que mencionan el odometro: 0
+estado: Fallido
+
+== CP-ODO-02 (CP-ODO-02_limite_10s) ==
+segundos ejecutados: 10
+velocidad aplicada: 360 km/h
+esperado: 999999 -> 000000 (1 km) y la vuelta registrada
+textos del tablero con 6 digitos: ninguno
+km internos: no existe el odometro
+aviso en pantalla: (ninguno)
+odometro.txt al cerrar: 999999
+lineas de bitacora que mencionan el odometro: 0
+estado: Fallido
+
+== CP-ODO-02 v2 (CP-ODO-02_v2_limite_15s) ==
+segundos ejecutados: 15
+velocidad aplicada: 360 km/h
+esperado: 999999 -> 000000 (1.5 km) y la vuelta registrada
+textos del tablero con 6 digitos: ninguno
+km internos: no existe el odometro
+aviso en pantalla: (ninguno)
+odometro.txt al cerrar: 999999
+lineas de bitacora que mencionan el odometro: 0
+estado: Fallido
+
+== CP-ODO-03 (CP-ODO-03_archivo_corrupto) ==
+segundos ejecutados: 5
+velocidad aplicada: 120 km/h
+esperado: 000000, aviso en pantalla y ERROR odometro_invalido
+textos del tablero con 6 digitos: ninguno
+km internos: no existe el odometro
+aviso en pantalla: (ninguno)
+odometro.txt al cerrar: abc
+lineas de bitacora que mencionan el odometro: 0
+estado: Bloqueado (DEF-03)
+
+== SONDA (SONDA_odometro_en_vehiculo_conf) ==
+segundos ejecutados: 3
+velocidad aplicada: 360 km/h
+esperado: odometro= rechazado por el lector; el resto se aplica
+textos del tablero con 6 digitos: ninguno
+km internos: no existe el odometro
+aviso en pantalla: (ninguno)
+odometro.txt al cerrar: (no existe)
+lineas de bitacora que mencionan el odometro: 1
+  2026-11-18T18:52:04-06:00 ERROR lector_datos clave_desconocida linea 11 clave='odometro' resultado=rechazado
+estado: Rechazado como clave_desconocida

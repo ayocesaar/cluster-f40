@@ -1,0 +1,1 @@
+2026-11-18T18:53:53-06:00 ERROR lector_datos clave_no_permitida linea 11 clave=odometro (el kilometraje lo calcula el sistema; no se escribe desde el archivo) resultado=rechazado

@@ -2,29 +2,32 @@ Name                            Stmts   Miss Branch BrPart  Cover   Missing
 ---------------------------------------------------------------------------
 aceptacion/__init__.py              0      0      0      0   100%
 aceptacion/escenarios.py          131      0     40      0   100%
-logic/estado.py                   191      0     64      0   100%
+logic/estado.py                   194      0     64      0   100%
+logic/odometro.py                  27      0      8      0   100%
 logic/reloj.py                     18      0      4      0   100%
-main.py                            56      0      8      1    98%   73->75
+main.py                            79      0     12      1    99%   100->102
 sistema/__init__.py                 0      0      0      0   100%
 sistema/bitacora.py                62      0      8      2    97%   47->49, 56->58
-sistema/config.py                  69      0     16      0   100%
-sistema/lector.py                 214      4     70      6    96%   133->135, 135->exit, 144->146, 189, 205->exit, 212, 220->224, 248-249
-sistema/monitor.py                 30      0     18      0   100%
+sistema/config.py                  72      0     16      0   100%
+sistema/lector.py                 217      4     72      6    97%   137->139, 139->exit, 148->150, 193, 209->exit, 216, 224->228, 252-253
+sistema/monitor.py                 39      0     22      0   100%
+sistema/odometro_archivo.py        55      0     16      0   100%
 tests/conftest.py                  17      0      0      0   100%
 tests/test_aceptacion.py           81      2      0      0    98%   20-21
 tests/test_complementarias.py      53      0      6      0   100%
 tests/test_invalidas.py            50      0      0      0   100%
 tests/test_limites.py              98      0      0      0   100%
+tests/test_odometro.py            214      2     14      1    99%   55-56, 145->exit
 tests/test_particiones.py          46      0      0      0   100%
 tests/test_presentacion.py         49      0      0      0   100%
 tests/test_requisitos.py           17      0      4      0   100%
-tests/test_sistema.py             382      2     38      0    99%   416-417
+tests/test_sistema.py             382      4     38      0    99%   174-175, 416-417
 tests/test_tablero.py              50      2      0      0    96%   15-16
 tests/test_transiciones.py        101      0      6      0   100%
 tools/escribir_dato.py             37      0     10      0   100%
 tools/simulador.py                 42      0      6      0   100%
 ui/__init__.py                      0      0      0      0   100%
-ui/presentacion.py                 19      0      0      0   100%
-ui/tablero.py                     230      0     60      0   100%
+ui/presentacion.py                 21      0      0      0   100%
+ui/tablero.py                     240      0     62      0   100%
 ---------------------------------------------------------------------------
-TOTAL                            2043     10    358      9    99%
+TOTAL                            2392     14    408     10    99%

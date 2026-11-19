@@ -11,6 +11,7 @@ Los resultados reales de cada prueba están en `docs/evidencias/` y en los dos i
 |---|---|---|
 | Vehículo: marca, modelo y año | ✅ | Ferrari F40 (1987): README, informes. Debe coincidir con la tarea 2. |
 | Diez elementos funcionales | ✅ | Pruebas CP-01 a CP-90, CA-01 a CA-10 |
+| Elemento 11 (odómetro), agregado tras la práctica | ✅ | tests/test_odometro.py, CP-120 a CP-137 |
 | Entrada sin editar ni recompilar | ✅ | `datos/vehiculo.conf`, `tools/escribir_dato.py`, `tools/simulador.py` |
 | Actualización sin reiniciar | ✅ | CP-115: con la app abierta se cambia el archivo y el tablero cambia |
 | Persistencia en archivos separados | ✅ | `config/cluster.ini`, `datos/vehiculo.conf`, `logs/eventos.log`, `logs/errores.log` |
@@ -23,6 +24,7 @@ Los resultados reales de cada prueba están en `docs/evidencias/` y en los dos i
 |---|---|---|
 | Indicadores principales (2) | 1 velocímetro, 4 temperatura de agua | ✅ |
 | Información en línea (3) | 3 tacómetro, 2 presión de aceite, 5 presión de turbo | ⚠️ Confirmar con el profesor: sus ejemplos son odómetro, autonomía, consumo, marcha o temperatura exterior |
+| Información en línea (agregado) | 11 odómetro (tests/test_odometro.py, CP-120 a CP-137) | ✅ |
 | Testigos informativos (3) | 6 direccionales, 7 luces altas, 8 emergencia | ✅ |
 | Testigos de seguridad (2) | 9 baja presión de aceite, 10 falla de frenos | ⚠️ Confirmar que el medidor 2 y el testigo 9 (mismo sensor) no cuentan como "mismo componente en dos categorías" |
 
@@ -67,7 +69,7 @@ Métricas mínimas (intervalo real, eventos y errores, memoria inicial y final, 
 | 1 | Código fuente | `logic/`, `sistema/`, `ui/`, `main.py` |
 | 2 | README | `README.md` (requisitos, instalación, estructura, ejecución, solución de problemas) |
 | 3 | Informe técnico en PDF | `informe/Informe_Tecnico_Cluster_F40.pdf` |
-| 4 | Tabla de los 10 elementos | Informe técnico §3 |
+| 4 | Tabla de los 11 elementos (10 + odómetro) | Informe técnico §3 |
 | 5 | Diagramas | `docs/diagramas/arquitectura.png`, `docs/diagramas/flujo_actualizacion.png` |
 | 6 | Configuración y entradas | `config/cluster.ini`, `datos/vehiculo.conf`, `tests/datos/` |
 | 7 | Bitácoras | `docs/evidencias/bitacoras/exitosa/` y `docs/evidencias/bitacoras/con_errores/` |
@@ -79,3 +81,4 @@ Métricas mínimas (intervalo real, eventos y errores, memoria inicial y final, 
 
 1. Confirmar con el profesor las categorías de los elementos 2, 3, 5 y 9 (ver arriba).
 2. Ensayar la demostración con el guion de `02_guia_de_estudio.md`.
+3. Revisión cruzada, escenario sorpresa y observaciones del profesor de la práctica del odómetro: pendientes (no han ocurrido).

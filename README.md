@@ -1,7 +1,7 @@
 # Clúster F40 simulado
 
 Simulador del clúster de instrumentos del **Ferrari F40 (1987)**, con interfaz de estética 8-bit, para el proyecto
-final de Sistemas Operativos (UAG), Equipo 3. Los diez elementos se controlan con **datos externos** (un archivo que
+final de Sistemas Operativos (UAG), Equipo 3. Los once elementos (diez de la especificación original más el odómetro) se controlan con **datos externos** (un archivo que
 el tablero relee sin reiniciar); los eventos y los errores se registran en **bitácoras separadas**. Los rangos y
 umbrales son parámetros didácticos, no calibraciones oficiales del F40.
 
@@ -48,9 +48,10 @@ cluster-f40/
 ├── main.py, iniciar.sh, abrir_cluster.sh, abrir_cluster.bat   # arranque
 ├── config/cluster.ini      # rutas, intervalos, rangos y rotación de bitácoras
 ├── datos/vehiculo.conf     # entrada modificable (clave=valor)
+├── datos/odometro.txt      # generado: kilometraje; su respaldo es odometro.txt.bak
 ├── logs/                   # eventos.log y errores.log (se crean al ejecutar)
-├── logic/                  # modelo: estado.py (reglas R01-R08) y reloj.py
-├── sistema/                # config.py, lector.py (hilo + buzón), bitacora.py, monitor.py
+├── logic/                  # modelo: estado.py (reglas R01-R08), reloj.py y odometro.py
+├── sistema/                # config.py, lector.py (hilo + buzón), bitacora.py, monitor.py, odometro_archivo.py
 ├── ui/                     # presentacion.py y tablero.py (Tkinter 8-bit)
 ├── aceptacion/             # ejecutor de escenarios de aceptación
 ├── tests/                  # pruebas (P01-P12 en test_sistema.py) y datos de prueba
@@ -74,8 +75,34 @@ cluster-f40/
 | 8 | Intermitentes | Testigo informativo | `emergencia` (0/1) |
 | 9 | Baja presión de aceite | Testigo de seguridad | calculado de `presion_aceite` |
 | 10 | Falla de frenos | Testigo de seguridad | `falla_frenos` (0/1) |
+| 11 | Odómetro | Información en línea | calculado (`odometro=` se rechaza) |
 
 El motor se enciende con `motor=1`.
+
+## Odómetro (elemento 11)
+
+Se agregó tras la práctica "Diseño y ejecución supervisada de pruebas" (categoría: información en línea, lectura
+continua). Su defecto, DEF-03, se cerró en la Etapa 13.
+
+- **Muestra:** entero de 6 dígitos, de 000000 a 999999 km. Tras 999999 vuelve a 000000 (el sistema cuenta las
+  vueltas) y nunca disminuye. Internamente guarda la fracción de km.
+- **Cálculo:** en cada tick (50 ms) suma velocidad (km/h) × tiempo transcurrido (h). Solo avanza con motor encendido
+  y velocidad mayor que 0; con motor apagado (R01) no avanza.
+- **Pantalla:** caja de 6 dígitos dentro del velocímetro, con la etiqueta "11 ODOMETRO KM".
+- **Persistencia:** `datos/odometro.txt`, con respaldo en `datos/odometro.txt.bak`. Escritura atómica (temporal,
+  `fsync` y `os.replace`) y permisos 640. Se guarda cada 5 s y al cerrar la aplicación. Ambos archivos están en
+  `.gitignore`.
+- **Configuración:** `config/cluster.ini`, sección `[odometro]`, clave `guardar_cada_s` (rango 1–3600).
+- **Al iniciar:** si `odometro.txt` es válido, se usa (INFO `odometro_cargado`). Si no, se usa el respaldo (WARN
+  `odometro_restaurado` y el aviso "Odometro restaurado del respaldo: 000062 km"). Si ninguno sirve, inicia en 000000
+  con ERROR `odometro_invalido` u `odometro_inexistente` y el aviso "Odometro: archivo invalido, se inicio en 000000".
+  En el primer arranque, sin archivos, solo registra INFO `odometro_nuevo`.
+- **Archivo inválido:** se rechaza si es escribible por cualquiera (o+w), pesa más de 64 bytes, no es UTF-8 o no es un
+  número (hasta 6 dígitos y hasta 6 decimales).
+- **Clave `odometro=`:** en `datos/vehiculo.conf` se rechaza con ERROR `clave_no_permitida`, porque el kilometraje lo
+  calcula el sistema. El resto de las claves sí se aplican.
+- **Si no se puede guardar** (disco lleno, por ejemplo): ERROR `odometro_no_guardado` y el sistema sigue.
+- **Pruebas:** `tests/test_odometro.py` (CP-120 a CP-137).
 
 ## Pruebas
 

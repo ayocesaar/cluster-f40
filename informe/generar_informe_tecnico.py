@@ -74,6 +74,20 @@ FICHAS = (
      "rango": "Inicial 0", "ciclo": "Parpadeo de 300 ms", "visual": "Rectángulo rojo parpadeante, también con motor apagado (D1)",
      "adv": "CRÍTICO. WARN prioritario testigo_10_encendido (R08).", "invalido": "Igual que el elemento 7.",
      "evento": "WARN testigo_10_encendido; INFO testigo_10_apagado", "just": "Dos estados; el parpadeo más rápido lo distingue de los informativos."},
+    {"n": "11", "nombre": "Odómetro (agregado tras la práctica en clase)", "cat": "Información en línea",
+     "clave": "calculado a partir de la velocidad; odometro= en datos/vehiculo.conf se rechaza (clave_no_permitida)",
+     "fuente": "Calculado por EstadoCluster (logic/odometro.py) a partir de la velocidad mostrada; el kilometraje inicial "
+               "se lee de datos/odometro.txt (sistema/odometro_archivo.py)",
+     "tipo": "Decimal interno (fracción de km); se muestra como entero de 6 dígitos",
+     "rango": "km; 000000 a 999999, después vuelve a 000000; inicial: el guardado en datos/odometro.txt",
+     "ciclo": "Cada ciclo de 50 ms; se guarda cada 5 s ([odometro] guardar_cada_s) y al cerrar",
+     "visual": "Caja de 6 dígitos dentro del velocímetro, etiqueta 11 ODOMETRO KM",
+     "adv": "Sin advertencia; no avanza con el motor apagado (R01) ni con velocidad 0. Nunca disminuye.",
+     "invalido": "Archivo ausente, corrupto, mayor a 64 bytes, no UTF-8 o escribible por cualquiera: se usa el respaldo .bak "
+                 "(WARN odometro_restaurado) o se inicia en 000000 con aviso en pantalla y ERROR odometro_invalido.",
+     "evento": "INFO odometro_cargado, odometro_actualizado (cada km) y odometro_guardado; ERROR odometro_no_guardado",
+     "just": "distancia = velocidad × tiempo se integra con el tiempo real del reloj, no contando ciclos; la fracción se "
+             "conserva para no perder distancia entre ciclos y la escritura atómica con respaldo evita perder el kilometraje."},
 )
 
 PRUEBAS = (
@@ -124,7 +138,8 @@ JUSTIFICACIONES = (
      "Estado actual rápido, pero historial y errores recuperables.",
      "Guardar todo en disco; todo en memoria; separación.",
      "Rendimiento, durabilidad, recuperación.",
-     "En memoria: el estado de los diez elementos y el último valor válido. En disco: configuración, datos de entrada, eventos y errores, en archivos separados.",
+     "En memoria: el estado de los once elementos y el último valor válido. En disco: configuración, datos de entrada, eventos y errores, en archivos separados, "
+     "y el kilometraje del odómetro (datos/odometro.txt con respaldo .bak).",
      "Memoria constante (sin historial en RAM); la bitácora es la historia y rota por tamaño.",
      "logic/estado.py; sistema/lector.py (ultimo_valido); logs/; CP-104, metricas.txt."),
     ("¿Por qué los permisos y controles son suficientes?",
@@ -226,15 +241,16 @@ def construir():
     figura(doc, EVID / "capturas" / "03_umbrales_de_lecturas.png", "Figura 1. Tablero con advertencias activas (captura real).")
 
     # 3. Diez elementos
-    doc.add_heading("3. Descripción y ficha de los diez elementos", level=1)
+    doc.add_heading("3. Descripción y ficha de los once elementos", level=1)
     doc.add_paragraph("Categorías según la guía: 2 indicadores principales (1 y 4), 3 de información en línea (2, 3 y 5), "
-                      "3 testigos informativos (6, 7 y 8) y 2 testigos de seguridad (9 y 10).")
+                      "3 testigos informativos (6, 7 y 8) y 2 testigos de seguridad (9 y 10). El odómetro (11, información "
+                      "en línea) se agregó después de la práctica en clase, donde el profesor lo asignó como tema de prueba.")
     tabla(doc, ["N.º", "Elemento", "Categoría", "Clave en datos/vehiculo.conf", "Tipo", "Unidad, rango e inicial"],
           [(f["n"], f["nombre"], f["cat"], f["clave"], f["tipo"], f["rango"]) for f in FICHAS])
     for f in FICHAS:
         doc.add_heading(f"Ficha del elemento {f['n']}: {f['nombre']}", level=2)
-        fuente = (f"datos/vehiculo.conf, clave {f['clave']}" if not f["clave"].startswith("calculado")
-                  else "Calculado por EstadoCluster a partir de la clave presion_aceite de datos/vehiculo.conf")
+        fuente = f.get("fuente") or (f"datos/vehiculo.conf, clave {f['clave']}" if not f["clave"].startswith("calculado")
+                                     else "Calculado por EstadoCluster a partir de la clave presion_aceite de datos/vehiculo.conf")
         ficha(doc, [("Categoría", f["cat"]), ("Fuente del dato", fuente),
                     ("Tipo de dato", f["tipo"]), ("Unidad, rango y valor inicial", f["rango"]),
                     ("Frecuencia de actualización", f["ciclo"]), ("Regla de visualización", f["visual"]),
@@ -250,6 +266,8 @@ def construir():
         ("Entrada de datos", "sistema/lector.py", "Leer y convertir datos/vehiculo.conf en un hilo propio", "Dibujar la interfaz"),
         ("Validador", "sistema/lector.py y logic/estado.py", "Comprobar tipo, formato, rango y largo (dos capas)", "Aceptar datos inválidos en silencio"),
         ("Modelo del vehículo", "logic/estado.py", "Último estado válido de los diez elementos y reglas R01–R08", "Depender del dibujo"),
+        ("Odómetro", "logic/odometro.py, sistema/odometro_archivo.py", "Calcular el kilometraje y conservarlo con respaldo",
+         "Aceptar el kilometraje desde datos/vehiculo.conf"),
         ("Interfaz", "ui/presentacion.py, ui/tablero.py", "Representar indicadores y testigos", "Modificar archivos de configuración"),
         ("Registrador", "sistema/bitacora.py, sistema/monitor.py", "Eventos, advertencias y errores con fecha y nivel", "Mezclar niveles en un archivo"),
         ("Configuración", "sistema/config.py, config/cluster.ini", "Rutas, intervalos, rangos y rotación", "Obligar a recompilar"),

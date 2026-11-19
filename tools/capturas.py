@@ -135,7 +135,7 @@ def main():
             tablero.detener()
             tablero.refrescar()
             (ancho, alto), colores = capturar(raiz, DESTINO / archivo)
-            resumen = _resumen(vista(estado))
+            resumen = _resumen(vista(estado)) + f", 11 odometro={estado.odometro.texto}"
             mensaje = tablero.mensaje.cget("text")
         finally:
             raiz.destroy()

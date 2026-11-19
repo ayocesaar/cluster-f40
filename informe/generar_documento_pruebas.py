@@ -1,14 +1,17 @@
 """Genera informe/Documento_Completo_de_Pruebas_F40.docx y .pdf (Tarea 2).
 
 Sigue la "estructura obligatoria" de la Tarea 2: control documental, introduccion,
-alcance, sistema bajo prueba, requisitos de los diez elementos, estrategia,
-ambiente, riesgos, criterios, 25 casos con la distribucion pedida, trazabilidad,
+alcance, sistema bajo prueba, requisitos de los once elementos (los diez de la
+especificacion y el odometro), estrategia, ambiente, riesgos, criterios, 28 casos
+(25 con la distribucion pedida y 3 de la practica en clase), trazabilidad,
 defectos, resultados con metricas y anexos (evidencias, cambios, actividades
 previas, uso de IA y defensa).
 
 El estado de cada caso se calcula de docs/evidencias/junit.xml y de
-docs/evidencias/metricas.txt; el historial sale de git. Las actividades de la
-practica en clase que todavia no ocurren quedan marcadas como pendientes.
+docs/evidencias/metricas.txt; el historial sale de git; los resultados de la
+practica (antes y despues de implementar el odometro) salen de
+practica/evidencia_antes/ y practica/evidencia_despues/. Las actividades de la
+practica que todavia no ocurren quedan marcadas como pendientes.
 
 Uso (desde la raiz del proyecto): python informe/generar_documento_pruebas.py"""
 
@@ -36,8 +39,10 @@ DOCS = RAIZ / "docs"
 EVID = DOCS / "evidencias"
 SALIDA = RAIZ / "informe" / "Documento_Completo_de_Pruebas_F40.docx"
 IDENTIFICADOR = "DCP-F40-T2"
-VERSION_DOC = "2.0"
-PENDIENTE = "PENDIENTE: la práctica en clase todavía no se realiza."
+VERSION_DOC = "2.1"
+PENDIENTE = "PENDIENTE: todavía no se realiza en clase."
+PRACTICA = RAIZ / "practica"
+CASOS_PRACTICA = ("CT-26", "CT-27", "CT-28")
 
 REQUISITOS = (
     ("REQ-VEL-01", "1 Velocímetro", "Decimal de 0 a 360 km/h (clave velocidad)", "100 ms",
@@ -69,6 +74,13 @@ REQUISITOS = (
     ("REQ-FRN-01", "10 Falla de frenos", "Booleano 0/1 (clave falla_frenos)", "Parpadeo de 300 ms",
      "Testigo rojo parpadeante con etiqueta CRITICA, también con el motor apagado", "WARN prioritario al activarse (R08)",
      "Un valor distinto de 0/1 se rechaza y se registra"),
+    ("REQ-ODO-01", "11 Odómetro (agregado tras la práctica)",
+     "Calculado: distancia += velocidad mostrada (km/h) × tiempo transcurrido (h); kilometraje inicial en datos/odometro.txt",
+     "Cada ciclo de 50 ms; se guarda cada 5 s y al cerrar",
+     "Entero de 6 dígitos (000000–999999 km) dentro del velocímetro; nunca disminuye; INFO odometro_actualizado por cada km",
+     "Tras 999999 vuelve a 000000 y cuenta la vuelta; no avanza con el motor apagado (R01) ni con velocidad 0",
+     "Archivo ausente, corrupto o escribible por cualquiera: usa el respaldo .bak o inicia en 000000, avisa en pantalla y "
+     "registra ERROR; odometro= en datos/vehiculo.conf se rechaza (clave_no_permitida)"),
     ("REQ-SIS-01", "Entrada externa", "Archivo datos/vehiculo.conf (clave=valor)", "Lectura cada 100 ms",
      "El tablero refleja el cambio sin reiniciar", "—", "Archivo ausente, vacío o corrupto: no se detiene y registra ERROR"),
     ("REQ-SIS-02", "Bitácoras", "Eventos del sistema", "Por evento",
@@ -210,6 +222,33 @@ CASOS = (
      ["Leer el archivo malicioso.", "Cargar la configuración con una ruta absoluta."],
      "Todo se rechaza con su error; la ruta absoluta se reemplaza por la ruta por defecto.", ["CP-107", "CP-106"],
      "junit.xml", "—"),
+    # Casos de la practica en clase (tema asignado por el profesor: odometro), con la duracion corregida.
+    ("CT-26", "Odómetro: acumula la distancia recorrida (práctica, CP-ODO-01)", "Funcionamiento normal", ["REQ-ODO-01"],
+     "Sistema / funcional / partición de equivalencia", "Alta", "datos/odometro.txt = 62; aplicación abierta; motor encendido",
+     "velocidad=120 km/h constante durante 45 s (1.5 km)",
+     ["Confirmar que el odómetro muestra 000062.", "Escribir motor=1 y velocidad=120.", "Esperar 45 s.",
+      "Leer el odómetro y eventos.log; cerrar y volver a abrir."],
+     "El odómetro muestra 000063, eventos.log registra INFO odometro_actualizado km=000063 y el kilometraje se conserva "
+     "al reiniciar; con motor apagado o velocidad 0 no avanza.",
+     ["CP-120", "CP-121", "CP-123", "CP-127", "CP-128", "CP-134", "CP-135", "CP-137"],
+     "practica/evidencia_despues/ (CP-ODO-01); junit.xml", "DEF-03 (cerrado)"),
+    ("CT-27", "Odómetro: vuelta a 000000 tras 999999 (práctica, CP-ODO-02)", "Valores límite", ["REQ-ODO-01"],
+     "Sistema / funcional / valores límite y transición de estado", "Alta", "datos/odometro.txt = 999999; motor encendido",
+     "velocidad=360 km/h durante 15 s (1.5 km)",
+     ["Iniciar con el odómetro en 999999.", "Escribir velocidad=360.", "Esperar 15 s.", "Leer el odómetro y las bitácoras."],
+     "Pasa de 999999 a 000000 sin error ni 7 dígitos y sigue contando; eventos.log registra la vuelta "
+     "(odometro_actualizado km=000000 vuelta_a_cero).",
+     ["CP-122", "CP-124", "CP-137"], "practica/evidencia_despues/ (CP-ODO-02); junit.xml", "DEF-03 (cerrado)"),
+    ("CT-28", "Odómetro: archivo corrupto o inseguro (práctica, CP-ODO-03)", "Archivos y errores",
+     ["REQ-ODO-01", "REQ-SIS-01", "REQ-SIS-03"],
+     "Integración / negativa / conjetura de errores", "Alta", "datos/odometro.txt con el texto abc y sin respaldo",
+     "odometro.txt = abc; también: respaldo válido, archivo 666, sin lectura, fuera de rango, no UTF-8, odometro= en vehiculo.conf",
+     ["Escribir abc en datos/odometro.txt.", "Abrir la aplicación.", "Observar el tablero, el aviso y errores.log.",
+      "Repetir con las demás variantes."],
+     "No se detiene; arranca en 000000 con el aviso «Odometro: archivo invalido, se inicio en 000000» y ERROR "
+     "odometro_invalido; con respaldo válido se restaura de él; odometro= en vehiculo.conf se rechaza.",
+     ["CP-125", "CP-126", "CP-129", "CP-130", "CP-131", "CP-132", "CP-133", "CP-136"],
+     "practica/evidencia_despues/ (CP-ODO-03); junit.xml", "DEF-03 (cerrado)"),
 )
 
 CATEGORIAS = (("Funcionamiento normal", 5), ("Valores límite", 4), ("Entradas inválidas", 4), ("Transiciones de estado", 3),
@@ -222,8 +261,26 @@ RIESGOS = (
     ("Python de Microsoft Store en Windows falla al cargar Tcl/Tk", "Alta (en ese equipo)", "Medio", "Usar Python de python.org; la ejecución oficial es la de la VM"),
     ("La pantalla virtual (Xvfb) no refleja un monitor real", "Baja", "Medio", "Capturas reales; ejecución manual en Windows"),
     ("Crecimiento ilimitado de bitácoras", "Baja", "Alto", "Rotación por tamaño; CT-23"),
-    ("Casos de la práctica en clase aún no integrados", "Alta", "Medio", "Formato listo en el anexo C; integrar al terminar la práctica"),
+    ("Revisión cruzada, escenario sorpresa y observaciones del profesor aún no realizados", "Alta", "Medio",
+     "Formato listo en el anexo C; integrar cuando ocurran"),
+    ("Un caso en tiempo real con exactamente 1 km queda en el borde del cambio de dígito", "Media", "Medio",
+     "Duraciones con margen (45 s y 15 s = 1.5 km); pruebas con reloj simulado (CP-120 a CP-122); sección 10.1"),
+    ("Pérdida o alteración del kilometraje", "Baja", "Alto",
+     "Escritura atómica con respaldo .bak, permisos 640, rechazo de archivos escribibles por cualquiera (CT-28)"),
 )
+
+
+def resumen_practica(carpeta):
+    """Lee practica/<carpeta>/resumen.txt: lineas 'caso|duracion_s|esperado|obtenido|estado'."""
+    ruta = PRACTICA / carpeta / "resumen.txt"
+    if not ruta.exists():
+        return []
+    return [linea.split("|") for linea in ruta.read_text(encoding="utf-8").splitlines() if linea.count("|") == 4]
+
+
+def casos_en_matriz():
+    texto = leer(DOCS / "matriz_trazabilidad.md")
+    return len(set(re.findall(r"^\| ((?:CP|CA)-\d+) ", texto, flags=re.M)))
 
 
 def metrica(lineas, patron):
@@ -286,6 +343,10 @@ def construir():
     historial = historial_git()
     hoy = datetime.date.today().isoformat()
     evaluados = [(c, *evaluar(casos, c[10], metricas)) for c in CASOS]
+    practica_aprobada = all(estado == "Aprobada" for c, estado, _ in evaluados if c[0] in CASOS_PRACTICA)
+    estado_def03 = ("Cerrado: se implementó el elemento 11 y los casos CT-26 a CT-28 están aprobados." if practica_aprobada
+                    else "Corregido, en verificación: algún caso CT-26 a CT-28 no está aprobado.")
+    antes, despues = resumen_practica("evidencia_antes"), resumen_practica("evidencia_despues")
     estado_req = {}
     for c, estado, _ in evaluados:
         for req in c[3]:
@@ -317,7 +378,8 @@ def construir():
         ("Versión del documento", VERSION_DOC),
         ("Autores", "César Saúl Vázquez Preciado e Ian Josué Cota Flores (Equipo 3)"),
         ("Fecha de esta versión", hoy),
-        ("Estado", "Versión para revisión. Pendiente: integrar la práctica en clase (anexo C)"),
+        ("Estado", "Versión para revisión. Integrada la práctica en clase (odómetro, CT-26 a CT-28). Pendientes: "
+                   "revisión cruzada, escenario sorpresa y observaciones del profesor (anexo C)"),
         ("Versión del software probado", version_software()),
         ("Fecha de ejecución de las pruebas", fecha or "no registrada"),
         ("Repositorio", "https://github.com/ayocesaar/cluster-f40 (privado)"),
@@ -328,8 +390,10 @@ def construir():
         ("1.1", "2026-10-29", "Normas ISO verificadas, marco normativo y declaración de colaboración", "d5da68a"),
         ("1.2", "2026-11-09", "Interfaz 8-bit; regresión completa sin cambiar pruebas", "1848f4c"),
         ("1.3", "2026-11-10", "Datos externos, bitácoras, hilo lector, pruebas P01–P12 e informe técnico", "83ca343"),
-        (VERSION_DOC, hoy, "Tarea 2: estructura obligatoria, requisitos REQ por elemento, 25 casos con distribución por "
-                          "categoría, prioridades, criterios, riesgos con probabilidad, métricas y anexos", "esta versión"),
+        ("2.0", "2026-11-16", "Tarea 2: estructura obligatoria, requisitos REQ por elemento, 25 casos con distribución por "
+                              "categoría, prioridades, criterios, riesgos con probabilidad, métricas y anexos", "749d580"),
+        (VERSION_DOC, hoy, "Práctica en clase (odómetro): REQ-ODO-01, casos CT-26 a CT-28 con resultados antes y después "
+                          "de implementar el elemento 11, DEF-03 y corrección de las duraciones de los casos", "esta versión"),
     ], anchos=[1.6, 2.4, 10, 2.5])
     doc.add_page_break()
 
@@ -338,7 +402,8 @@ def construir():
     doc.add_paragraph(
         "El sistema bajo prueba simula el clúster de instrumentos de un Ferrari F40 (1987): diez elementos que se "
         "controlan con datos externos, se validan, se dibujan en una interfaz Tkinter de estética 8-bit y se registran "
-        "en bitácoras. No hay ECU ni sensores reales; los rangos son parámetros didácticos.")
+        "en bitácoras, más un odómetro (elemento 11) que se calcula a partir de la velocidad. No hay ECU ni sensores "
+        "reales; los rangos son parámetros didácticos.")
     doc.add_paragraph(
         "Objetivo de este documento: especificar y evidenciar las pruebas que demuestran que el clúster cumple sus "
         "requisitos, de forma que otra persona pueda repetirlas. Importancia: dos de los elementos son testigos de "
@@ -346,13 +411,20 @@ def construir():
         "posible en un tablero, y las pruebas lo vigilan en cada cambio.")
     doc.add_paragraph("Este documento parte de la Tarea 1 (versión 1.0) y muestra su evolución en el historial y en el "
                       "anexo B.")
+    doc.add_paragraph(
+        "Versión 2.1: en la práctica en clase el profesor asignó el odómetro. Los tres casos diseñados (CP-ODO-01 a 03) se "
+        "ejecutaron primero sobre la versión 749d580, que no tenía odómetro, y revelaron el defecto DEF-03. Después se "
+        "implementó el elemento 11 sin modificar ninguna prueba anterior y los casos se repitieron como CT-26 a CT-28 "
+        "(sección 10.1).")
 
     # Alcance
     doc.add_heading("3. Alcance", level=1)
     doc.add_heading("Funciones incluidas", level=2)
-    vinetas(doc, ["Los diez elementos y sus reglas R01–R08.", "Entrada por datos/vehiculo.conf y configuración externa.",
+    vinetas(doc, ["Los diez elementos y sus reglas R01–R08.", "El odómetro (elemento 11): cálculo, vuelta a cero, "
+                  "persistencia en datos/odometro.txt con respaldo y manejo de archivos inválidos.",
+                  "Entrada por datos/vehiculo.conf y configuración externa.",
                   "Validación, recuperación de errores y bitácoras.", "Hilo lector, comunicación productor-consumidor y escritura atómica.",
-                  "Permisos de archivos, rendimiento y ejecución prolongada.", "Interfaz Tkinter (dibujo de los diez elementos)."])
+                  "Permisos de archivos, rendimiento y ejecución prolongada.", "Interfaz Tkinter (dibujo de los once elementos)."])
     doc.add_heading("Exclusiones", level=2)
     vinetas(doc, ["Hardware, ECU, sensores y calibraciones reales del F40.",
                   "Acceso desde otros dispositivos por red (solicitado por el profesor; pendiente de construir).",
@@ -368,7 +440,8 @@ def construir():
     figura(doc, DOCS / "diagramas" / "arquitectura.png", "Figura 1. Diagrama de componentes.")
     figura(doc, DOCS / "diagramas" / "flujo_actualizacion.png", "Figura 2. Flujo de una actualización.")
     tabla(doc, ["Aspecto", "Detalle"], [
-        ("Archivos", "config/cluster.ini; datos/vehiculo.conf; logs/eventos.log y logs/errores.log; tests/datos/escenarios_aceptacion.csv"),
+        ("Archivos", "config/cluster.ini; datos/vehiculo.conf; datos/odometro.txt y su respaldo datos/odometro.txt.bak; "
+                     "logs/eventos.log y logs/errores.log; tests/datos/escenarios_aceptacion.csv"),
         ("Procesos e hilos", "Proceso productor externo (tools/simulador.py o tools/escribir_dato.py); hilo lector; hilo principal de Tkinter"),
         ("Dependencias", f"Python {platform.python_version()} con Tkinter (biblioteca estándar). Pruebas: pytest {version('pytest')}, "
                          f"coverage {version('coverage')}, Pillow {version('Pillow')}, python-docx {version('python-docx')}; Xvfb; LibreOffice"),
@@ -377,7 +450,8 @@ def construir():
 
     # Requisitos
     doc.add_heading("5. Requisitos", level=1)
-    doc.add_paragraph("Diez requisitos, uno por elemento (formato de la Tarea 2), y cuatro requisitos transversales del sistema.")
+    doc.add_paragraph("Once requisitos, uno por elemento (formato de la Tarea 2; REQ-ODO-01 se agregó con la práctica en "
+                      "clase), y cuatro requisitos transversales del sistema.")
     for req in REQUISITOS:
         ficha(doc, list(zip(("Identificador", "Elemento", "Entrada", "Frecuencia", "Resultado", "Advertencia", "Error"), req)))
 
@@ -436,7 +510,9 @@ def construir():
     conteo = {cat: sum(1 for c in CASOS if c[2] == cat) for cat, _ in CATEGORIAS}
     tabla(doc, ["Categoría", "Mínimo", "Incluidos"], [(cat, minimo, conteo[cat]) for cat, minimo in CATEGORIAS]
           + [("Total", 25, len(CASOS))], anchos=[8, 4, 4])
-    doc.add_paragraph("Casos de la práctica en clase: " + PENDIENTE + " Al realizarse se identificarán aquí con sus correcciones.")
+    doc.add_paragraph("CT-01 a CT-25 cubren la distribución mínima. CT-26 a CT-28 son los tres casos de la práctica en clase "
+                      "(tema asignado por el profesor: odómetro), ya con la duración corregida; su ejecución antes y después "
+                      "de implementar el odómetro está en la sección 10.1.")
     for c, estado, obtenido in evaluados:
         doc.add_heading(f"{c[0]} — {c[1]}", level=2)
         ficha(doc, [
@@ -446,6 +522,33 @@ def construir():
             ("Obtenido", obtenido), ("Estado", estado),
             ("Evidencia y defecto", f"{c[11]}; pruebas {', '.join(i for i in c[10] if not i.startswith('metricas'))} — defecto: {c[12]}"),
         ], estado=estado)
+
+    # Practica en clase
+    doc.add_heading("10.1 Práctica en clase: ejecución antes y después", level=2)
+    doc.add_paragraph(
+        "Cada caso se ejecutó con la aplicación completa (modo archivo, Xvfb) mediante practica/ejecutar_casos.py: primero "
+        "sobre la versión 749d580 (sin odómetro) y después sobre la versión con el elemento 11. «v2» es el caso con la "
+        "duración corregida; SONDA intenta escribir odometro=999999 en datos/vehiculo.conf.")
+    if antes or despues:
+        obtenido_despues = {fila[0]: fila for fila in despues}
+        filas = []
+        for caso, segundos, esperado, obtenido, estado in antes or despues:
+            d = obtenido_despues.get(caso)
+            filas.append((caso, f"{segundos} s", esperado, f"{estado}: {obtenido}" if antes else "—",
+                          f"{d[4]}: {d[3]}" if d else "sin ejecución registrada"))
+        tabla(doc, ["Caso", "Duración", "Esperado", "Antes (749d580)", "Después (elemento 11)"], filas,
+              anchos=[2.3, 1.5, 3.6, 4.5, 4.6])
+    else:
+        doc.add_paragraph("Sin ejecución registrada en practica/evidencia_antes ni practica/evidencia_despues.")
+    doc.add_paragraph("Corrección del propio caso (resultado de la ejecución):")
+    tabla(doc, ["Caso", "Diseño original", "Corrección", "Motivo"], [
+        ("CP-ODO-01", "120 km/h durante 30 s (1 km exacto)", "45 s (1.5 km) → CT-26",
+         "Con 1 km exacto el resultado depende de décimas de segundo (arranque de la aplicación y primer ciclo de lectura); "
+         "con 1.5 km queda medio kilómetro de margen. La tabla anterior muestra lo observado con ambas duraciones."),
+        ("CP-ODO-02", "360 km/h durante 10 s (1 km exacto)", "15 s (1.5 km) → CT-27", "Mismo motivo que CP-ODO-01."),
+        ("CP-ODO-03", "odometro.txt = abc", "Sin cambio; se agregaron variantes (respaldo, permisos, formato) → CT-28",
+         "El caso cubría un solo tipo de archivo inválido."),
+    ], anchos=[2.3, 4, 4.2, 6])
 
     # Trazabilidad
     doc.add_heading("11. Matriz de trazabilidad", level=1)
@@ -461,7 +564,8 @@ def construir():
         filas.append((req, elemento, ", ".join(cts) or "—", "; ".join(tecnicas), prioridad, estado, ", ".join(defectos) or "—"))
     tabla(doc, ["Requisito", "Elemento", "Casos", "Técnica", "Prioridad", "Estado", "Defecto"], filas,
           anchos=[2.2, 2.6, 3.2, 4.4, 1.5, 1.6, 1.5])
-    doc.add_paragraph("La matriz detallada de las pruebas automatizadas (129 casos CP/CA) está en docs/matriz_trazabilidad.md.")
+    doc.add_paragraph(f"La matriz detallada de las pruebas automatizadas ({casos_en_matriz()} casos CP/CA) está en "
+                      "docs/matriz_trazabilidad.md.")
 
     # Defectos
     doc.add_heading("12. Defectos", level=1)
@@ -484,6 +588,16 @@ def construir():
          ("Esperado y observado", "Se esperaba errores.log vacío; se observaron registros ERROR permiso_denegado. Los datos leídos sí eran consistentes."),
          ("Evidencia", "docs/bitacora_ia.md (Etapa 11); CP-98 aprobado en Windows y en la VM tras la corrección"),
          ("Estado", "Cerrado: el lector reintenta la apertura 5 veces en Windows antes de declarar un error de permisos.")],
+        [("Identificador y título", "DEF-03 — El clúster no implementa el odómetro"),
+         ("Severidad y prioridad", "Media / alta: no afecta la seguridad, pero falta una función de información en línea"),
+         ("Versión y ambiente", "commit 749d580; Ubuntu 22.04, Python 3.10, Xvfb"),
+         ("Caso relacionado", "CT-26 a CT-28 (CP-ODO-01 y 02 fallidos, CP-ODO-03 bloqueado en la práctica)"),
+         ("Pasos para reproducir", "1. Abrir el clúster en modo archivo. 2. Escribir motor=1 y velocidad=120. 3. Esperar 30 s y buscar "
+                                   "el odómetro. 4. Agregar odometro=999999 a datos/vehiculo.conf y revisar errores.log."),
+         ("Esperado y observado", "Se esperaba un contador de 6 dígitos que subiera 1 km; no había contador y la clave odometro se "
+                                  "rechazaba como clave_desconocida."),
+         ("Evidencia", "practica/evidencia_antes/ (capturas, bitácoras y resumen.txt); docs/registro_defectos.md"),
+         ("Estado", estado_def03)],
     )
     for d in defectos:
         ficha(doc, d)
@@ -500,22 +614,25 @@ def construir():
         ("Planeados y ejecutados", f"{total} planeados; {ejecutados} con resultado"),
         ("Aprobados, fallidos, bloqueados", f"{estados['Aprobada']} / {estados['Fallida']} / {estados['Bloqueada']}"),
         ("Pruebas automatizadas de respaldo", f"{len(casos)} ejecuciones: {auto['PASS']} aprobadas, {auto['FAIL']} fallidas, {auto['SKIP']} omitidas; aceptación {aprob_ca}/{len(aceptacion)}"),
-        ("Defectos", "2 registrados: DEF-01 media (rechazado), DEF-02 media (cerrado); 0 abiertos"),
+        ("Defectos", "3 registrados: DEF-01 media (rechazado), DEF-02 media (cerrado), DEF-03 media "
+                     f"({'cerrado' if practica_aprobada else 'en verificación'}); "
+                     f"{0 if practica_aprobada else 1} abiertos"),
         ("Cobertura de requisitos", f"{reqs_con_caso} de {len(REQUISITOS)} requisitos con al menos un caso"),
         ("Ejecución = ejecutados / planeados × 100", f"{ejecutados / total * 100:.1f}%"),
         ("Aprobación = aprobados / ejecutados × 100", f"{estados['Aprobada'] / ejecutados * 100:.1f}%" if ejecutados else "—"),
         ("Cobertura = requisitos con prueba / requisitos totales × 100", f"{reqs_con_caso / len(REQUISITOS) * 100:.1f}%"),
     ], anchos=[6.5, 10])
     doc.add_heading("Riesgos pendientes", level=2)
-    vinetas(doc, ["Integrar los tres casos de la práctica en clase, la revisión cruzada, el escenario sorpresa y las "
-                  "observaciones del profesor (anexo C).",
+    vinetas(doc, ["Integrar la revisión cruzada, el escenario sorpresa y las observaciones del profesor (anexo C) "
+                  "cuando ocurran.",
                   "Confirmar con el profesor las categorías de los elementos 2, 3 y 5.",
                   "En Windows con Python de Microsoft Store, Tkinter falla de forma intermitente (riesgo 4).",
                   "El acceso al tablero por red Wi-Fi está fuera de esta versión."])
     doc.add_heading("Conclusión", level=2)
     if estados["Fallida"] == 0 and estados["Bloqueada"] == 0:
         doc.add_paragraph(f"Liberar el software para la demostración: los {total} casos están aprobados, la aprobación es "
-                          "del 100% y no hay defectos abiertos. El documento queda en revisión hasta integrar la práctica en clase.")
+                          "del 100% y no hay defectos abiertos. El documento queda en revisión hasta integrar la revisión "
+                          "cruzada, el escenario sorpresa y las observaciones del profesor.")
     else:
         doc.add_paragraph(f"Corregir y repetir pruebas: hay {estados['Fallida']} casos fallidos y {estados['Bloqueada']} bloqueados.")
 
@@ -530,20 +647,23 @@ def construir():
         ("docs/evidencias/capturas/", "Ocho capturas reales del tablero"),
         ("docs/evidencias/coverage.txt, htmlcov/", "Cobertura de líneas y ramas"),
         ("datos/, config/, tests/datos/", "Datos de prueba y configuración"),
+        ("practica/", "Práctica del odómetro: ejecutar_casos.py, evidencia antes y después (capturas, bitácoras, "
+                      "resumen.txt) y la hoja entregada en DOCX y PDF"),
     ], anchos=[6.5, 10])
     doc.add_heading("B. Historial de cambios (git)", level=2)
     tabla(doc, ["Commit", "Fecha", "Cambio"], historial, anchos=[2, 2.4, 12.1])
     doc.add_heading("C. Integración de actividades previas", level=2)
     tabla(doc, ["Actividad", "Estado", "Integración"], [
         ("Tarea 1 (investigación y planeación)", "Integrada", "Versión 1.0 de este documento (informe de pruebas, commit eb575e6)"),
-        ("Tres casos de la práctica en clase", "Pendiente", PENDIENTE),
+        ("Tres casos de la práctica en clase (odómetro)", "Integrada",
+         "CP-ODO-01 a 03 → CT-26 a CT-28; ejecutados antes y después de implementar el odómetro (sección 10.1); DEF-03"),
+        ("Corrección de los propios casos", "Integrada", "Duraciones 30 s → 45 s y 10 s → 15 s; variantes de CT-28 (sección 10.1)"),
         ("Revisión cruzada", "Pendiente", PENDIENTE),
         ("Escenario sorpresa", "Pendiente", PENDIENTE),
-        ("Observaciones del profesor", "Pendiente", "El profesor todavía no revisa la Tarea 1."),
+        ("Observaciones del profesor", "Pendiente", "Todavía no hay observaciones del profesor sobre la Tarea 1 ni sobre la práctica."),
     ], anchos=[5, 2.5, 9])
-    doc.add_paragraph("Formato listo para la práctica (llenar por cada uno de los tres casos):")
-    ficha(doc, [("Identificador", "CT-P__"), ("Requisito", ""), ("Tipo y técnica", ""), ("Precondiciones", ""), ("Datos", ""),
-                ("Pasos", ""), ("Resultado esperado", ""), ("Evidencia prevista", ""), ("Observación recibida (revisión cruzada)", ""),
+    doc.add_paragraph("Formato para la revisión cruzada (llenar uno por cada caso CT-26 a CT-28 cuando ocurra):")
+    ficha(doc, [("Caso revisado", "CT-2_"), ("Observación recibida (revisión cruzada)", ""),
                 ("Corrección realizada", ""), ("Justificación si no se acepta", "")])
     ficha(doc, [("Escenario sorpresa: ¿qué requisito cambia?", ""), ("¿Qué casos se modifican?", ""), ("¿Qué casos deben repetirse?", ""),
                 ("¿Qué riesgo aparece?", ""), ("¿Qué evidencia se necesita?", "")])
@@ -552,23 +672,33 @@ def construir():
         ("Herramienta", "Claude Code (Anthropic). En las etapas 0 a 3, otro asistente de IA en una sesión distinta."),
         ("Finalidad", "Diseño y programación del clúster y de las pruebas, scripts de evidencia, redacción de los informes y de este documento, revisión de capturas."),
         ("Instrucción (resumen fiel)", "\"Continuar las etapas de pruebas\"; \"adaptar el tablero a una animación 8-bit con todos los testigos\"; "
-                                       "\"construir lo que falta de la rúbrica, probarlo todo y subirlo a GitHub\"; \"hacer todo lo posible de la Tarea 2\"."),
-        ("Resultado utilizado", "Código fuente, 145 pruebas automatizadas, evidencias, informe técnico, informe de pruebas y este documento."),
-        ("Modificación del equipo", "Decisiones de interpretación D1–D7, ejecución de cada etapa en la VM, revisión de resultados reales y la especificación de los diez elementos."),
+                                       "\"construir lo que falta de la rúbrica, probarlo todo y subirlo a GitHub\"; \"hacer todo lo posible de la Tarea 2\"; "
+                                       "\"la prueba que me dijo fue odómetro\"; \"implementa el odómetro y súbelo todo al repo\"."),
+        ("Resultado utilizado", f"Código fuente, {len(casos)} ejecuciones de pruebas automatizadas, evidencias, informe técnico, informe de "
+                                "pruebas, la hoja de la práctica y este documento."),
+        ("Modificación del equipo", "Decisiones de interpretación D1–D7, ejecución de cada etapa en la VM, revisión de resultados reales, "
+                                    "la especificación de los diez elementos y el elemento asignado en la práctica (odómetro)."),
         ("Verificación", "Cada resultado sale de una ejecución real (junit.xml, aceptacion.txt, metricas.txt); las normas se verificaron en sus fichas oficiales."),
         ("Contenido descartado", "1) La propuesta de la IA de tratar DEF-01 como defecto se rechazó al revisar R08. 2) La afirmación de la IA de que la "
                                  "interfaz no tenía lógica se corrigió porque la interfaz aún no existía. 3) Un comando de la IA con '!!' falló en bash "
-                                 "y se cambió el método. 4) El primer diseño 8-bit tapaba la cifra con la aguja y se corrigió."),
+                                 "y se cambió el método. 4) El primer diseño 8-bit tapaba la cifra con la aguja y se corrigió. "
+                                 "5) La IA propuso los casos de la práctica con 30 s y 10 s (1 km exacto); al ejecutarlos se corrigieron "
+                                 "a 45 s y 15 s para dejar margen (sección 10.1)."),
     ], anchos=[4, 12.5])
     doc.add_heading("E. Defensa", level=2)
     tabla(doc, ["Pregunta", "Respuesta"], [
         ("¿Por qué eligió una técnica?", "Valores límite en los umbrales porque ahí fallan las comparaciones (CT-07); transición de estados para la histéresis (CT-14)."),
-        ("¿Cómo obtuvo los datos y límites?", "De la especificación de los diez elementos (rangos y umbrales R01–R08) y a cada lado de cada umbral."),
+        ("¿Cómo obtuvo los datos y límites?", "De la especificación de los diez elementos (rangos y umbrales R01–R08) y a cada lado de cada umbral; "
+                                              "para el odómetro, del máximo de 6 dígitos (999999) y de distancia = velocidad × tiempo."),
         ("¿Qué caso tiene mayor prioridad?", "CT-15 y CT-16: los testigos de seguridad; una advertencia que no aparece es el fallo más grave."),
         ("¿Qué prueba automatizaría?", "Todas ya están automatizadas; la siguiente sería la vista por red cuando se construya."),
         ("¿Cómo se reproduce un defecto?", "Con los pasos de su ficha; por ejemplo DEF-02 se reproduce con la prueba CP-98 sin el reintento."),
-        ("¿Qué cambió después de la práctica?", PENDIENTE),
-        ("¿Qué recomendación de IA corrigió o descartó?", "DEF-01: se descartó la condición de motor propuesta por la IA (anexo D)."),
+        ("¿Qué cambió después de la práctica?", "Los casos del odómetro revelaron DEF-03 (no existía): dos fallidos y uno bloqueado. Se "
+                                                "implementó el elemento 11 con persistencia y respaldo, se agregaron REQ-ODO-01, CT-26 a CT-28 "
+                                                "y las pruebas CP-120 a CP-137 sin modificar las anteriores, y se corrigieron las duraciones "
+                                                "de los casos (sección 10.1)."),
+        ("¿Qué recomendación de IA corrigió o descartó?", "DEF-01: se descartó la condición de motor propuesta por la IA; en la práctica "
+                                                          "se corrigieron las duraciones de 1 km exacto que propuso la IA (anexo D)."),
     ], anchos=[5, 11.5])
     return doc, evaluados
 

@@ -39,3 +39,62 @@ general de todos los testigos. Se obtuvo `True` en t = 0 ms, alternando cada 300
 
 **Leccion aprendida:** la expectativa de un caso de prueba debe salir de la
 especificacion, no de la consistencia interna del codigo.
+
+## DEF-02 - Error de permiso falso al leer durante una escritura concurrente en Windows
+
+| Campo | Valor |
+|-------|-------|
+| ID | DEF-02 |
+| Estado | Cerrado |
+| Severidad / prioridad | Media / alta |
+| Requisitos relacionados | Entrada externa (datos/vehiculo.conf), bitacoras |
+| Componente | `sistema/lector.py`, lectura del archivo de datos |
+| Detectado en | Etapa 11 (prueba P08 en Windows 11, Python 3.11) |
+| Caso de prueba | CP-98 (`tests/test_sistema.py`) |
+
+**Reporte**
+
+1. Escribir el archivo de datos 300 veces con escritura atomica.
+2. Leerlo cada 1 ms en otro hilo.
+3. Revisar `logs/errores.log`.
+
+Se esperaba `errores.log` vacio; se observaron registros `ERROR permiso_denegado`.
+Los datos leidos si eran consistentes: en Windows, abrir un archivo justo cuando
+otro proceso lo reemplaza con `os.replace` da un `PermissionError` momentaneo.
+
+**Correccion:** el lector reintenta la apertura 5 veces en Windows antes de
+declarar un error de permisos (commit `efc89ad`). CP-98 aprobado en Windows y en la VM.
+
+## DEF-03 - El cluster no implementa el odometro
+
+| Campo | Valor |
+|-------|-------|
+| ID | DEF-03 |
+| Estado | Cerrado (Etapa 13) |
+| Severidad / prioridad | Media / alta: no afecta la seguridad, pero falta una funcion de informacion en linea |
+| Requisitos relacionados | REQ-ODO-01 (elemento 11, odometro) |
+| Componente | No existia; ahora `logic/odometro.py`, `sistema/odometro_archivo.py`, `ui/tablero.py`, `main.py` |
+| Detectado en | Practica en clase "Diseno y ejecucion supervisada de pruebas" (18-nov-2026), version `749d580` |
+| Caso de prueba | CP-ODO-01 y CP-ODO-02 (fallidos), CP-ODO-03 (bloqueado); ahora CT-26 a CT-28 y CP-120 a CP-137 |
+
+**Reporte**
+
+1. Abrir el cluster en modo archivo.
+2. Escribir `motor=1` y `velocidad=120` en `datos/vehiculo.conf`.
+3. Esperar 30 s y buscar el odometro en el tablero.
+4. Agregar `odometro=999999` a `datos/vehiculo.conf` y revisar `errores.log`.
+
+Se esperaba un contador de 6 digitos que subiera 1 km. No habia contador y la
+clave `odometro` se rechazaba como `clave_desconocida`. Evidencia:
+`practica/evidencia_antes/`.
+
+**Correccion:** se implemento el elemento 11. Calcula la distancia con la
+velocidad mostrada por el tiempo y la muestra con 6 digitos y vuelta a cero. El
+kilometraje se guarda en `datos/odometro.txt` con respaldo `.bak` y escritura
+atomica. Un archivo invalido o escribible por cualquiera se rechaza, con aviso y
+ERROR. `odometro=` en el archivo de datos se rechaza (`clave_no_permitida`).
+Las pruebas anteriores no se modificaron. Los tres casos se repitieron como
+regresion: `practica/evidencia_despues/`.
+
+**Leccion aprendida:** un caso que espera exactamente 1 km en tiempo real queda
+en el borde del cambio de digito. Los casos se corrigieron a 1.5 km (45 s y 15 s).

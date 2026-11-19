@@ -22,7 +22,7 @@ pruebas automatizadas con pytest y medicion de cobertura con coverage.
 
 ## 3. Entorno
 
-- Sistema: Linux 5.15.0-190-generic
+- Sistema: Linux 5.15.0-203-generic
 - Python: 3.10.12
 - pytest: 9.2.0
 - coverage: 7.16.2
@@ -35,13 +35,14 @@ pruebas automatizadas con pytest y medicion de cobertura con coverage.
 | Caja blanca (cobertura) | 13 | 13 | 0 | 0 |
 | Entradas invalidas | 15 | 15 | 0 | 0 |
 | Valores limite | 16 | 16 | 0 | 0 |
+| Odometro (elemento 11) | 20 | 20 | 0 | 0 |
 | Particion de equivalencia | 10 | 10 | 0 | 0 |
 | Presentacion (caja negra) | 7 | 7 | 0 | 0 |
 | Basada en requisitos | 3 | 3 | 0 | 0 |
 | Sistema (archivos, bitacoras, concurrencia) | 37 | 37 | 0 | 0 |
 | Integracion UI (Tkinter) | 6 | 6 | 0 | 0 |
 | Transicion de estados | 11 | 11 | 0 | 0 |
-| **Total** | **145** | **145** | **0** | **0** |
+| **Total** | **165** | **165** | **0** | **0** |
 
 Las ejecuciones cuentan cada variante parametrizada por separado; la matriz de
 trazabilidad agrupa por caso de prueba (CP).
@@ -50,11 +51,12 @@ trazabilidad agrupa por caso de prueba (CP).
 
 | Modulo | Lineas | Ramas | Cobertura |
 |--------|--------|-------|-----------|
-| `logic/estado.py` | 191/191 | 64/64 | 100.0% |
+| `logic/estado.py` | 194/194 | 64/64 | 100.0% |
 | `logic/reloj.py` | 18/18 | 4/4 | 100.0% |
-| `ui/presentacion.py` | 19/19 | 0/0 | 100.0% |
-| `ui/tablero.py` | 230/230 | 60/60 | 100.0% |
-| `main.py` | 56/56 | 7/8 | 98.4% |
+| `logic/odometro.py` | 27/27 | 8/8 | 100.0% |
+| `ui/presentacion.py` | 21/21 | 0/0 | 100.0% |
+| `ui/tablero.py` | 240/240 | 62/62 | 100.0% |
+| `main.py` | 79/79 | 11/12 | 98.9% |
 | `aceptacion/escenarios.py` | 131/131 | 40/40 | 100.0% |
 
 ## 6. Trazabilidad
@@ -67,7 +69,7 @@ de las pruebas y el resultado de junit.
 
 ## 7. Defectos
 
-- Defectos registrados: 1
+- Defectos registrados: 3
 - Defectos abiertos: 0
 - DEF-01 (testigo 10 parpadeando con el motor apagado) fue rechazado: R08
   no condiciona el testigo al motor. Se revirtio la correccion de la Etapa 7
@@ -106,4 +108,4 @@ de las pruebas y el resultado de junit.
 
 ## 10. Conclusion
 
-Las 145 ejecuciones pasan, la cobertura de la logica es completa y no quedan defectos abiertos: la logica cumple R01-R08 segun las pruebas definidas.
+Las 165 ejecuciones pasan, la cobertura de la logica es completa y no quedan defectos abiertos: la logica cumple R01-R08 segun las pruebas definidas.

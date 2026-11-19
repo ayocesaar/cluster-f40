@@ -14,6 +14,7 @@ Resumen de reglas implementadas:
   R07 - Luces altas (azul fijo) e intermitentes de emergencia (ambar, 500 ms,
         con precedencia visual sobre el testigo de giro).
   R08 - Testigo de falla de frenos (rojo, parpadeo 300 ms).
+  Elemento 11 - Odometro: integra la velocidad en el tiempo (logic/odometro.py).
 
 Nota de diseno (resuelve una ambiguedad de la guia original, documentada
 tambien en el informe): al apagar el motor (R01, encendido=0) se apaga
@@ -22,6 +23,8 @@ elemento 2, reiniciando los temporizadores de histeresis. De lo contrario,
 ambos indicadores se encenderian falsamente al apagar el motor, porque R01
 fuerza p_aceite a 0.
 """
+
+from logic.odometro import Odometro
 
 CICLO_RAPIDO_MS = 100.0   # velocidad, p_aceite, rpm, p_turbo
 CICLO_LENTO_MS = 500.0    # temp_agua, direccionales, emergencia
@@ -52,8 +55,9 @@ def _validar_bool(valor, nombre):
 class EstadoCluster:
     """Estado central del cluster de instrumentos. Sin dependencias de UI."""
 
-    def __init__(self, reloj):
+    def __init__(self, reloj, odometro_km=0.0):
         self.reloj = reloj
+        self.odometro = Odometro(odometro_km)
 
         self._motor = False
         self._luces_altas = False
@@ -161,6 +165,8 @@ class EstadoCluster:
         else:
             self._actualizar_lecturas(ahora)
             self._actualizar_histeresis_aceite(ahora)
+            # Elemento 11: la distancia avanza con la velocidad mostrada durante el tiempo transcurrido.
+            self.odometro.avanzar(self.velocidad, ahora - self._ultimo_tick_ms)
 
         self._ultimo_tick_ms = ahora
         return ahora

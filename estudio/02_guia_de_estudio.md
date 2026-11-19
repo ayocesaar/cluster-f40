@@ -8,7 +8,7 @@ demostrarlo** en vivo. Los números reales de cada prueba están en `docs/eviden
 
 ## 1. El proyecto en dos minutos
 
-- **Qué es:** un simulador del clúster de instrumentos del **Ferrari F40 (1987)** con 10 elementos. Los valores
+- **Qué es:** un simulador del clúster de instrumentos del **Ferrari F40 (1987)** con 11 elementos (los 10 de la especificación y el odómetro). Los valores
   llegan de un **archivo externo** (`datos/vehiculo.conf`) que el tablero relee cada 100 ms sin reiniciar.
 - **Componentes** (la separación que pide la guía):
 
@@ -18,7 +18,7 @@ demostrarlo** en vivo. Los números reales de cada prueba están en `docs/eviden
 | Entrada de datos | `sistema/lector.py` (`Lector`, `HiloLector`) | Lee y convierte el archivo en un hilo propio | Dibujar |
 | Validador | `sistema/lector.py` (`convertir`) y `logic/estado.py` (`set_*`) | Tipo, formato, rango y largo; dos capas | Aceptar datos inválidos |
 | Modelo | `logic/estado.py` (`EstadoCluster`) | Último estado válido y reglas R01–R08 | Saber cómo se dibuja |
-| Interfaz | `ui/presentacion.py`, `ui/tablero.py` | Dibuja los 10 elementos | Modificar la configuración |
+| Interfaz | `ui/presentacion.py`, `ui/tablero.py` | Dibuja los 11 elementos | Modificar la configuración |
 | Registrador | `sistema/bitacora.py`, `sistema/monitor.py` | `eventos.log` y `errores.log` con fecha, nivel y componente | Mezclar niveles |
 | Arranque | `main.py`, `iniciar.sh`, `abrir_cluster.bat` | Arma y conecta todo | Reglas de negocio |
 
@@ -33,7 +33,7 @@ demostrarlo** en vivo. Los números reales de cada prueba están en `docs/eviden
 
 Los diagramas están en `docs/diagramas/`.
 
-## 2. Los diez elementos
+## 2. Los once elementos
 
 | N.º | Elemento | Categoría | Clave | Tipo | Rango | Regla |
 |---|---|---|---|---|---|---|
@@ -47,6 +47,11 @@ Los diagramas están en `docs/diagramas/`.
 | 8 | Emergencia | Informativo | `emergencia` | booleano 0/1 | — | R07: ámbar cada 500 ms, tapa al 6 |
 | 9 | Baja presión de aceite | Seguridad | calculado | booleano | — | R02: rojo tras 1 s < 1 bar; apaga tras 1 s ≥ 1.2 |
 | 10 | Falla de frenos | Seguridad | `falla_frenos` | booleano 0/1 | — | R08: rojo cada 300 ms, aun con motor apagado |
+| 11 | Odómetro | Información en línea | calculado (`odometro=` se rechaza) | entero mostrado (decimal interno) | 000000–999999 km (vuelve a 0) | solo avanza con motor y velocidad > 0 (R01) |
+
+El elemento 11 (odómetro) no estaba en la especificación original de los diez elementos: se agregó el 18-nov-2026
+tras la práctica "Diseño y ejecución supervisada de pruebas", donde el profesor asignó probar el odómetro. La práctica
+detectó el defecto DEF-03 ("El clúster no implementa el odómetro"), que se cerró en la Etapa 13.
 
 ## 3. Las preguntas de la guía (sección 9)
 
@@ -192,11 +197,41 @@ Pruebas que lo respaldan: P05, P07 y P10 (CP-95, CP-97, CP-100). Ejemplo real:
 - **¿Qué pasa si la configuración está mal?** Se usa el valor por defecto y se registra el error
   (`configuracion valor_invalido`); la aplicación sigue (CP-106).
 
+### Odómetro (elemento 11)
+
+- **¿Cómo calcula el odómetro la distancia?** En cada tick (50 ms) suma velocidad (km/h) × tiempo transcurrido (h).
+  Solo avanza con motor encendido y velocidad mayor que 0; con motor apagado (R01) no avanza. **Dónde:**
+  `logic/odometro.py` (clase `Odometro`). **Caso:** CP-120, que automatiza CP-ODO-01 (62 km + 120 km/h durante 45 s,
+  da 000063).
+- **¿Por qué no disminuye y qué pasa al llegar a 999999?** Solo se suma, así que nunca baja. Al pasar de 999999
+  vuelve a 000000 y el sistema cuenta las vueltas. **Caso:** CP-122, que automatiza CP-ODO-02 (999999 + 360 km/h
+  durante 15 s, da 000000).
+- **¿Por qué escritura atómica y respaldo `.bak`?** Para que un fallo a mitad de escritura no deje el archivo a medias:
+  se escribe un temporal, se hace `fsync` y se reemplaza con `os.replace`. El `.bak` es la copia de respaldo: si el
+  principal no sirve, al iniciar se usa el respaldo y se avisa en pantalla. **Dónde:** `sistema/odometro_archivo.py`.
+- **¿Qué pasa si el archivo está corrupto o lo modifica otro usuario?** Se rechaza si no es UTF-8, pesa más de 64
+  bytes, no es un número válido o es escribible por cualquiera (o+w). Se usa el respaldo; si tampoco sirve, el sistema
+  inicia en 000000 con ERROR y aviso (CP-125, que automatiza CP-ODO-03 con "abc"). El sistema no verifica quién escribió
+  el archivo: si alguien con permisos adecuados deja un número válido, se acepta. **Dónde:**
+  `sistema/odometro_archivo.py`.
+- **¿Por qué no se acepta `odometro=` en `vehiculo.conf`?** Porque el kilometraje lo calcula el sistema y el archivo de
+  datos no lo escribe. Si aparece, se registra ERROR `clave_no_permitida` y el resto de las claves sí se aplican.
+  **Pruebas:** `tests/test_odometro.py`.
+- **¿Qué cambió después de la práctica?** La práctica detectó DEF-03, cerrado en la Etapa 13. Además, los casos
+  CP-ODO-01 y CP-ODO-02 usaban 30 s y 10 s (exactamente 1 km), que en tiempo real quedan en el borde del cambio de
+  dígito: el resultado depende de décimas de segundo del arranque y del primer ciclo de lectura. Se corrigieron a 45 s
+  y 15 s (1.5 km); lo observado con ambas duraciones está en `practica/evidencia_despues/resumen.txt`. Las pruebas
+  anteriores (CP-01 a CP-119, CA-01 a CA-10) no se modificaron. Además, `eventos.log` registra
+  `INFO odometro_actualizado` cada km, como pedía el esperado de CP-ODO-01 (CP-137).
+- **¿Qué es "información en línea"?** Es la categoría de la guía para los elementos de lectura continua: tacómetro,
+  presión de aceite, presión de turbo y el odómetro. Los ejemplos de la guía incluyen el odómetro, pero la asignación
+  todavía se confirma con el profesor (ver `03_cumplimiento_de_la_guia.md`).
+
 ## 5. Guion de la demostración (sección 9 de la guía, 20–25 min)
 
 | Momento | Qué hacer | Qué decir |
 |---|---|---|
-| 1 Contexto | README; tabla de elementos | Ferrari F40 1987; los 10 elementos y sus categorías |
+| 1 Contexto | README; tabla de elementos | Ferrari F40 1987; los 11 elementos y sus categorías |
 | 2 Arquitectura | `docs/diagramas/arquitectura.png` | Entrada, validación, modelo, interfaz, registro; hilo + buzón |
 | 3 Operación normal | `./iniciar.sh`; luego `tools/escribir_dato.py motor=1 velocidad=120 rpm=3000` | Se actualiza sin reiniciar; `tail -f logs/eventos.log` |
 | 4 Advertencias | `escribir_dato.py direccional=izquierda` (informativo) y `falla_frenos=1` (seguridad) | WARN prioritario en `eventos.log` |

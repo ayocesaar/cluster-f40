@@ -208,3 +208,25 @@
   sorpresa y las observaciones del profesor todavía no ocurren; quedan con su formato listo en el anexo C.
 - Qué generó la IA: el generador y el contenido del documento. El equipo confirmó qué actividades
   previas existen (solo la Tarea 1).
+
+## Etapa 13 — Odómetro (elemento 11) tras la práctica en clase
+- Fecha: 2026-11-18
+- Origen: en la práctica "Diseño y ejecución supervisada de pruebas" el profesor asignó el odómetro y
+  permitió el uso de IA. Los tres casos diseñados (CP-ODO-01 a 03) se ejecutaron sobre 749d580: dos
+  fallidos y uno bloqueado, porque el odómetro no existía (DEF-03).
+- Qué se hizo: logic/odometro.py (distancia = velocidad mostrada × tiempo, 6 dígitos, vuelta a 000000,
+  nunca disminuye); sistema/odometro_archivo.py (datos/odometro.txt con respaldo .bak, escritura atómica,
+  rechazo de archivos inválidos o escribibles por cualquiera); dibujo y aviso en ui/tablero.py; carga,
+  guardado cada 5 s y al cerrar en main.py; INFO odometro_actualizado por km en sistema/monitor.py;
+  odometro= en datos/vehiculo.conf se rechaza (clave_no_permitida); [odometro] guardar_cada_s en
+  config/cluster.ini. Pruebas nuevas CP-120 a CP-137 en tests/test_odometro.py.
+- Pruebas anteriores: sin cambios (huella sha256 comprobada por run_13.sh antes del commit).
+- Práctica: practica/ejecutar_casos.py ejecuta los casos con la aplicación completa antes (worktree de
+  749d580) y después; los resultados reales quedan en practica/evidencia_antes/ y evidencia_despues/.
+- Corrección del propio caso: 30 s y 10 s daban exactamente 1 km (borde del cambio de dígito); se
+  corrigieron a 45 s y 15 s (1.5 km). Esa duración original la propuso la IA.
+- Documentos: Documento completo de pruebas v2.1 (REQ-ODO-01, CT-26 a CT-28, sección 10.1, DEF-03),
+  ficha 11 en el informe técnico, elemento 11 en el informe de pruebas, README y guía de estudio.
+- Pendiente (no inventado): revisión cruzada, escenario sorpresa y observaciones del profesor.
+- Qué generó la IA: la implementación, las pruebas, los scripts de la práctica y los documentos. El
+  equipo aportó el elemento asignado por el profesor y la decisión de implementarlo.

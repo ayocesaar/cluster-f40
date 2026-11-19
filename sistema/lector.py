@@ -38,6 +38,8 @@ CLAVES = {
     "emergencia": ("set_emergencia", "booleano"),
     "falla_frenos": ("set_falla_frenos", "booleano"),
 }
+# Valores que el sistema calcula y que nadie debe poder escribir desde el archivo de datos.
+CLAVES_NO_PERMITIDAS = {"odometro": "el kilometraje lo calcula el sistema; no se escribe desde el archivo"}
 DIRECCIONALES = {"off": "OFF", "izquierda": "IZQ", "derecha": "DER"}
 DIRECCIONALES_TEXTO = {v: k for k, v in DIRECCIONALES.items()}
 
@@ -104,6 +106,8 @@ def parsear(texto):
         clave, valor = clave.strip().lower(), valor.strip()
         if not signo or not clave:
             problemas.append(("linea_invalida", f"linea {numero} sin formato clave=valor"))
+        elif clave in CLAVES_NO_PERMITIDAS:
+            problemas.append(("clave_no_permitida", f"linea {numero} clave={clave} ({CLAVES_NO_PERMITIDAS[clave]})"))
         elif clave not in CLAVES:
             problemas.append(("clave_desconocida", f"linea {numero} clave={clave[:LARGO_MAXIMO_VALOR]!r}"))
         elif clave in pares:
