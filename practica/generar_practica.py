@@ -4,7 +4,10 @@ Los resultados salen de las ejecuciones reales de practica/ejecutar_casos.py:
 evidencia_antes/ (version 749d580, sin odometro) y evidencia_despues/ (con el
 elemento 11). Uso: python practica/generar_practica.py"""
 
+import ast
 import pathlib
+import re
+import xml.etree.ElementTree as ET
 
 from docx import Document
 from docx.enum.text import WD_ALIGN_PARAGRAPH
@@ -24,6 +27,32 @@ def resumen(carpeta):
         return {}
     filas = [linea.split("|") for linea in ruta.read_text(encoding="utf-8").splitlines() if linea.count("|") == 4]
     return {f[0]: f for f in filas}
+
+
+def pruebas_odometro():
+    """(CP, que verifica, resultado) de tests/test_odometro.py con el resultado real de docs/evidencias/junit.xml."""
+    raiz = AQUI.parent
+    junit = raiz / "docs" / "evidencias" / "junit.xml"
+    resultados = {}
+    if junit.exists():
+        for c in ET.parse(junit).getroot().iter("testcase"):
+            res = "FAIL" if c.find("failure") is not None or c.find("error") is not None else (
+                "SKIP" if c.find("skipped") is not None else "PASS")
+            resultados.setdefault(c.get("name").split("[")[0], []).append(res)
+    filas = []
+    arbol = ast.parse((raiz / "tests" / "test_odometro.py").read_text(encoding="utf-8"))
+    for nodo in arbol.body:
+        if isinstance(nodo, ast.FunctionDef) and nodo.name.startswith("test_"):
+            m = re.match(r"(CP-\d+): (.+)", ast.get_docstring(nodo) or "")
+            if m:
+                res = resultados.get(nodo.name, [])
+                texto = (f"Aprobada ({res.count('PASS')}/{len(res)})" if res and res.count("PASS") == len(res)
+                         else (f"{res.count('PASS')}/{len(res)} aprobadas" if res else "sin ejecución registrada"))
+                filas.append((m.group(1), m.group(2), texto))
+    filas.sort(key=lambda f: int(f[0][3:]))
+    total = sum(len(v) for v in resultados.values())
+    aprobadas = sum(v.count("PASS") for v in resultados.values())
+    return filas, total, aprobadas
 
 
 R_ANTES, R_DESPUES = resumen(ANTES), resumen(DESPUES)
@@ -233,6 +262,29 @@ tabla(doc, ["Caso", "Diseño original", "Corrección", "Motivo"], [
 ], [2.2, 3.8, 4, 6.5])
 doc.add_paragraph("Los tres casos corregidos también quedaron automatizados con reloj simulado en tests/test_odometro.py "
                   "(CP-120, CP-122 y CP-125) y están en el Documento completo de pruebas v2.1 como CT-26 a CT-28.")
+
+doc.add_heading("Parte B.3 El odómetro implementado y sus pruebas automatizadas", level=1)
+doc.add_paragraph("Cómo funciona el elemento 11 después de la corrección de DEF-03:")
+for texto in (
+    "Cálculo (logic/odometro.py): en cada ciclo de 50 ms suma velocidad mostrada × tiempo transcurrido; solo avanza "
+    "con el motor encendido y velocidad mayor que 0. Guarda la fracción de kilómetro para no perder distancia.",
+    "Pantalla (ui/tablero.py): contador de 6 dígitos dentro del velocímetro (000000–999999); después de 999999 vuelve "
+    "a 000000 y cuenta la vuelta. Nunca disminuye.",
+    "Persistencia (sistema/odometro_archivo.py, main.py): datos/odometro.txt con un respaldo .bak, escritura atómica "
+    "(temporal + fsync + os.replace) y permisos 640; se guarda cada 5 s y al cerrar.",
+    "Errores: un archivo ausente, corrupto, demasiado grande, que no es UTF-8 o que cualquiera puede escribir se "
+    "rechaza; se usa el respaldo o se inicia en 000000, con aviso en pantalla y ERROR en errores.log.",
+    "Bitácora (sistema/monitor.py): INFO odometro_actualizado cada kilómetro, como pedía el esperado de CP-ODO-01.",
+    "Seguridad: odometro= en datos/vehiculo.conf se rechaza (clave_no_permitida); el kilometraje solo lo calcula el sistema.",
+):
+    doc.add_paragraph(texto, style="List Bullet")
+filas_odo, total_suite, aprobadas_suite = pruebas_odometro()
+doc.add_paragraph(f"Pruebas automatizadas del odómetro (tests/test_odometro.py, {len(filas_odo)} casos). El resultado "
+                  "sale de la ejecución registrada en docs/evidencias/junit.xml:")
+tabla(doc, ["Caso", "Qué verifica", "Resultado"], filas_odo, [1.6, 11.4, 3.5])
+doc.add_paragraph(f"Suite completa en la misma ejecución: {aprobadas_suite} de {total_suite} ejecuciones aprobadas. "
+                  "Las pruebas anteriores al odómetro no se modificaron: el script de la etapa compara su huella "
+                  "sha256 antes de guardar cualquier cambio.")
 
 doc.add_heading("Parte C. Revisión cruzada", level=1)
 doc.add_paragraph("Revisión de un caso de un compañero (llenar en clase):")
