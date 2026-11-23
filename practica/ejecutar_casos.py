@@ -153,6 +153,14 @@ def main(argv=None):
         resumen.append(fila)
     (salida / "resultado_ejecucion.txt").write_text("\n".join(reporte), encoding="utf-8")
     (salida / "resumen.txt").write_text("\n".join(resumen) + "\n", encoding="utf-8")
+    # Despues de implementar, todo caso vigente debe aprobar; CP-ODO-01 y 02 con su duracion
+    # original (1 km exacto) se conservan como evidencia de la correccion y pueden fallar (DEF-11).
+    originales = {"CP-ODO-01", "CP-ODO-02"}
+    fallidos = [f.split("|")[0] for f in resumen
+                if f.split("|")[0] not in originales and f.split("|")[4] != "Aprobado"]
+    if args.version == "despues" and fallidos:
+        print(f"ERROR casos vigentes no aprobados: {', '.join(fallidos)}")
+        return 1
     print(f"OK {salida}")
     return 0
 

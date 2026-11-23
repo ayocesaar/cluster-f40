@@ -149,11 +149,25 @@
 | CP-135 | Odometro (elemento 11) | - | la ventana dibuja el odometro de 6 digitos en el velocimetro y lo actualiza con la marcha. | `test_odometro.py::test_cp135_el_tablero_muestra_el_odometro` | PASS |
 | CP-136 | Odometro (elemento 11) | - | la aplicacion recupera el kilometraje al iniciar, lo guarda al cerrar y avisa si el archivo es invalido. | `test_odometro.py::test_cp136_la_aplicacion_carga_y_guarda_el_kilometraje` | PASS |
 | CP-137 | Odometro (elemento 11) | - | eventos.log registra INFO odometro_actualizado al cambiar el kilometro mostrado, incluida la vuelta a 000000. | `test_odometro.py::test_cp137_el_monitor_registra_cada_kilometro` | PASS |
+| CP-138 | Robustez (auditoria y ataque QA) | R02, R04, R05 | 0.9999 bar, 110.01 C y 1.5001 bar del archivo encienden sus advertencias (R02, R04, R05; DEF-04). | `test_robustez.py::test_cp138_decimales_del_archivo_llegan_sin_redondear` | PASS |
+| CP-139 | Robustez (auditoria y ataque QA) | - | un valor fuera de rango en el archivo muestra aviso en la ventana y se retira al corregirlo (P04; DEF-05). | `test_robustez.py::test_cp139_dato_rechazado_del_archivo_se_avisa_en_pantalla` | PASS |
+| CP-140 | Robustez (auditoria y ataque QA) | - | si un ciclo de refresco lanza una excepcion, el siguiente ciclo queda programado (DEF-06). | `test_robustez.py::test_cp140_un_error_en_un_ciclo_no_congela_el_tablero` | PASS |
+| CP-141 | Robustez (auditoria y ataque QA) | R06 | refresco_ms mayor a 100 se rechaza: con 1000 ms todas las muestras caen en la misma fase del parpadeo (R06; DEF-06). | `test_robustez.py::test_cp141_refresco_no_puede_ocultar_los_parpadeos` | PASS |
+| CP-142 | Robustez (auditoria y ataque QA) | - | tras un retraso de 10 s, el cambio de velocidad no se aplica al tiempo anterior (DEF-07). | `test_robustez.py::test_cp142_odometro_integra_cada_tramo_con_su_velocidad` | PASS |
+| CP-143 | Robustez (auditoria y ataque QA) | - | una segunda ventana con la misma carpeta no guarda el odometro y lo avisa; el kilometraje de la primera se conserva (DEF-08). | `test_robustez.py::test_cp143_dos_instancias_no_pierden_kilometraje` | PASS |
+| CP-144 | Robustez (auditoria y ataque QA) | - | refresco_ms=50% y una ruta de bitacoras que es un archivo no detienen el arranque (DEF-09). | `test_robustez.py::test_cp144_configuracion_defectuosa_no_impide_arrancar` | PASS |
+| CP-145 | Robustez (auditoria y ataque QA) | - | un archivo reemplazado con el mismo tamano y la misma fecha se vuelve a leer (DEF-10). | `test_robustez.py::test_cp145_reemplazo_con_igual_tamano_y_fecha_se_detecta` | PASS |
+| CP-146 | Robustez (auditoria y ataque QA) | - | dos escritores simultaneos con escribir_dato.py no se pisan los cambios (DEF-10). | `test_robustez.py::test_cp146_escrituras_simultaneas_no_se_pierden` | PASS |
+| CP-147 | Robustez (auditoria y ataque QA) | - | P12 no puede aprobar si el simulador termina con error o casi no escribe (DEF-11). | `test_robustez.py::test_cp147_p12_falla_si_el_productor_falla` | PASS |
+| CP-148 | Robustez (auditoria y ataque QA) | - | el CSV de aceptacion rechaza 361 km/h (no lo recorta) y admite pasos del odometro (elemento 11) (DEF-12). | `test_robustez.py::test_cp148_aceptacion_rechaza_valores_fuera_de_rango_y_acepta_el_11` | PASS |
+| CP-149 | Robustez (auditoria y ataque QA) | - | los digitos del odometro quedan por encima de la aguja del velocimetro (DEF-12). | `test_robustez.py::test_cp149_aguja_no_tapa_el_odometro` | PASS |
+| CP-150 | Robustez (auditoria y ataque QA) | - | NaN e infinito se rechazan con ValueError; un NaN pasaba la validacion de rango (DEF-13). | `test_robustez.py::test_cp150_el_modelo_rechaza_nan_e_infinito` | PASS |
+| CP-151 | Robustez (auditoria y ataque QA) | - | digitos no ASCII se rechazan en el archivo de datos y en el del odometro (DEF-14). | `test_robustez.py::test_cp151_solo_digitos_ascii` | PASS |
 
 ## Resumen
 
-- Casos de prueba: 147
-- Pasaron: 147
+- Casos de prueba: 161
+- Pasaron: 161
 - Fallo esperado por defecto abierto (XFAIL): 0
 - Fallaron / otros: 0
 
@@ -162,11 +176,11 @@
 | Requisito | Casos |
 |-----------|-------|
 | R01 | CA-01, CA-02, CA-03, CA-07, CA-09, CA-10, CP-35, CP-36, CP-37, CP-51, CP-53, CP-54, CP-65, CP-66, CP-68, CP-73, CP-74, CP-91, CP-92, CP-93, CP-94, CP-96, CP-115, CP-117, CP-123 |
-| R02 | CA-09, CP-03, CP-17, CP-18, CP-19, CP-20, CP-37, CP-43, CP-44, CP-70, CP-92, CP-93, CP-99, CP-117 |
+| R02 | CA-09, CP-03, CP-17, CP-18, CP-19, CP-20, CP-37, CP-43, CP-44, CP-70, CP-92, CP-93, CP-99, CP-117, CP-138 |
 | R03 | CA-03, CP-02, CP-13, CP-14, CP-15, CP-16, CP-27, CP-40, CP-41, CP-42, CP-69, CP-75, CP-92, CP-93, CP-94, CP-115, CP-117 |
-| R04 | CA-04, CP-04, CP-21, CP-22, CP-23, CP-28, CP-45, CP-46, CP-69, CP-92, CP-93, CP-94, CP-117 |
-| R05 | CA-05, CP-05, CP-24, CP-25, CP-26, CP-29, CP-47, CP-48, CP-69, CP-92, CP-93, CP-94, CP-117 |
-| R06 | CA-06, CA-08, CP-06, CP-07, CP-08, CP-30, CP-49, CP-50, CP-57, CP-71 |
+| R04 | CA-04, CP-04, CP-21, CP-22, CP-23, CP-28, CP-45, CP-46, CP-69, CP-92, CP-93, CP-94, CP-117, CP-138 |
+| R05 | CA-05, CP-05, CP-24, CP-25, CP-26, CP-29, CP-47, CP-48, CP-69, CP-92, CP-93, CP-94, CP-117, CP-138 |
+| R06 | CA-06, CA-08, CP-06, CP-07, CP-08, CP-30, CP-49, CP-50, CP-57, CP-71, CP-141 |
 | R07 | CA-07, CA-08, CP-09, CP-31, CP-33, CP-34, CP-58, CP-64, CP-65, CP-71, CP-72, CP-117 |
 | R08 | CA-10, CP-09, CP-32, CP-59, CP-66, CP-72, CP-76, CP-99, CP-115, CP-117 |
 

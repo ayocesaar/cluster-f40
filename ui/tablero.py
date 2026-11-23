@@ -134,6 +134,9 @@ class Tablero:
         # Avisos del sistema (por ejemplo, un odometro restaurado); no los borra la siguiente entrada valida.
         self.aviso = tk.Label(raiz, text="", fg=COLOR_AMBAR, bg=FONDO, font=(FUENTE, 10, "bold"))
         self.aviso.grid(row=3, column=0, columnspan=2, sticky="w", padx=10, pady=(0, 10))
+        # Los digitos del odometro quedan sobre la aguja del velocimetro (DEF-12).
+        self.canvas.tag_raise(self.items[11]["caja"])
+        self.canvas.tag_raise(self.items[11]["valor"])
         self._programar()
 
     # ------------------------------------------------------------------ dibujo fijo
@@ -326,6 +329,13 @@ class Tablero:
         self.mensaje.configure(text="")
         return True
 
+    def aplicar_externo(self, setter, valor):
+        """Aplica un valor ya validado del archivo de datos directamente al modelo
+        (sin pasar por la resolucion de los deslizadores) y lo refleja en el control."""
+        getattr(self.estado, setter)(valor)
+        self.variables[setter].set(valor)
+        return True
+
     def ajustar(self, setter, valor):
         """Mueve un control como lo haria el usuario (usado por las pruebas)."""
         self.variables[setter].set(valor)
@@ -386,8 +396,12 @@ class Tablero:
         return self.refrescar()
 
     def _programar(self):
-        self.ciclo()
-        self._id_after = self.raiz.after(self.periodo_ms, self._programar)
+        # El siguiente ciclo se programa aunque este falle: un error de un ciclo se
+        # registra (report_callback_exception) pero no congela el tablero (DEF-06).
+        try:
+            self.ciclo()
+        finally:
+            self._id_after = self.raiz.after(self.periodo_ms, self._programar)
 
     def detener(self):
         if self._id_after is not None:

@@ -10,6 +10,7 @@ Uso (en la VM): xvfb-run -a python tools/ejecucion_prolongada.py --duracion-s 60
 
 import argparse
 import os
+import re
 import pathlib
 import shutil
 import statistics
@@ -56,6 +57,16 @@ def ps():
     return resultado.stdout.strip()
 
 
+def verificar_productor(codigo, salida, duracion_s):
+    """P12 solo es valida si el simulador termino bien y escribio de verdad (DEF-11):
+    al menos la mitad de las escrituras esperadas (una cada 100 ms)."""
+    m = re.search(r"(\d+) escrituras", salida or "")
+    escrituras = int(m.group(1)) if m else 0
+    minimo = int(duracion_s * 10 * 0.5)
+    ok = codigo == 0 and escrituras >= minimo
+    return ok, f"simulador: codigo de salida={codigo} escrituras={escrituras} (minimo {minimo}) valido={'si' if ok else 'NO'}"
+
+
 def tamanos(dir_logs):
     return {a.name: a.stat().st_size for a in sorted(dir_logs.glob("*.log*"))}
 
@@ -79,7 +90,19 @@ def main(argv=None):
     raiz = tk.Tk()
     app = principal.Aplicacion(raiz, ruta_config=trabajo / "config" / "cluster.ini", proyecto=trabajo)
     marcas = []
+    latencias = []
     revisar = app.tablero.despues_del_tick
+    consumir = app.tablero.antes_del_tick
+
+    def consumir_y_medir():
+        # Latencia real archivo -> tablero: desde que el productor reemplazo el archivo
+        # (fecha del reemplazo leido) hasta que la interfaz aplica ese dato (DEF-11).
+        aplicado = consumir()
+        if aplicado and app.lector._firma is not None:
+            latencias.append((time.time() - app.lector._firma[1] / 1e9) * 1000)
+        return aplicado
+
+    app.tablero.antes_del_tick = consumir_y_medir
 
     def medir(estado):
         marcas.append(time.monotonic())
@@ -100,7 +123,7 @@ def main(argv=None):
         medidas["logs_fin"] = tamanos(app.cfg.dir_logs)
         medidas["eventos_fin"] = dict(app.bitacora.contadores)
         medidas["lecturas"] = app.lector.lecturas
-        medidas["snapshots"] = app.tablero.antes_del_tick.snapshots
+        medidas["snapshots"] = consumir.snapshots
         app.cerrar()
 
     raiz.after(2000, tomar_inicio)                       # se mide despues de 2 s de arranque
@@ -109,6 +132,14 @@ def main(argv=None):
     raiz.mainloop()
     duracion = time.monotonic() - inicio
     salida_sim = simulador.communicate(timeout=30)[0].strip()   # termina solo: corre 3 s mas que la prueba
+    productor_ok, productor_txt = verificar_productor(simulador.returncode, salida_sim, args.duracion_s)
+    latencia_ok = bool(latencias) and statistics.mean(latencias) <= 150
+    if latencias:
+        latencia_txt = (f"  muestras={len(latencias)} promedio={statistics.mean(latencias):.1f} "
+                        f"p95={sorted(latencias)[int(len(latencias) * 0.95)]:.1f} maximo={max(latencias):.1f} "
+                        f"dentro_de_cota={'si' if latencia_ok else 'NO'}")
+    else:
+        latencia_txt = "  sin muestras: NO"
 
     intervalos = [(b - a) * 1000 for a, b in zip(marcas, marcas[1:])]
     errores_log = (trabajo / "logs" / "errores.log")
@@ -130,6 +161,10 @@ def main(argv=None):
         "Datos procesados:",
         f"  lecturas completas del archivo={medidas['lecturas']} snapshots aplicados por la interfaz={medidas['snapshots']}",
         f"  {salida_sim}",
+        f"  {productor_txt}",
+        "",
+        "Latencia archivo -> tablero (ms; cota de diseno: lectura 100 + refresco 50 = 150):",
+        latencia_txt,
         f"  eventos registrados: INFO={medidas['eventos_fin']['INFO']} WARN={medidas['eventos_fin']['WARN']} "
         f"ERROR={medidas['eventos_fin']['ERROR']}",
         f"  lineas presentes en bitacoras: eventos={lineas_eventos} errores={lineas_errores} (las antiguas se descartan al rotar)",
@@ -150,7 +185,7 @@ def main(argv=None):
     pathlib.Path(args.salida).write_text("\n".join(reporte) + "\n", encoding="utf-8")
     shutil.rmtree(trabajo, ignore_errors=True)
     print("\n".join(reporte))
-    return 0 if total_fin <= limite + 1024 else 1
+    return 0 if total_fin <= limite + 1024 and productor_ok and latencia_ok else 1
 
 
 if __name__ == "__main__":  # pragma: no cover

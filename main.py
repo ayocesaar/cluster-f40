@@ -25,7 +25,14 @@ class Aplicacion:
     def __init__(self, raiz, manual=False, ruta_config=None, proyecto=None):
         self.raiz = raiz
         self.cfg = configuracion.cargar(ruta_config, raiz=proyecto or configuracion.RAIZ)
-        self.bitacora = Bitacora(self.cfg.dir_logs, self.cfg.max_bytes, self.cfg.respaldos)
+        try:
+            self.bitacora = Bitacora(self.cfg.dir_logs, self.cfg.max_bytes, self.cfg.respaldos)
+        except OSError as error:
+            # Una ruta de bitacoras inutilizable (por ejemplo, un archivo) no impide arrancar (DEF-09).
+            self.cfg.errores.append(("logs_invalido", f"logs={self.cfg.relativa(self.cfg.dir_logs)} "
+                                                      f"{type(error).__name__}; se usa logs/"))
+            self.cfg.dir_logs = self.cfg.raiz / "logs"
+            self.bitacora = Bitacora(self.cfg.dir_logs, self.cfg.max_bytes, self.cfg.respaldos)
         for evento, detalle in self.cfg.errores:
             self.bitacora.error("configuracion", evento, detalle)
         modo = "manual" if manual else f"archivo={self.cfg.relativa(self.cfg.archivo_datos)}"
@@ -36,6 +43,12 @@ class Aplicacion:
         self.estado = EstadoCluster(RelojReal(), odometro_km=km)
         self.tablero = Tablero(raiz, self.estado)
         self.tablero.periodo_ms = self.cfg.refresco_ms
+        self._candado = odometro_archivo.Candado(self.cfg.archivo_odometro)
+        if not self._candado.adquirir():
+            # Otra ventana usa la misma carpeta: esta no guarda el kilometraje (DEF-08).
+            self.bitacora.error("odometro", "odometro_en_uso",
+                                f"archivo={self.cfg.archivo_odometro.name} esta ventana no guardara el kilometraje")
+            aviso = "Odometro en uso por otra ventana: esta no guardara el kilometraje"
         if aviso:
             self.tablero.avisar(aviso)
         self._km_guardado = round(km, 3)
@@ -50,7 +63,7 @@ class Aplicacion:
             buzon = queue.Queue(maxsize=1)
             self.lector = Lector(self.cfg.archivo_datos, self.cfg.rangos, self.bitacora)
             self.hilo = HiloLector(self.lector, self.cfg.lectura_ms / 1000, buzon)
-            self.tablero.antes_del_tick = Consumidor(buzon, self.tablero)
+            self.tablero.antes_del_tick = Consumidor(buzon, self.tablero, lector=self.lector)
             self.tablero.modo_externo(self.cfg.relativa(self.cfg.archivo_datos))
             self.hilo.start()
 
@@ -61,7 +74,7 @@ class Aplicacion:
     def guardar_odometro(self):
         """Guarda el kilometraje si cambio desde la ultima vez; un fallo se registra y no detiene nada."""
         km = self.estado.odometro.km
-        if round(km, 3) == self._km_guardado:
+        if not self._candado.adquirido or round(km, 3) == self._km_guardado:
             return False
         try:
             odometro_archivo.guardar(self.cfg.archivo_odometro, km)
@@ -82,6 +95,7 @@ class Aplicacion:
         if self.hilo is not None:
             self.hilo.detener()
         self.guardar_odometro()
+        self._candado.liberar()
         c = self.bitacora.contadores
         self.bitacora.info("sistema", "fin", f"info={c['INFO']} warn={c['WARN']} error={c['ERROR']}")
         self.bitacora.cerrar()

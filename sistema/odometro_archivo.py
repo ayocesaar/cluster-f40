@@ -16,7 +16,7 @@ from sistema.lector import escribir_texto_atomico
 
 COMPONENTE = "odometro"
 TAMANO_MAXIMO = 64
-_FORMATO = re.compile(r"\d{1,6}(\.\d{1,6})?")
+_FORMATO = re.compile(r"[0-9]{1,6}(\.[0-9]{1,6})?")  # solo digitos ASCII (DEF-14)
 
 
 class OdometroInvalido(ValueError):
@@ -78,3 +78,45 @@ def guardar(ruta, km):
     texto = f"{km:.6f}\n"
     escribir_texto_atomico(ruta, texto)
     escribir_texto_atomico(respaldo(ruta), texto)
+
+
+class Candado:
+    """Candado de instancia unica sobre <odometro>.lock (DEF-08).
+
+    Si otra ventana del cluster ya usa la misma carpeta, esta no guarda el
+    kilometraje: asi dos instancias no se sobrescriben el archivo y su respaldo.
+    Usa flock en POSIX y msvcrt.locking en Windows; el sistema operativo libera
+    el candado si el proceso termina de forma inesperada."""
+
+    def __init__(self, ruta):
+        self.ruta = pathlib.Path(ruta).with_name(pathlib.Path(ruta).name + ".lock")
+        self._archivo = None
+
+    def adquirir(self):
+        try:
+            self.ruta.parent.mkdir(parents=True, exist_ok=True)
+            archivo = open(self.ruta, "a+b")
+        except OSError:
+            return False
+        try:
+            if os.name == "posix":
+                import fcntl
+                fcntl.flock(archivo.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
+            else:  # pragma: no cover - solo Windows
+                import msvcrt
+                archivo.seek(0)
+                msvcrt.locking(archivo.fileno(), msvcrt.LK_NBLCK, 1)
+        except OSError:
+            archivo.close()
+            return False
+        self._archivo = archivo
+        return True
+
+    @property
+    def adquirido(self):
+        return self._archivo is not None
+
+    def liberar(self):
+        if self._archivo is not None:
+            self._archivo.close()   # cerrar el descriptor libera el candado
+            self._archivo = None

@@ -8,3 +8,5 @@ logs/
 # kilometraje generado al ejecutar
 datos/odometro.txt
 datos/odometro.txt.bak
+# candados de instancia unica y de escritura
+datos/*.lock

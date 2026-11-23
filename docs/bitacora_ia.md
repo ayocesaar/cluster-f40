@@ -230,3 +230,23 @@
 - Pendiente (no inventado): revisión cruzada, escenario sorpresa y observaciones del profesor.
 - Qué generó la IA: la implementación, las pruebas, los scripts de la práctica y los documentos. El
   equipo aportó el elemento asignado por el profesor y la decisión de implementarlo.
+
+## Etapa 14 — Auditoría de robustez (DEF-04 a DEF-14)
+- Fecha: 2026-11-23
+- Origen: una auditoría externa (ChatGPT Codex, commit 5e9506b) reportó fallos con datos decimales,
+  avisos, refresco, odómetro, P12, configuración, concurrencia, aceptación e informes. Se reprodujeron
+  uno por uno con pruebas nuevas (CP-138 a CP-149) que fallaron en 5e9506b
+  (docs/evidencias/robustez_antes.txt); 12 de 12 confirmados.
+- Ataque propio: fuzzing (tools/qa/fuzzing.py) encontró dos defectos más: NaN aceptado por el modelo
+  (DEF-13) y dígitos no ASCII aceptados (DEF-14); CP-150 y CP-151.
+- Correcciones: valor validado directo al modelo, aviso de rechazos en pantalla, refresco que se
+  reprograma aunque un ciclo falle y limitado a 100 ms, integración del odómetro por tramos, candado de
+  instancia única, configparser sin interpolación y bitácoras de respaldo, firma del lector con inodo,
+  candado de escritura en escribir_dato.py, P12 que valida el productor y mide la latencia archivo ->
+  tablero, informes que no cuentan omitidas como aprobadas, CSV con rango y elemento 11, odómetro sobre
+  la aguja, rechazo de NaN y de dígitos no ASCII.
+- Prueba de caos (tools/qa/caos.py): 40 s de aplicación real con el archivo corrompido, borrado, con
+  permisos cambiados y una segunda instancia en otro proceso.
+- Pruebas anteriores: sin cambios (huella sha256). CP-84 se conserva: el mensaje de elemento inválido
+  sigue diciendo "elemento fuera de 1-10" (el 11 solo admite valor=NNNNNN).
+- Qué generó la IA: pruebas, correcciones y scripts de ataque. El equipo pidió la auditoría.

@@ -1,0 +1,64 @@
+FFFFFFFF.FFF                                                             [100%]
+=================================== FAILURES ===================================
+E   assert (1.0, 110.0, 1.5) == (0.9999, 110.01, 1.5001)
+      
+      At index 0 diff: 1.0 != 0.9999
+      Use -v to get more diff
+------------------------------ Captured log call -------------------------------
+INFO     cluster_f40.139892883485456:bitacora.py:79 motor=1 resultado=aceptado
+INFO     cluster_f40.139892883485456:bitacora.py:79 rpm=1000 resultado=aceptado
+INFO     cluster_f40.139892883485456:bitacora.py:79 presion_aceite=0.9999 resultado=aceptado
+INFO     cluster_f40.139892883485456:bitacora.py:79 temp_agua=110.01 resultado=aceptado
+INFO     cluster_f40.139892883485456:bitacora.py:79 presion_turbo=1.5001 resultado=aceptado
+/tmp/antes14/tests/test_robustez.py:75: assert (1.0, 110.0, 1.5) == (0.9999, 110.01, 1.5001)
+E   TypeError: Consumidor.__init__() got an unexpected keyword argument 'lector'
+/tmp/antes14/tests/test_robustez.py:91: TypeError: Consumidor.__init__() got an unexpected keyword argument 'lector'
+E   assert None is not None
+     +  where None = <ui.tablero.Tablero object at 0x7f3b598cac50>._id_after
+/tmp/antes14/tests/test_robustez.py:124: assert None is not None
+E   AssertionError: assert (1000 == 50)
+     +  where 1000 = Configuracion(raiz=PosixPath('/tmp/pytest-of-ayocesaar/pytest-2/test_cp141_refresco_no_puede_o0'), archivo_datos=Posix...m': (0.0, 9000.0), 'presion_aceite': (0.0, 10.0), 'temp_agua': (40.0, 130.0), 'presion_turbo': (0.0, 2.0)}, errores=[]).refresco_ms
+/tmp/antes14/tests/test_robustez.py:135: AssertionError: assert (1000 == 50)
+E   assert 1.0 < 0.011
+     +  where 1.0 = <logic.odometro.Odometro object at 0x7f3b598cb3d0>.km
+     +    where <logic.odometro.Odometro object at 0x7f3b598cb3d0> = <logic.estado.EstadoCluster object at 0x7f3b598cb130>.odometro
+/tmp/antes14/tests/test_robustez.py:147: assert 1.0 < 0.011
+E   AssertionError: assert 'otra ventana' in ''
+     +  where '' = cget('text')
+     +    where cget = <tkinter.Label object .!label2>.cget
+     +      where <tkinter.Label object .!label2> = <ui.tablero.Tablero object at 0x7f3b58f302b0>.aviso
+     +        where <ui.tablero.Tablero object at 0x7f3b58f302b0> = <main.Aplicacion object at 0x7f3b59a06dd0>.tablero
+/tmp/antes14/tests/test_robustez.py:170: AssertionError: assert 'otra ventana' in ''
+E   configparser.InterpolationSyntaxError: '%' must be followed by '%' or '(', found: '%'
+/usr/lib/python3.10/configparser.py:443: configparser.InterpolationSyntaxError: '%' must be followed by '%' or '(', found: '%'
+E   assert (None is not None)
+------------------------------ Captured log call -------------------------------
+INFO     cluster_f40.139892872021232:bitacora.py:79 motor=1 resultado=aceptado
+INFO     cluster_f40.139892872021232:bitacora.py:79 velocidad=50 resultado=aceptado
+INFO     cluster_f40.139892872021232:bitacora.py:79 rpm=1000 resultado=aceptado
+INFO     cluster_f40.139892872021232:bitacora.py:79 presion_aceite=5 resultado=aceptado
+INFO     cluster_f40.139892872021232:bitacora.py:79 temp_agua=90 resultado=aceptado
+INFO     cluster_f40.139892872021232:bitacora.py:79 presion_turbo=0.5 resultado=aceptado
+/tmp/antes14/tests/test_robustez.py:211: assert (None is not None)
+E   AttributeError: module 'ejecucion_prolongada' has no attribute 'verificar_productor'
+/tmp/antes14/tests/test_robustez.py:240: AttributeError: module 'ejecucion_prolongada' has no attribute 'verificar_productor'
+E   Failed: DID NOT RAISE ErrorEscenarios
+/tmp/antes14/tests/test_robustez.py:251: Failed: DID NOT RAISE ErrorEscenarios
+E   assert 426 > 451
+     +  where 426 = <built-in method index of tuple object at 0x56314262d320>(427)
+     +    where <built-in method index of tuple object at 0x56314262d320> = (1, 2, 3, 4, 5, 6, ...).index
+     +  and   451 = max(<generator object test_cp149_aguja_no_tapa_el_odometro.<locals>.<genexpr> at 0x7f3b5999fae0>)
+/tmp/antes14/tests/test_robustez.py:264: assert 426 > 451
+=========================== short test summary info ============================
+FAILED tests/test_robustez.py::test_cp138_decimales_del_archivo_llegan_sin_redondear
+FAILED tests/test_robustez.py::test_cp139_dato_rechazado_del_archivo_se_avisa_en_pantalla
+FAILED tests/test_robustez.py::test_cp140_un_error_en_un_ciclo_no_congela_el_tablero
+FAILED tests/test_robustez.py::test_cp141_refresco_no_puede_ocultar_los_parpadeos
+FAILED tests/test_robustez.py::test_cp142_odometro_integra_cada_tramo_con_su_velocidad
+FAILED tests/test_robustez.py::test_cp143_dos_instancias_no_pierden_kilometraje
+FAILED tests/test_robustez.py::test_cp144_configuracion_defectuosa_no_impide_arrancar
+FAILED tests/test_robustez.py::test_cp145_reemplazo_con_igual_tamano_y_fecha_se_detecta
+FAILED tests/test_robustez.py::test_cp147_p12_falla_si_el_productor_falla - A...
+FAILED tests/test_robustez.py::test_cp148_aceptacion_rechaza_valores_fuera_de_rango_y_acepta_el_11
+FAILED tests/test_robustez.py::test_cp149_aguja_no_tapa_el_odometro - assert ...
+11 failed, 1 passed in 2.71s

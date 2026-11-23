@@ -30,7 +30,7 @@ from docx import Document  # noqa: E402
 from docx.enum.text import WD_ALIGN_PARAGRAPH  # noqa: E402
 from docx.shared import Cm, Pt, RGBColor  # noqa: E402
 
-from generar_informe import (IDENTIFICACION, cargar_aceptacion, cargar_junit, codigo, convertir_pdf,  # noqa: E402
+from generar_informe import (IDENTIFICACION, cargar_aceptacion, cargar_defectos, cargar_junit, codigo, convertir_pdf,  # noqa: E402
                              ejecuciones, ficha, figura, leer, numero_pagina, sistema_operativo, tabla, version_software,
                              vinetas)
 
@@ -39,7 +39,7 @@ DOCS = RAIZ / "docs"
 EVID = DOCS / "evidencias"
 SALIDA = RAIZ / "informe" / "Documento_Completo_de_Pruebas_F40.docx"
 IDENTIFICADOR = "DCP-F40-T2"
-VERSION_DOC = "2.1"
+VERSION_DOC = "2.2"
 PENDIENTE = "PENDIENTE: todavía no se realiza en clase."
 PRACTICA = RAIZ / "practica"
 CASOS_PRACTICA = ("CT-26", "CT-27", "CT-28")
@@ -392,8 +392,10 @@ def construir():
         ("1.3", "2026-11-10", "Datos externos, bitácoras, hilo lector, pruebas P01–P12 e informe técnico", "83ca343"),
         ("2.0", "2026-11-16", "Tarea 2: estructura obligatoria, requisitos REQ por elemento, 25 casos con distribución por "
                               "categoría, prioridades, criterios, riesgos con probabilidad, métricas y anexos", "749d580"),
-        (VERSION_DOC, hoy, "Práctica en clase (odómetro): REQ-ODO-01, casos CT-26 a CT-28 con resultados antes y después "
-                          "de implementar el elemento 11, DEF-03 y corrección de las duraciones de los casos", "esta versión"),
+        ("2.1", "2026-11-18", "Práctica en clase (odómetro): REQ-ODO-01, casos CT-26 a CT-28 con resultados antes y después "
+                              "de implementar el elemento 11, DEF-03 y corrección de las duraciones de los casos", "a1adda6"),
+        (VERSION_DOC, hoy, "Auditoría de robustez: DEF-04 a DEF-14 corregidos, pruebas CP-138 a CP-151 (fallaban antes de "
+                          "corregir), fuzzing y prueba de caos con la aplicación real", "esta versión"),
     ], anchos=[1.6, 2.4, 10, 2.5])
     doc.add_page_break()
 
@@ -601,6 +603,14 @@ def construir():
     )
     for d in defectos:
         ficha(doc, d)
+    adicionales = [d for d in cargar_defectos() if d["ID"] not in ("DEF-01", "DEF-02", "DEF-03")]
+    if adicionales:
+        doc.add_paragraph("Auditoría de robustez (versión 2.2): cada defecto se reprodujo con una prueba que falló en 5e9506b "
+                          "(docs/evidencias/robustez_antes.txt) y pasa después de corregir. La ficha completa está en "
+                          "docs/registro_defectos.md.")
+        tabla(doc, ["Defecto", "Título", "Severidad / prioridad", "Caso", "Estado"],
+              [(d["ID"], d["Titulo"], d.get("Severidad / prioridad", "—"), d.get("Caso de prueba", "—"), d.get("Estado", "—"))
+               for d in adicionales], anchos=[1.6, 6.4, 2.6, 3.4, 2.5])
 
     # Resultados
     doc.add_heading("13. Resultados", level=1)
@@ -614,9 +624,8 @@ def construir():
         ("Planeados y ejecutados", f"{total} planeados; {ejecutados} con resultado"),
         ("Aprobados, fallidos, bloqueados", f"{estados['Aprobada']} / {estados['Fallida']} / {estados['Bloqueada']}"),
         ("Pruebas automatizadas de respaldo", f"{len(casos)} ejecuciones: {auto['PASS']} aprobadas, {auto['FAIL']} fallidas, {auto['SKIP']} omitidas; aceptación {aprob_ca}/{len(aceptacion)}"),
-        ("Defectos", "3 registrados: DEF-01 media (rechazado), DEF-02 media (cerrado), DEF-03 media "
-                     f"({'cerrado' if practica_aprobada else 'en verificación'}); "
-                     f"{0 if practica_aprobada else 1} abiertos"),
+        ("Defectos", f"{len(cargar_defectos())} registrados (DEF-01 rechazado; el resto cerrados salvo los indicados); "
+                     f"{sum(1 for d in cargar_defectos() if d.get('Estado', '').startswith('Abierto'))} abiertos"),
         ("Cobertura de requisitos", f"{reqs_con_caso} de {len(REQUISITOS)} requisitos con al menos un caso"),
         ("Ejecución = ejecutados / planeados × 100", f"{ejecutados / total * 100:.1f}%"),
         ("Aprobación = aprobados / ejecutados × 100", f"{estados['Aprobada'] / ejecutados * 100:.1f}%" if ejecutados else "—"),

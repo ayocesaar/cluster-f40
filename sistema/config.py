@@ -27,7 +27,8 @@ RANGOS_ESPECIFICACION = {
 # (seccion, clave, minimo, maximo, valor por defecto)
 ENTEROS = (
     ("intervalos", "lectura_ms", 10, 5000, 100),
-    ("intervalos", "refresco_ms", 10, 1000, 50),
+    # Maximo 100 ms: con refrescos mas lentos los parpadeos de 300 y 500 ms pueden verse fijos (DEF-06).
+    ("intervalos", "refresco_ms", 10, 100, 50),
     ("bitacora", "max_bytes", 1024, 10_485_760, 262_144),
     ("bitacora", "respaldos", 1, 10, 3),
     ("odometro", "guardar_cada_s", 1, 3600, 5),
@@ -71,7 +72,7 @@ def cargar(ruta=None, raiz=RAIZ):
     raiz = pathlib.Path(raiz)
     ruta = pathlib.Path(ruta) if ruta else raiz / "config" / "cluster.ini"
     errores = []
-    ini = configparser.ConfigParser()
+    ini = configparser.ConfigParser(interpolation=None)  # "50%" no debe romper la lectura (DEF-09)
     if not ruta.is_file():
         errores.append(("archivo_inexistente", f"ruta={ruta.name} (se usan valores por defecto)"))
     else:
@@ -79,7 +80,7 @@ def cargar(ruta=None, raiz=RAIZ):
             ini.read(ruta, encoding="utf-8")
         except (configparser.Error, UnicodeDecodeError) as error:
             errores.append(("configuracion_invalida", f"{type(error).__name__} (se usan valores por defecto)"))
-            ini = configparser.ConfigParser()
+            ini = configparser.ConfigParser(interpolation=None)  # "50%" no debe romper la lectura (DEF-09)
 
     datos = _ruta_segura(raiz, ini.get("rutas", "datos", fallback="datos/vehiculo.conf"),
                          "datos/vehiculo.conf", "datos", errores)

@@ -98,3 +98,179 @@ regresion: `practica/evidencia_despues/`.
 
 **Leccion aprendida:** un caso que espera exactamente 1 km en tiempo real queda
 en el borde del cambio de digito. Los casos se corrigieron a 1.5 km (45 s y 15 s).
+
+## DEF-04 - Los decimales del archivo se redondeaban al pasar por los controles y apagaban alertas
+
+| Campo | Valor |
+|-------|-------|
+| ID | DEF-04 |
+| Estado | Cerrado (Etapa 14) |
+| Severidad / prioridad | Alta / alta |
+| Requisitos relacionados | R02, R04, R05 (testigo 9, temperatura, turbo) |
+| Componente | sistema/lector.py (Consumidor), ui/tablero.py |
+| Detectado en | Auditoria de robustez del 23-nov-2026 (DEF-04 a DEF-12: auditoria externa; DEF-13 y DEF-14: fuzzing propio) |
+| Caso de prueba | CP-138 (tests/test_robustez.py) |
+
+**Observado:** 0.9999 bar, 110.01 C y 1.5001 bar llegaban al modelo como 1.0, 110.0 y 1.5: el testigo 9, el rojo de temperatura y el contorno del turbo no se encendian.
+
+**Correccion:** El Consumidor aplica el valor validado directo al modelo (Tablero.aplicar_externo); el control solo lo muestra. La prueba fallaba en 5e9506b (docs/evidencias/robustez_antes.txt) y pasa despues.
+
+## DEF-05 - Un dato rechazado del archivo no se avisaba en la ventana
+
+| Campo | Valor |
+|-------|-------|
+| ID | DEF-05 |
+| Estado | Cerrado (Etapa 14) |
+| Severidad / prioridad | Media / alta |
+| Requisitos relacionados | P04 de la guia |
+| Componente | sistema/lector.py, main.py |
+| Detectado en | Auditoria de robustez del 23-nov-2026 (DEF-04 a DEF-12: auditoria externa; DEF-13 y DEF-14: fuzzing propio) |
+| Caso de prueba | CP-139 (tests/test_robustez.py) |
+
+**Observado:** Fuera de rango en datos/vehiculo.conf: ERROR en la bitacora pero ningun aviso en pantalla.
+
+**Correccion:** El lector expone sus rechazos y el Consumidor los muestra; el aviso se retira al corregir el dato. La prueba fallaba en 5e9506b (docs/evidencias/robustez_antes.txt) y pasa despues.
+
+## DEF-06 - Un error de un ciclo congelaba el tablero; un refresco lento ocultaba los parpadeos
+
+| Campo | Valor |
+|-------|-------|
+| ID | DEF-06 |
+| Estado | Cerrado (Etapa 14) |
+| Severidad / prioridad | Alta / alta |
+| Requisitos relacionados | R06, R07, R08 |
+| Componente | ui/tablero.py, sistema/config.py |
+| Detectado en | Auditoria de robustez del 23-nov-2026 (DEF-04 a DEF-12: auditoria externa; DEF-13 y DEF-14: fuzzing propio) |
+| Caso de prueba | CP-140, CP-141 (tests/test_robustez.py) |
+
+**Observado:** Una excepcion en un ciclo dejaba de programar el siguiente; con refresco_ms=1000 el direccional se veia fijo.
+
+**Correccion:** El siguiente ciclo se programa en finally; refresco_ms se limita a 10-100 ms. La prueba fallaba en 5e9506b (docs/evidencias/robustez_antes.txt) y pasa despues.
+
+## DEF-07 - El odometro aplicaba la velocidad nueva a un intervalo ya transcurrido
+
+| Campo | Valor |
+|-------|-------|
+| ID | DEF-07 |
+| Estado | Cerrado (Etapa 14) |
+| Severidad / prioridad | Media / media |
+| Requisitos relacionados | REQ-ODO-01 |
+| Componente | logic/estado.py |
+| Detectado en | Auditoria de robustez del 23-nov-2026 (DEF-04 a DEF-12: auditoria externa; DEF-13 y DEF-14: fuzzing propio) |
+| Caso de prueba | CP-142 (tests/test_robustez.py) |
+
+**Observado:** Con un refresco retrasado 10 s, 0 -> 360 km/h sumaba 1 km de un intervalo en reposo.
+
+**Correccion:** Si la velocidad cambia, la nueva solo cuenta para el ultimo ciclo de lectura; el resto usa la anterior. La prueba fallaba en 5e9506b (docs/evidencias/robustez_antes.txt) y pasa despues.
+
+## DEF-08 - Dos ventanas con la misma carpeta perdian kilometraje
+
+| Campo | Valor |
+|-------|-------|
+| ID | DEF-08 |
+| Estado | Cerrado (Etapa 14) |
+| Severidad / prioridad | Media / media |
+| Requisitos relacionados | REQ-ODO-01 |
+| Componente | main.py, sistema/odometro_archivo.py |
+| Detectado en | Auditoria de robustez del 23-nov-2026 (DEF-04 a DEF-12: auditoria externa; DEF-13 y DEF-14: fuzzing propio) |
+| Caso de prueba | CP-143 (tests/test_robustez.py) |
+
+**Observado:** La segunda ventana sobrescribia el principal y el respaldo con un valor menor.
+
+**Correccion:** Candado de instancia unica (flock / msvcrt); la segunda ventana no guarda, avisa y registra odometro_en_uso. La prueba fallaba en 5e9506b (docs/evidencias/robustez_antes.txt) y pasa despues.
+
+## DEF-09 - Una configuracion defectuosa impedia arrancar
+
+| Campo | Valor |
+|-------|-------|
+| ID | DEF-09 |
+| Estado | Cerrado (Etapa 14) |
+| Severidad / prioridad | Media / alta |
+| Requisitos relacionados | Configuracion externa |
+| Componente | sistema/config.py, main.py |
+| Detectado en | Auditoria de robustez del 23-nov-2026 (DEF-04 a DEF-12: auditoria externa; DEF-13 y DEF-14: fuzzing propio) |
+| Caso de prueba | CP-144 (tests/test_robustez.py) |
+
+**Observado:** refresco_ms=50% lanzaba InterpolationSyntaxError; logs apuntando a un archivo detenia el arranque.
+
+**Correccion:** configparser sin interpolacion; si la carpeta de bitacoras no sirve se usa logs/ y se registra logs_invalido. La prueba fallaba en 5e9506b (docs/evidencias/robustez_antes.txt) y pasa despues.
+
+## DEF-10 - Cambios del archivo podian perderse o no detectarse
+
+| Campo | Valor |
+|-------|-------|
+| ID | DEF-10 |
+| Estado | Cerrado (Etapa 14) |
+| Severidad / prioridad | Media / media |
+| Requisitos relacionados | Entrada externa |
+| Componente | sistema/lector.py, tools/escribir_dato.py |
+| Detectado en | Auditoria de robustez del 23-nov-2026 (DEF-04 a DEF-12: auditoria externa; DEF-13 y DEF-14: fuzzing propio) |
+| Caso de prueba | CP-145, CP-146 (tests/test_robustez.py) |
+
+**Observado:** Un reemplazo con igual tamano y fecha no se releia; dos escribir_dato.py simultaneos se pisaban los cambios.
+
+**Correccion:** La firma del lector incluye el inodo; escribir_dato.py serializa con un candado de escritura. La prueba fallaba en 5e9506b (docs/evidencias/robustez_antes.txt) y pasa despues.
+
+## DEF-11 - La evidencia podia declarar aprobado lo que no lo estaba
+
+| Campo | Valor |
+|-------|-------|
+| ID | DEF-11 |
+| Estado | Cerrado (Etapa 14) |
+| Severidad / prioridad | Media / alta |
+| Requisitos relacionados | P12, informes |
+| Componente | tools/ejecucion_prolongada.py, informe/generar_informe.py, tools/informe.py, practica/ejecutar_casos.py |
+| Detectado en | Auditoria de robustez del 23-nov-2026 (DEF-04 a DEF-12: auditoria externa; DEF-13 y DEF-14: fuzzing propio) |
+| Caso de prueba | CP-147 (tests/test_robustez.py) |
+
+**Observado:** P12 aprobaba con el simulador caido; los informes contaban omitidas como aprobadas; la practica salia con 0 con casos fallidos.
+
+**Correccion:** P12 exige productor valido y mide la latencia archivo -> tablero; las conclusiones exigen 0 omitidas; la practica sale con 1 si falla un caso vigente. La prueba fallaba en 5e9506b (docs/evidencias/robustez_antes.txt) y pasa despues.
+
+## DEF-12 - Ejecutor de aceptacion y dibujo del odometro
+
+| Campo | Valor |
+|-------|-------|
+| ID | DEF-12 |
+| Estado | Cerrado (Etapa 14) |
+| Severidad / prioridad | Baja / media |
+| Requisitos relacionados | Aceptacion, elemento 11 |
+| Componente | aceptacion/escenarios.py, ui/tablero.py |
+| Detectado en | Auditoria de robustez del 23-nov-2026 (DEF-04 a DEF-12: auditoria externa; DEF-13 y DEF-14: fuzzing propio) |
+| Caso de prueba | CP-148, CP-149 (tests/test_robustez.py) |
+
+**Observado:** El CSV aceptaba 361 km/h (el deslizador lo recortaba a 360) y no admitia el elemento 11; la aguja tapaba los digitos del odometro.
+
+**Correccion:** Rango validado al cargar el CSV; elemento 11 con valor=NNNNNN; el odometro se dibuja sobre la aguja. La prueba fallaba en 5e9506b (docs/evidencias/robustez_antes.txt) y pasa despues.
+
+## DEF-13 - El modelo aceptaba NaN
+
+| Campo | Valor |
+|-------|-------|
+| ID | DEF-13 |
+| Estado | Cerrado (Etapa 14) |
+| Severidad / prioridad | Alta / alta |
+| Requisitos relacionados | R01-R05 |
+| Componente | logic/estado.py |
+| Detectado en | Auditoria de robustez del 23-nov-2026 (DEF-04 a DEF-12: auditoria externa; DEF-13 y DEF-14: fuzzing propio) |
+| Caso de prueba | CP-150 (tests/test_robustez.py) |
+
+**Observado:** set_velocidad(nan) y set_temp_agua(nan) pasaban la validacion porque toda comparacion con NaN es falsa.
+
+**Correccion:** La validacion usa not minimo <= valor <= maximo, que rechaza NaN e infinito. La prueba fallaba en 5e9506b (docs/evidencias/robustez_antes.txt) y pasa despues.
+
+## DEF-14 - Se aceptaban digitos no ASCII
+
+| Campo | Valor |
+|-------|-------|
+| ID | DEF-14 |
+| Estado | Cerrado (Etapa 14) |
+| Severidad / prioridad | Baja / media |
+| Requisitos relacionados | Entrada externa, REQ-ODO-01 |
+| Componente | sistema/lector.py, sistema/odometro_archivo.py |
+| Detectado en | Auditoria de robustez del 23-nov-2026 (DEF-04 a DEF-12: auditoria externa; DEF-13 y DEF-14: fuzzing propio) |
+| Caso de prueba | CP-151 (tests/test_robustez.py) |
+
+**Observado:** velocidad=５ o un odometro.txt con ６２ se aceptaban como numeros.
+
+**Correccion:** Solo digitos ASCII en el archivo de datos y en el del odometro. La prueba fallaba en 5e9506b (docs/evidencias/robustez_antes.txt) y pasa despues.

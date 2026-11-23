@@ -15,6 +15,7 @@ from dataclasses import dataclass
 
 from logic.estado import EstadoCluster
 from logic.reloj import RelojSimulado
+from sistema.config import RANGOS_ESPECIFICACION
 from ui.presentacion import COLOR_AMBAR, COLOR_APAGADO, COLOR_AZUL, COLOR_NORMAL, COLOR_ROJO, COLOR_VERDE
 from ui.tablero import Tablero
 
@@ -71,9 +72,15 @@ def _valor(accion, texto, linea):
         return None
     if accion in DESLIZADORES:
         try:
-            return float(texto)
+            valor = float(texto)
         except ValueError:
             raise ErrorEscenarios(f"linea {linea}: el valor {texto!r} de {accion} no es numerico") from None
+        # Un valor fuera de rango no debe llegar al deslizador: este lo recortaba (361 -> 360)
+        # y el paso aprobaba sin probar nada (DEF-12).
+        minimo, maximo = RANGOS_ESPECIFICACION[accion]
+        if not minimo <= valor <= maximo:
+            raise ErrorEscenarios(f"linea {linea}: {accion}={texto} fuera de rango {minimo:g}-{maximo:g}")
+        return valor
     if accion in INTERRUPTORES:
         if texto not in ("0", "1"):
             raise ErrorEscenarios(f"linea {linea}: {accion} solo acepta 0 o 1, no {texto!r}")
@@ -96,11 +103,15 @@ def _paso(fila, linea):
         raise ErrorEscenarios(f"linea {linea}: paso, avanzar_ms y elemento deben ser numericos") from None
     if avanzar_ms < 0:
         raise ErrorEscenarios(f"linea {linea}: avanzar_ms negativo: {avanzar_ms:g}")
-    if not 1 <= elemento <= 10:
-        raise ErrorEscenarios(f"linea {linea}: elemento fuera de 1-10: {elemento}")
     esperado = fila["esperado"]
+    odometro_valido = elemento == 11 and esperado.startswith("valor=") and esperado[6:].isdigit() and len(esperado) == 12
+    if not (1 <= elemento <= 10 or odometro_valido):
+        raise ErrorEscenarios(f"linea {linea}: elemento fuera de 1-10 (el 11, odometro, solo admite "
+                              f"valor=NNNNNN): {elemento}")
     validos = ESPERADOS_LECTURA if elemento <= 5 else ESPERADOS_TESTIGO
-    if esperado not in validos and not (elemento <= 5 and esperado.startswith("valor=")):
+    if elemento == 11:
+        pass
+    elif esperado not in validos and not (elemento <= 5 and esperado.startswith("valor=")):
         raise ErrorEscenarios(f"linea {linea}: esperado {esperado!r} no valido para el elemento {elemento}")
     return Paso(linea, fila["escenario"], numero, accion, _valor(accion, fila["valor"], linea),
                 avanzar_ms, elemento, esperado, fila["descripcion"])

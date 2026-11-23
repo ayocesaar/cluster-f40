@@ -20,6 +20,7 @@ TECNICAS = {
     "test_aceptacion": "Aceptacion (dirigida por datos)",
     "test_sistema": "Sistema (archivos, bitacoras, concurrencia)",
     "test_odometro": "Odometro (elemento 11)",
+    "test_robustez": "Robustez (auditoria y ataque QA)",
 }
 
 por_tecnica = {}
@@ -153,11 +154,11 @@ L += [
     "## 10. Conclusion",
     "",
 ]
-if total["FAIL"] == 0 and total["XFAIL"] == 0 and n_abiertos == 0:
+if total["FAIL"] == 0 and total["XFAIL"] == 0 and total["SKIP"] == 0 and n_abiertos == 0:  # omitidas no son aprobadas (DEF-11)
     L.append(f"Las {n_total} ejecuciones pasan, la cobertura de la logica es completa y "
              "no quedan defectos abiertos: la logica cumple R01-R08 segun las pruebas definidas.")
 else:
-    L.append(f"Quedan {total['FAIL']} fallos, {total['XFAIL']} fallos esperados y "
+    L.append(f"Quedan {total['FAIL']} fallos, {total['SKIP']} omitidas, {total['XFAIL']} fallos esperados y "
              f"{n_abiertos} defectos abiertos; la logica aun no se considera aceptada.")
 
 pathlib.Path("docs/informe_pruebas.md").write_text("\n".join(L) + "\n", encoding="utf-8")

@@ -53,6 +53,7 @@ TECNICAS = {
     "test_aceptacion": "Aceptacion (dirigida por datos)",
     "test_sistema": "Sistema (archivos, bitacoras, concurrencia)",
     "test_odometro": "Odometro (elemento 11)",
+    "test_robustez": "Robustez (auditoria y ataque QA)",
 }
 
 PRODUCCION = ("logic/estado.py", "logic/reloj.py", "ui/presentacion.py", "ui/tablero.py",
@@ -890,7 +891,9 @@ def construir():
     elif con_huecos:
         doc.add_paragraph("Módulos con líneas o ramas sin cubrir: " + ", ".join(con_huecos) + ".")
     doc.add_heading("Conclusión de calidad", level=2)
-    if estados["Aprobada"] == len(CASOS) and total["FAIL"] == 0 and aprob_ca == len(aceptacion) and abiertos == 0:
+    # Una ejecucion omitida no es una ejecucion aprobada (DEF-11): la conclusion exige 0 omitidas.
+    if (estados["Aprobada"] == len(CASOS) and total["FAIL"] == 0 and total.get("SKIP", 0) == 0
+            and aprob_ca == len(aceptacion) and abiertos == 0):
         doc.add_paragraph(
             f"Los {len(CASOS)} casos del informe están aprobados, las {len(casos_junit)} ejecuciones automatizadas "
             f"pasan, los {len(aceptacion)} escenarios de aceptación coinciden con lo esperado en pantalla y no "
@@ -901,7 +904,7 @@ def construir():
     else:
         doc.add_paragraph(
             f"Hay {estados['Fallida']} casos fallidos, {estados['Bloqueada']} bloqueados, {total['FAIL']} "
-            f"ejecuciones fallidas y {abiertos} defectos abiertos. El software no se considera aceptado hasta "
+            f"ejecuciones fallidas, {total['SKIP']} omitidas y {abiertos} defectos abiertos. El software no se considera aceptado hasta "
             "resolverlos.")
 
     # 13. Referencias

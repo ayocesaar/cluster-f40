@@ -18,6 +18,7 @@ TECNICAS = {
     "test_aceptacion.py": "Aceptacion (dirigida por datos)",
     "test_sistema.py": "Sistema (archivos, bitacoras, concurrencia)",
     "test_odometro.py": "Odometro (elemento 11)",
+    "test_robustez.py": "Robustez (auditoria y ataque QA)",
 }
 
 # Los casos parametrizados llegan como "test_x[param]": se agrupan por funcion

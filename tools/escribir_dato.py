@@ -9,6 +9,8 @@ Con --sin-validar escribe el texto tal cual, para provocar a proposito los
 errores que el lector debe rechazar y registrar."""
 
 import argparse
+import contextlib
+import os
 import pathlib
 import sys
 
@@ -17,6 +19,22 @@ sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent))
 from sistema import config as configuracion
 from sistema.lector import (CLAVES, VALORES_INICIALES, DatoInvalido, convertir, escribir_texto_atomico, formatear,
                             parsear)
+
+
+@contextlib.contextmanager
+def exclusivo(ruta):
+    """Serializa leer-modificar-escribir entre escritores simultaneos (DEF-10): sin esto,
+    dos ediciones al mismo tiempo devolvian exito y una borraba el cambio de la otra."""
+    candado = ruta.with_name(ruta.name + ".escritura.lock")
+    with open(candado, "a+b") as archivo:
+        if os.name == "posix":
+            import fcntl
+            fcntl.flock(archivo.fileno(), fcntl.LOCK_EX)
+        else:  # pragma: no cover - solo Windows
+            import msvcrt
+            archivo.seek(0)
+            msvcrt.locking(archivo.fileno(), msvcrt.LK_LOCK, 1)
+        yield
 
 
 def main(argv=None):
@@ -28,6 +46,11 @@ def main(argv=None):
 
     cfg = configuracion.cargar()
     ruta = pathlib.Path(args.archivo) if args.archivo else cfg.archivo_datos
+    with exclusivo(ruta):
+        return _escribir(ruta, args, cfg)
+
+
+def _escribir(ruta, args, cfg):
     actuales = {}
     if ruta.is_file():
         pares, _ = parsear(ruta.read_text(encoding="utf-8"))

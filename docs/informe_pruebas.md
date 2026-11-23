@@ -39,10 +39,11 @@ pruebas automatizadas con pytest y medicion de cobertura con coverage.
 | Particion de equivalencia | 10 | 10 | 0 | 0 |
 | Presentacion (caja negra) | 7 | 7 | 0 | 0 |
 | Basada en requisitos | 3 | 3 | 0 | 0 |
+| Robustez (auditoria y ataque QA) | 27 | 27 | 0 | 0 |
 | Sistema (archivos, bitacoras, concurrencia) | 37 | 37 | 0 | 0 |
 | Integracion UI (Tkinter) | 6 | 6 | 0 | 0 |
 | Transicion de estados | 11 | 11 | 0 | 0 |
-| **Total** | **165** | **165** | **0** | **0** |
+| **Total** | **192** | **192** | **0** | **0** |
 
 Las ejecuciones cuentan cada variante parametrizada por separado; la matriz de
 trazabilidad agrupa por caso de prueba (CP).
@@ -51,13 +52,13 @@ trazabilidad agrupa por caso de prueba (CP).
 
 | Modulo | Lineas | Ramas | Cobertura |
 |--------|--------|-------|-----------|
-| `logic/estado.py` | 194/194 | 64/64 | 100.0% |
+| `logic/estado.py` | 198/198 | 64/64 | 100.0% |
 | `logic/reloj.py` | 18/18 | 4/4 | 100.0% |
 | `logic/odometro.py` | 27/27 | 8/8 | 100.0% |
 | `ui/presentacion.py` | 21/21 | 0/0 | 100.0% |
-| `ui/tablero.py` | 240/240 | 62/62 | 100.0% |
-| `main.py` | 79/79 | 11/12 | 98.9% |
-| `aceptacion/escenarios.py` | 131/131 | 40/40 | 100.0% |
+| `ui/tablero.py` | 247/247 | 62/62 | 100.0% |
+| `main.py` | 89/89 | 13/14 | 99.0% |
+| `aceptacion/escenarios.py` | 139/139 | 44/44 | 100.0% |
 
 ## 6. Trazabilidad
 
@@ -69,7 +70,7 @@ de las pruebas y el resultado de junit.
 
 ## 7. Defectos
 
-- Defectos registrados: 3
+- Defectos registrados: 14
 - Defectos abiertos: 0
 - DEF-01 (testigo 10 parpadeando con el motor apagado) fue rechazado: R08
   no condiciona el testigo al motor. Se revirtio la correccion de la Etapa 7
@@ -108,4 +109,4 @@ de las pruebas y el resultado de junit.
 
 ## 10. Conclusion
 
-Las 165 ejecuciones pasan, la cobertura de la logica es completa y no quedan defectos abiertos: la logica cumple R01-R08 segun las pruebas definidas.
+Las 192 ejecuciones pasan, la cobertura de la logica es completa y no quedan defectos abiertos: la logica cumple R01-R08 segun las pruebas definidas.

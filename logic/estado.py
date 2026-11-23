@@ -43,7 +43,9 @@ def _validar_numero(valor, nombre, minimo, maximo, *, tipo="float"):
     else:
         if not isinstance(valor, (int, float)):
             raise TypeError(f"{nombre} debe ser int o float")
-    if valor < minimo or valor > maximo:
+    # "not minimo <= valor <= maximo" tambien rechaza NaN: con "valor < minimo or valor > maximo"
+    # un NaN pasaba porque toda comparacion con NaN es falsa (DEF-13).
+    if not minimo <= valor <= maximo:
         raise ValueError(f"{nombre} fuera de rango [{minimo}, {maximo}]: {valor}")
 
 
@@ -163,10 +165,16 @@ class EstadoCluster:
         if not self._motor:
             self._aplicar_estado_apagado(ahora)
         else:
+            velocidad_previa = self.velocidad
             self._actualizar_lecturas(ahora)
             self._actualizar_histeresis_aceite(ahora)
             # Elemento 11: la distancia avanza con la velocidad mostrada durante el tiempo transcurrido.
-            self.odometro.avanzar(self.velocidad, ahora - self._ultimo_tick_ms)
+            # Si la velocidad cambio en este tick, la nueva solo cuenta para el ultimo ciclo de lectura;
+            # el resto del intervalo (por ejemplo, un refresco retrasado) se integra con la anterior (DEF-07).
+            transcurrido = ahora - self._ultimo_tick_ms
+            tramo_nuevo = transcurrido if self.velocidad == velocidad_previa else min(transcurrido, CICLO_RAPIDO_MS)
+            self.odometro.avanzar(velocidad_previa, transcurrido - tramo_nuevo)
+            self.odometro.avanzar(self.velocidad, tramo_nuevo)
 
         self._ultimo_tick_ms = ahora
         return ahora

@@ -76,7 +76,8 @@ def convertir(clave, texto, rangos):
             raise DatoInvalido("dato_invalido", f'{clave} entrada="{texto}" (se espera off, izquierda o derecha)')
         return valor
     patron = _ENTERO if tipo == "entero" else _DECIMAL
-    if not patron.fullmatch(texto):
+    # Solo digitos ASCII: Python convierte "５" o "٣" a numero y \d los acepta (DEF-14).
+    if not texto.isascii() or not patron.fullmatch(texto):
         raise DatoInvalido("dato_invalido", f'{clave} entrada="{texto}" (se espera un numero {tipo})')
     valor = int(texto) if tipo == "entero" else float(texto)
     minimo, maximo = rangos[clave]
@@ -158,7 +159,8 @@ class Lector:
         self.rangos = rangos
         self.bitacora = bitacora
         self.ultimo_valido = dict(VALORES_INICIALES)
-        self._firma = None          # (mtime, tamano) de la ultima lectura completa
+        self._firma = None          # (inodo, mtime, tamano) de la ultima lectura completa
+        self.rechazos = []          # problemas de la ultima lectura (para avisar en la ventana)
         self._problema_archivo = None
         self._ultimo_error = {}     # clave -> texto rechazado (para no repetir el mismo error)
         self.lecturas = 0
@@ -182,7 +184,8 @@ class Lector:
             return self._fallo_archivo("permisos_inseguros", f"ruta={nombre} modo={oct(info.st_mode & 0o777)} escribible por cualquiera")
         if info.st_size > TAMANO_MAXIMO:
             return self._fallo_archivo("archivo_demasiado_grande", f"ruta={nombre} bytes={info.st_size}")
-        firma = (info.st_mtime_ns, info.st_size)
+        # El inodo cambia con cada reemplazo atomico, aunque el tamano y la fecha coincidan (DEF-10).
+        firma = (info.st_ino, info.st_mtime_ns, info.st_size)
         if firma == self._firma:
             return None
         try:
@@ -217,6 +220,7 @@ class Lector:
 
     def _procesar(self, texto):
         pares, problemas = parsear(texto)
+        self.rechazos = [detalle for _, detalle in problemas]
         for evento, detalle in problemas:
             self.bitacora.error(COMPONENTE, evento, f"{detalle} resultado=rechazado")
         for clave in CLAVES:
@@ -229,6 +233,7 @@ class Lector:
             try:
                 valor = convertir(clave, pares[clave], self.rangos)
             except DatoInvalido as error:
+                self.rechazos.append(error.detalle)
                 if self._ultimo_error.get(clave) != pares[clave]:
                     self.bitacora.error(COMPONENTE, error.evento, f"{error.detalle} resultado=rechazado")
                     self._ultimo_error[clave] = pares[clave]
@@ -279,11 +284,16 @@ class HiloLector(threading.Thread):
 
 
 class Consumidor:
-    """Lado de la interfaz: toma el ultimo snapshot y lo aplica a los controles."""
+    """Lado de la interfaz: toma el ultimo snapshot y lo aplica al modelo.
 
-    def __init__(self, buzon, tablero):
+    El valor validado llega tal cual a EstadoCluster; los controles solo lo
+    muestran (su resolucion redondeaba 0.9999 bar a 1.00 y apagaba alertas, DEF-04).
+    Si se da el lector, sus rechazos se avisan en la ventana (P04, DEF-05)."""
+
+    def __init__(self, buzon, tablero, lector=None):
         self.buzon = buzon
         self.tablero = tablero
+        self.lector = lector
         self.aplicado = {}
         self.snapshots = 0
 
@@ -295,6 +305,10 @@ class Consumidor:
         self.snapshots += 1
         for clave, valor in datos.items():
             if self.aplicado.get(clave) != valor:
-                self.tablero.ajustar(CLAVES[clave][0], valor)
+                self.tablero.aplicar_externo(CLAVES[clave][0], valor)
                 self.aplicado[clave] = valor
+        if self.lector is not None:
+            rechazos = list(self.lector.rechazos)
+            self.tablero.mensaje.configure(
+                text=("Dato rechazado del archivo: " + "; ".join(rechazos))[:160] if rechazos else "")
         return True
