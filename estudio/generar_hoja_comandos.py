@@ -75,7 +75,7 @@ def construir(origen=ORIGEN):
         if linea.startswith("|"):
             filas = []
             while i < len(lineas) and lineas[i].startswith("|"):
-                celdas = [c.strip() for c in lineas[i].strip("|").split("|")]
+                celdas = [re.sub(r"\*\*|`", "", c.strip()) for c in lineas[i].strip("|").split("|")]  # sin marcas en tablas
                 if not all(re.fullmatch(r":?-+:?", c) for c in celdas):
                     filas.append(celdas)
                 i += 1
