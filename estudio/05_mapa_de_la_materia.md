@@ -20,7 +20,7 @@ Las salidas reales están en `docs/evidencias/so/`. Se generan con `xvfb-run -a 
 
 | Tema | En el proyecto | Evidencia | Estado |
 |---|---|---|---|
-| 2.1 Estructura del kernel | Espacio de usuario contra kernel: cada escritura atómica es `flock`, `openat`, `write`, `chmod`, `fsync` y `rename`, vistas con `strace`; `/proc/PID/status` para hilos y memoria | `so/llamadas_al_sistema.txt`, `so/procesos_hilos_memoria.txt` | Añadido (strace, /proc) |
+| 2.1 Estructura del kernel | Espacio de usuario contra kernel: cada escritura atómica es `flock`, `openat`, `write`, `fsync`, `chmod` y `rename`, vistas con `strace`; `/proc/PID/status` para hilos y memoria | `so/llamadas_al_sistema.txt`, `so/procesos_hilos_memoria.txt` | Añadido (strace, /proc) |
 | 2.2 Comandos básicos | Hoja de comandos para operar y probar el clúster desde la terminal | `estudio/Hoja_de_Comandos_F40.pdf` | Cubierto |
 | 2.3 Programación del shell | Scripts `iniciar.sh` y `run_NN.sh` de cada etapa. Nuevo `tools/diagnostico.sh`: el script integrador de la clase aplicado a las bitácoras del clúster (parámetros, validación, `if`, funciones, códigos de salida, reporte y rutas con espacios) | CP-153, CP-154; `so/reporte_diagnostico.txt` | Añadido |
 
@@ -69,7 +69,7 @@ Las salidas reales están en `docs/evidencias/so/`. Se generan con `xvfb-run -a 
 
 | Pregunta | Respuesta corta | Dónde |
 |---|---|---|
-| ¿Qué llamadas al sistema usa una escritura? | flock (candado), openat del temporal, write, chmod 640, fsync y rename (publicación atómica) | `so/llamadas_al_sistema.txt` |
+| ¿Qué llamadas al sistema usa una escritura? | flock (candado), openat del temporal, write, fsync, chmod 640 y rename (publicación atómica) | `so/llamadas_al_sistema.txt` |
 | ¿Por qué cambia el inodo? | rename publica un archivo nuevo; por eso el lector compara inodo, fecha y tamaño | `so/inodo.txt` |
 | ¿Cuántos hilos y procesos hay? | 2 procesos (simulador y clúster); el clúster tiene 3 hilos: el principal (Tkinter), el lector y uno interno de la biblioteca Tcl/Tk | `so/procesos_hilos_memoria.txt` |
 | ¿Qué pasa con `kill PID`? | SIGTERM → cierre ordenado: guarda el kilometraje, registra "fin", código 0 | `so/senales.txt` |
