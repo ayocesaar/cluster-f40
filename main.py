@@ -7,6 +7,7 @@ logs/errores.log. El kilometraje del odometro se conserva en datos/odometro.txt.
 
 import argparse
 import queue
+import signal
 import tkinter as tk
 
 from logic.estado import EstadoCluster
@@ -90,6 +91,9 @@ class Aplicacion:
         self._id_guardado = self.raiz.after(self.cfg.guardar_cada_s * 1000, self._guardar_periodico)
 
     def cerrar(self):
+        if getattr(self, "_cerrado", False):   # una senal y el boton de cerrar pueden coincidir
+            return
+        self._cerrado = True
         self.tablero.detener()
         self.raiz.after_cancel(self._id_guardado)
         if self.hilo is not None:
@@ -102,18 +106,36 @@ class Aplicacion:
         self.raiz.destroy()
 
 
+def instalar_senales(app):
+    """SIGTERM (kill PID) y SIGINT (Ctrl+C) producen un cierre ordenado (tema 3.2, DEF-15).
+
+    Sin esto, la accion por defecto de SIGTERM terminaba el proceso sin guardar el
+    kilometraje ni registrar 'sistema fin'. El manejador solo agenda el cierre en el
+    hilo de Tkinter: la interfaz no es segura entre hilos ni dentro de un manejador."""
+    def manejar(numero, _marco):
+        app.bitacora.info("sistema", "senal_recibida", f"{signal.Signals(numero).name} cierre ordenado")
+        app.raiz.after(0, app.cerrar)
+    return {senal: signal.signal(senal, manejar) for senal in (signal.SIGTERM, signal.SIGINT)}
+
+
 def main(argv=None):
     parser = argparse.ArgumentParser(description="Cluster de instrumentos simulado del Ferrari F40 (1987)")
     parser.add_argument("--manual", action="store_true", help="usar los controles de la ventana en lugar del archivo de datos")
     parser.add_argument("--config", default=None, help="ruta del archivo de configuracion (por defecto config/cluster.ini)")
     parser.add_argument("--salir-tras-ms", type=int, default=None, help="cierra la ventana tras N ms (prueba de humo)")
+    parser.add_argument("--proyecto", default=None, help="carpeta del proyecto (datos/, config/, logs/); por defecto esta")
     args = parser.parse_args(argv)
 
     raiz = tk.Tk()
-    app = Aplicacion(raiz, manual=args.manual, ruta_config=args.config)
+    app = Aplicacion(raiz, manual=args.manual, ruta_config=args.config, proyecto=args.proyecto)
+    previos = instalar_senales(app)
     if args.salir_tras_ms is not None:
         raiz.after(args.salir_tras_ms, app.cerrar)
-    raiz.mainloop()
+    try:
+        raiz.mainloop()
+    finally:
+        for senal, manejador in previos.items():
+            signal.signal(senal, manejador)
     return 0
 
 

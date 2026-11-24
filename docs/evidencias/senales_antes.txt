@@ -1,0 +1,4 @@
+version fd55f73
+kill -TERM -> codigo de salida: -15 (negativo = muerto por la senal)
+'sistema fin' registrado: False
+datos/odometro.txt existe: False (4 s a 360 km/h = 0.4 km perdidos)

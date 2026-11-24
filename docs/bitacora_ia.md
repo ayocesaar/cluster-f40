@@ -250,3 +250,16 @@
 - Pruebas anteriores: sin cambios (huella sha256). CP-84 se conserva: el mensaje de elemento inválido
   sigue diciendo "elemento fuera de 1-10" (el 11 solo admite valor=NNNNNN).
 - Qué generó la IA: pruebas, correcciones y scripts de ataque. El equipo pidió la auditoría.
+
+## Etapa 15 — Contenido completo de la materia
+- Fecha: 2026-11-23
+- Qué se hizo: se revisó cada tema del programa (unidades 1 a 6) contra el proyecto
+  (estudio/05_mapa_de_la_materia.md). Se añadió lo que aportaba evidencia real con poco costo:
+  tools/evidencia_so.sh (strace, inodo, hexdump, procesos e hilos, /proc, señales, flock y permisos),
+  tools/diagnostico.sh (analizador de bitácoras en Bash, tema 2.3) y el manejo de SIGTERM y SIGINT.
+- Defecto: DEF-15, kill PID terminaba el clúster sin cierre ordenado (código -15, sin "sistema fin",
+  kilometraje perdido; docs/evidencias/senales_antes.txt). CP-152 lo cubre.
+- No se añadió (y por qué): simuladores de First/Best Fit, SCAN o asignación de bloques (no se
+  relacionan con el clúster); bomba fork y desbordamiento de pila (destructivos); prioridades de
+  tiempo real con nice/SCHED_FIFO (requieren root, contra el privilegio mínimo).
+- Pruebas anteriores: sin cambios (huella sha256).

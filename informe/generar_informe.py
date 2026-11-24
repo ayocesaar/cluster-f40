@@ -54,6 +54,7 @@ TECNICAS = {
     "test_sistema": "Sistema (archivos, bitacoras, concurrencia)",
     "test_odometro": "Odometro (elemento 11)",
     "test_robustez": "Robustez (auditoria y ataque QA)",
+    "test_materia": "Temas de la materia (senales, shell)",
 }
 
 PRODUCCION = ("logic/estado.py", "logic/reloj.py", "ui/presentacion.py", "ui/tablero.py",

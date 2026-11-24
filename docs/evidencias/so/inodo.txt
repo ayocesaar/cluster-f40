@@ -1,0 +1,18 @@
+== Inodo antes y despues del reemplazo atomico (tema 4.1) ==
+Comando: ls -li; stat
+Fecha: 2026-11-23 19:57:55  Kernel: 5.15.0-203-generic
+
+Antes:   918038 -rw-r----- 1 ayocesaar ayocesaar 223 Nov 23 19:57 /tmp/evidencia_so.EtJWEO/datos/vehiculo.conf
+Despues: 918042 -rw-r----- 1 ayocesaar ayocesaar 222 Nov 23 19:57 /tmp/evidencia_so.EtJWEO/datos/vehiculo.conf
+
+El numero de inodo (primera columna) cambia: rename() publica un archivo nuevo. Por eso el lector
+incluye el inodo en su firma (DEF-10).
+
+  File: /tmp/evidencia_so.EtJWEO/datos/vehiculo.conf
+  Size: 222       	Blocks: 8          IO Block: 4096   regular file
+Device: 802h/2050d	Inode: 918042      Links: 1
+Access: (0640/-rw-r-----)  Uid: ( 1000/ayocesaar)   Gid: ( 1000/ayocesaar)
+Access: 2026-11-23 19:57:55.472184893 -0600
+Modify: 2026-11-23 19:57:55.472184893 -0600
+Change: 2026-11-23 19:57:55.492185071 -0600
+ Birth: 2026-11-23 19:57:55.472184893 -0600

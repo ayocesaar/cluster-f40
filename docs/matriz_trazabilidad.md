@@ -163,11 +163,14 @@
 | CP-149 | Robustez (auditoria y ataque QA) | - | los digitos del odometro quedan por encima de la aguja del velocimetro (DEF-12). | `test_robustez.py::test_cp149_aguja_no_tapa_el_odometro` | PASS |
 | CP-150 | Robustez (auditoria y ataque QA) | - | NaN e infinito se rechazan con ValueError; un NaN pasaba la validacion de rango (DEF-13). | `test_robustez.py::test_cp150_el_modelo_rechaza_nan_e_infinito` | PASS |
 | CP-151 | Robustez (auditoria y ataque QA) | - | digitos no ASCII se rechazan en el archivo de datos y en el del odometro (DEF-14). | `test_robustez.py::test_cp151_solo_digitos_ascii` | PASS |
+| CP-152 | Temas de la materia (senales, shell) | - | kill -TERM o Ctrl+C cierran el cluster en orden: guarda el kilometraje y registra el fin (DEF-15). | `test_materia.py::test_cp152_senal_produce_cierre_ordenado` | PASS |
+| CP-153 | Temas de la materia (senales, shell) | - | el script de diagnostico valida argumentos y carpeta con codigos de salida distintos (tema 2.3). | `test_materia.py::test_cp153_diagnostico_valida_argumentos_y_rutas` | PASS |
+| CP-154 | Temas de la materia (senales, shell) | - | el reporte cuenta eventos, clasifica el estado y admite rutas con espacios (tema 2.3). | `test_materia.py::test_cp154_diagnostico_clasifica_y_reporta` | PASS |
 
 ## Resumen
 
-- Casos de prueba: 161
-- Pasaron: 161
+- Casos de prueba: 164
+- Pasaron: 164
 - Fallo esperado por defecto abierto (XFAIL): 0
 - Fallaron / otros: 0
 

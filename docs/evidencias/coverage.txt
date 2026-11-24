@@ -5,7 +5,7 @@ aceptacion/escenarios.py          139      0     44      0   100%
 logic/estado.py                   198      0     64      0   100%
 logic/odometro.py                  27      0      8      0   100%
 logic/reloj.py                     18      0      4      0   100%
-main.py                            89      0     14      1    99%   114->116
+main.py                           103      3     18      2    96%   95, 116-117, 132->134
 sistema/__init__.py                 0      0      0      0   100%
 sistema/bitacora.py                62      0      8      2    97%   47->49, 56->58
 sistema/config.py                  72      0     16      0   100%
@@ -17,12 +17,13 @@ tests/test_aceptacion.py           81      2      0      0    98%   20-21
 tests/test_complementarias.py      53      0      6      0   100%
 tests/test_invalidas.py            50      0      0      0   100%
 tests/test_limites.py              98      0      0      0   100%
+tests/test_materia.py              66      1      8      1    97%   36
 tests/test_odometro.py            214      2     14      1    99%   55-56, 145->exit
 tests/test_particiones.py          46      0      0      0   100%
 tests/test_presentacion.py         49      0      0      0   100%
 tests/test_requisitos.py           17      0      4      0   100%
 tests/test_robustez.py            215      2     12      1    99%   50-51, 118->exit
-tests/test_sistema.py             382      4     38      0    99%   174-175, 416-417
+tests/test_sistema.py             382      2     38      0    99%   416-417
 tests/test_tablero.py              50      2      0      0    96%   15-16
 tests/test_transiciones.py        101      0      6      0   100%
 tools/ejecucion_prolongada.py      98     73      8      0    24%   42-46, 53-57, 71, 75-188
@@ -32,4 +33,4 @@ ui/__init__.py                      0      0      0      0   100%
 ui/presentacion.py                 21      0      0      0   100%
 ui/tablero.py                     247      0     62      0   100%
 ---------------------------------------------------------------------------
-TOTAL                            2780     91    438     11    97%
+TOTAL                            2860     93    450     13    97%

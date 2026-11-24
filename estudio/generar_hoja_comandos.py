@@ -1,4 +1,7 @@
-"""Convierte estudio/04_hoja_de_comandos.md en estudio/Hoja_de_Comandos_F40.docx y .pdf.
+"""Convierte un Markdown de estudio/ a DOCX y PDF (por defecto la hoja de comandos).
+
+Uso: python estudio/generar_hoja_comandos.py [ORIGEN.md SALIDA.docx]
+Ejemplo: python estudio/generar_hoja_comandos.py estudio/05_mapa_de_la_materia.md estudio/Mapa_de_la_Materia_F40.docx
 
 Entiende lo que usa la hoja: titulos (#, ##), parrafos con **negritas** y `codigo`,
 bloques de codigo (```) y tablas con |. Uso: python estudio/generar_hoja_comandos.py"""
@@ -48,7 +51,7 @@ def bloque_codigo(doc, lineas):
     doc.add_paragraph().paragraph_format.space_after = Pt(2)
 
 
-def construir():
+def construir(origen=ORIGEN):
     doc = Document()
     sec = doc.sections[0]
     sec.left_margin = sec.right_margin = Cm(1.8)
@@ -56,10 +59,11 @@ def construir():
     doc.styles["Normal"].font.name = "Arial"
     doc.styles["Normal"].font.size = Pt(10)
     pie = sec.footer.paragraphs[0]
-    pie.add_run("Hoja de comandos — Clúster F40 — página ")
+    lineas = pathlib.Path(origen).read_text(encoding="utf-8").splitlines()
+    titulo = next((l[2:] for l in lineas if l.startswith("# ")), "Clúster F40")
+    pie.add_run(f"{titulo} — página ")
     numero_pagina(pie)
 
-    lineas = ORIGEN.read_text(encoding="utf-8").splitlines()
     i = 0
     while i < len(lineas):
         linea = lineas[i]
@@ -75,7 +79,13 @@ def construir():
                 if not all(re.fullmatch(r":?-+:?", c) for c in celdas):
                     filas.append(celdas)
                 i += 1
-            tabla(doc, filas[0], filas[1:], anchos=[8, 9])
+            n = len(filas[0])
+            anchos = [8, 9] if n == 2 else [2.6, 6.6, 4.8, 2.4][:n] if n == 4 else None
+            t = tabla(doc, filas[0], filas[1:], anchos=anchos)
+            if anchos:
+                t.autofit = False
+                for k, ancho in enumerate(anchos):
+                    t.columns[k].width = Cm(ancho)
             continue
         if linea.startswith("# "):
             r = doc.add_paragraph().add_run(linea[2:])
@@ -90,10 +100,12 @@ def construir():
     return doc
 
 
-def main():
-    doc = construir()
-    doc.save(SALIDA)
-    pdf, paginas = convertir_pdf(SALIDA)
+def main(argv=None):
+    argv = sys.argv[1:] if argv is None else argv
+    origen, salida = (pathlib.Path(argv[0]), pathlib.Path(argv[1])) if len(argv) == 2 else (ORIGEN, SALIDA)
+    doc = construir(origen)
+    doc.save(salida)
+    pdf, paginas = convertir_pdf(salida.resolve())
     print(f"OK {pdf.relative_to(AQUI.parent)} ({paginas} paginas)")
     return 0
 

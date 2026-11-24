@@ -274,3 +274,19 @@ en el borde del cambio de digito. Los casos se corrigieron a 1.5 km (45 s y 15 s
 **Observado:** velocidad=５ o un odometro.txt con ６２ se aceptaban como numeros.
 
 **Correccion:** Solo digitos ASCII en el archivo de datos y en el del odometro. La prueba fallaba en 5e9506b (docs/evidencias/robustez_antes.txt) y pasa despues.
+
+## DEF-15 - kill PID o Ctrl+C terminaban el cluster sin cierre ordenado
+
+| Campo | Valor |
+|-------|-------|
+| ID | DEF-15 |
+| Estado | Cerrado (Etapa 15) |
+| Severidad / prioridad | Media / alta |
+| Requisitos relacionados | REQ-ODO-01 (persistencia), REQ-SIS-02 (bitacoras); tema 3.2 de la materia |
+| Componente | main.py |
+| Detectado en | Revision del proyecto contra el contenido de la materia (23-nov-2026) |
+| Caso de prueba | CP-152 (tests/test_materia.py) |
+
+**Observado:** en fd55f73, kill -TERM al cluster devolvia -15 (muerto por la senal), no registraba "sistema fin" y perdia el kilometraje recorrido desde el ultimo guardado (docs/evidencias/senales_antes.txt).
+
+**Correccion:** SIGTERM y SIGINT agendan el cierre ordenado en el hilo de Tkinter (guarda el kilometraje, detiene el hilo lector, libera el candado y registra el fin); los manejadores anteriores se restauran al salir.

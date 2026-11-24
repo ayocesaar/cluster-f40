@@ -1,0 +1,13 @@
+== Permisos y privilegio minimo (tema 6.1) ==
+Comando: id; ls -l; stat -c
+Fecha: 2026-11-23 19:58:16  Kernel: 5.15.0-203-generic
+
+Usuario que ejecuta el cluster: uid=1000(ayocesaar) gid=1000(ayocesaar) groups=1000(ayocesaar),4(adm),24(cdrom),27(sudo),30(dip),46(plugdev),110(lxd)
+
+drwxr-x--- 750 ayocesaar:ayocesaar logs
+-rw-r----- 640 ayocesaar:ayocesaar logs/errores.log
+-rw-r----- 640 ayocesaar:ayocesaar logs/eventos.log
+-rw-r----- 640 ayocesaar:ayocesaar datos/vehiculo.conf
+-rw-r----- 640 ayocesaar:ayocesaar datos/odometro.txt
+
+logs/ 750 y bitacoras 640: el grupo puede leer, otros no. Un archivo de datos 666 se rechaza (CP-102).

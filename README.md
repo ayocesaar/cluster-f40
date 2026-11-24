@@ -127,6 +127,13 @@ Evidencias: `docs/evidencias/` (resultados, cobertura, capturas, bitácoras de e
 | `no display name and no $DISPLAY` | Linux sin pantalla | Antepón `xvfb-run -a` |
 | En Windows: `Can't find a usable init.tcl` | Python de Microsoft Store | Instala Python de python.org |
 
+## Temas de la materia en el proyecto
+
+- `estudio/05_mapa_de_la_materia.md` (y su PDF): cada tema del programa contra el proyecto, con su evidencia o la razón por la que no aplica.
+- `xvfb-run -a bash tools/evidencia_so.sh`: genera en `docs/evidencias/so/` salidas reales de strace, inodos, hexdump, procesos e hilos, `/proc`, señales, candados y permisos.
+- `bash tools/diagnostico.sh logs`: analizador de bitácoras en Bash (cuenta eventos, clasifica el estado y escribe un reporte).
+- Cerrar con `kill PID` o Ctrl+C también es un cierre ordenado: guarda el kilometraje y registra el fin.
+
 ## Material de estudio
 
 La carpeta [estudio/](estudio/) tiene la guía del profesor, cómo abrir el proyecto en la máquina virtual, la guía de
