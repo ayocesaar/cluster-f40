@@ -6,6 +6,10 @@ logic/estado.py                   198      0     64      0   100%
 logic/odometro.py                  27      0      8      0   100%
 logic/reloj.py                     18      0      4      0   100%
 main.py                           103      3     18      2    96%   95, 116-117, 132->134
+panel/__init__.py                   0      0      0      0   100%
+panel/comandos.py                  96     36     24      5    59%   31, 37-38, 41, 50-64, 115, 118-126, 131-134, 144-147
+panel/fisica.py                    94      2     20      2    96%   68, 83
+panel/ventana.py                  532    105    136     18    76%   112-113, 283, 321, 324, 329-345, 348-350, 355->358, 360-362, 369, 382-391, 410-420, 431-432, 456, 465-470, 474, 477, 484-490, 493-502, 506-509, 513-519, 536-538, 553-554, 562-566, 573->571, 588, 590, 592, 600->exit, 645, 649, 650->652, 659, 671-675
 sistema/__init__.py                 0      0      0      0   100%
 sistema/bitacora.py                62      0      8      2    97%   47->49, 56->58
 sistema/config.py                  72      0     16      0   100%
@@ -19,11 +23,12 @@ tests/test_invalidas.py            50      0      0      0   100%
 tests/test_limites.py              98      0      0      0   100%
 tests/test_materia.py              66      1      8      1    97%   36
 tests/test_odometro.py            214      2     14      1    99%   55-56, 145->exit
+tests/test_panel.py               177      3     36      2    98%   121-122, 146, 201->206
 tests/test_particiones.py          46      0      0      0   100%
 tests/test_presentacion.py         49      0      0      0   100%
 tests/test_requisitos.py           17      0      4      0   100%
 tests/test_robustez.py            215      2     12      1    99%   50-51, 118->exit
-tests/test_sistema.py             382      2     38      0    99%   416-417
+tests/test_sistema.py             382      4     38      0    99%   174-175, 416-417
 tests/test_tablero.py              50      2      0      0    96%   15-16
 tests/test_transiciones.py        101      0      6      0   100%
 tools/ejecucion_prolongada.py      98     73      8      0    24%   42-46, 53-57, 71, 75-188
@@ -33,4 +38,4 @@ ui/__init__.py                      0      0      0      0   100%
 ui/presentacion.py                 21      0      0      0   100%
 ui/tablero.py                     247      0     62      0   100%
 ---------------------------------------------------------------------------
-TOTAL                            2860     93    450     13    97%
+TOTAL                            3759    241    666     40    93%

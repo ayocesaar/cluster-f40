@@ -166,11 +166,19 @@
 | CP-152 | Temas de la materia (senales, shell) | - | kill -TERM o Ctrl+C cierran el cluster en orden: guarda el kilometraje y registra el fin (DEF-15). | `test_materia.py::test_cp152_senal_produce_cierre_ordenado` | PASS |
 | CP-153 | Temas de la materia (senales, shell) | - | el script de diagnostico valida argumentos y carpeta con codigos de salida distintos (tema 2.3). | `test_materia.py::test_cp153_diagnostico_valida_argumentos_y_rutas` | PASS |
 | CP-154 | Temas de la materia (senales, shell) | - | el reporte cuenta eventos, clasifica el estado y admite rutas con espacios (tema 2.3). | `test_materia.py::test_cp154_diagnostico_clasifica_y_reporta` | PASS |
+| CP-155 | Panel de control (mandos y atajos) | R01 | apagado todo queda en reposo; al dar contacto: ralenti 1000 rpm, aceite 1.5 bar y el agua se calienta (R01). | `test_panel.py::test_cp155_arranque_en_reposo_y_ralenti` | PASS |
+| CP-156 | Panel de control (mandos y atajos) | - | en marcha las rpm siguen a la velocidad; el limitador nunca deja pasar de 8200; al subir de marcha bajan las rpm. | `test_panel.py::test_cp156_marchas_acoplan_rpm_y_limitador` | PASS |
+| CP-157 | Panel de control (mandos y atajos) | - | el freno detiene el auto sin velocidades negativas; en neutral el acelerador solo sube las rpm. | `test_panel.py::test_cp157_freno_y_revoluciones_en_vacio` | PASS |
+| CP-158 | Panel de control (mandos y atajos) | R02, R04, R05 | turbo con retraso (max 1.1 bar); las fallas llevan el turbo a > 1.5 (R05), el aceite < 1 (R02) y el agua > 110 (R04). | `test_panel.py::test_cp158_fallas_producen_cada_advertencia` | PASS |
+| CP-159 | Panel de control (mandos y atajos) | - | 20 000 pasos con pedales, marchas, fallas y contacto al azar: cada lectura pasa la validacion del lector. | `test_panel.py::test_cp159_el_panel_nunca_produce_un_dato_invalido` | PASS |
+| CP-160 | Panel de control (mandos y atajos) | - | contacto, marcha, acelerador y luces del panel quedan en datos/vehiculo.conf y el lector del tablero los acepta. | `test_panel.py::test_cp160_pedales_y_luces_llegan_al_archivo` | PASS |
+| CP-161 | Panel de control (mandos y atajos) | - | el panel escribe la entrada invalida, deja de escribir 3 s y luego restaura datos validos. | `test_panel.py::test_cp161_entradas_invalidas_y_restauracion` | PASS |
+| CP-162 | Panel de control (mandos y atajos) | - | un escenario de aceptacion se reproduce en el archivo paso a paso; los atajos existen y el ejecutor reporta su codigo. | `test_panel.py::test_cp162_escenarios_en_vivo_y_atajos` | PASS |
 
 ## Resumen
 
-- Casos de prueba: 164
-- Pasaron: 164
+- Casos de prueba: 172
+- Pasaron: 172
 - Fallo esperado por defecto abierto (XFAIL): 0
 - Fallaron / otros: 0
 
@@ -178,11 +186,11 @@
 
 | Requisito | Casos |
 |-----------|-------|
-| R01 | CA-01, CA-02, CA-03, CA-07, CA-09, CA-10, CP-35, CP-36, CP-37, CP-51, CP-53, CP-54, CP-65, CP-66, CP-68, CP-73, CP-74, CP-91, CP-92, CP-93, CP-94, CP-96, CP-115, CP-117, CP-123 |
-| R02 | CA-09, CP-03, CP-17, CP-18, CP-19, CP-20, CP-37, CP-43, CP-44, CP-70, CP-92, CP-93, CP-99, CP-117, CP-138 |
+| R01 | CA-01, CA-02, CA-03, CA-07, CA-09, CA-10, CP-35, CP-36, CP-37, CP-51, CP-53, CP-54, CP-65, CP-66, CP-68, CP-73, CP-74, CP-91, CP-92, CP-93, CP-94, CP-96, CP-115, CP-117, CP-123, CP-155 |
+| R02 | CA-09, CP-03, CP-17, CP-18, CP-19, CP-20, CP-37, CP-43, CP-44, CP-70, CP-92, CP-93, CP-99, CP-117, CP-138, CP-158 |
 | R03 | CA-03, CP-02, CP-13, CP-14, CP-15, CP-16, CP-27, CP-40, CP-41, CP-42, CP-69, CP-75, CP-92, CP-93, CP-94, CP-115, CP-117 |
-| R04 | CA-04, CP-04, CP-21, CP-22, CP-23, CP-28, CP-45, CP-46, CP-69, CP-92, CP-93, CP-94, CP-117, CP-138 |
-| R05 | CA-05, CP-05, CP-24, CP-25, CP-26, CP-29, CP-47, CP-48, CP-69, CP-92, CP-93, CP-94, CP-117, CP-138 |
+| R04 | CA-04, CP-04, CP-21, CP-22, CP-23, CP-28, CP-45, CP-46, CP-69, CP-92, CP-93, CP-94, CP-117, CP-138, CP-158 |
+| R05 | CA-05, CP-05, CP-24, CP-25, CP-26, CP-29, CP-47, CP-48, CP-69, CP-92, CP-93, CP-94, CP-117, CP-138, CP-158 |
 | R06 | CA-06, CA-08, CP-06, CP-07, CP-08, CP-30, CP-49, CP-50, CP-57, CP-71, CP-141 |
 | R07 | CA-07, CA-08, CP-09, CP-31, CP-33, CP-34, CP-58, CP-64, CP-65, CP-71, CP-72, CP-117 |
 | R08 | CA-10, CP-09, CP-32, CP-59, CP-66, CP-72, CP-76, CP-99, CP-115, CP-117 |

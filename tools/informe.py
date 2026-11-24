@@ -22,6 +22,7 @@ TECNICAS = {
     "test_odometro": "Odometro (elemento 11)",
     "test_robustez": "Robustez (auditoria y ataque QA)",
     "test_materia": "Temas de la materia (senales, shell)",
+    "test_panel": "Panel de control (mandos y atajos)",
 }
 
 por_tecnica = {}

@@ -127,6 +127,19 @@ Evidencias: `docs/evidencias/` (resultados, cobertura, capturas, bitácoras de e
 | `no display name and no $DISPLAY` | Linux sin pantalla | Antepón `xvfb-run -a` |
 | En Windows: `Can't find a usable init.tcl` | Python de Microsoft Store | Instala Python de python.org |
 
+## Panel de control (atajo de la terminal)
+
+`./abrir_panel.sh` (o `python panel_admin.py`) abre un panel administrador que sustituye los comandos de la terminal:
+
+- **Cabina austera estilo F40:** pedales de aluminio perforado (embrague, freno, acelerador), compuerta de cambios y llave de contacto. Una física simplificada (`panel/fisica.py`) convierte pedales y marcha en velocidad, RPM, turbo con retraso, presión de aceite y temperatura coherentes. Las cifras son aproximadas y no oficiales.
+- **Luces y fallas de sensores:** altas, direccionales, intermitentes; fuga de aceite (R02), radiador (R04), sobrepresión (R05), falla de frenos (R08).
+- **Entradas inválidas:** dato corrupto, fuera de rango, archivo borrado y permisos 666; el panel restaura datos válidos a los 3 s.
+- **Atajos:** pruebas, aceptación, fuzzing, caos, P12, diagnóstico, hilos y memoria del tablero, con la salida en una consola.
+- **Escenarios en vivo:** reproduce CA-01 a CA-10 (el mismo CSV de las pruebas de aceptación) sobre el tablero real, paso a paso.
+- **Abrir/cerrar tablero:** lanza `main.py` y lo cierra con SIGTERM (cierre ordenado).
+
+El panel es un proceso aparte que escribe `datos/vehiculo.conf` con el mismo candado y la escritura atómica de `tools/escribir_dato.py`: el tablero no cambia. Pruebas: `tests/test_panel.py` (CP-155 a CP-162).
+
 ## Temas de la materia en el proyecto
 
 - `estudio/05_mapa_de_la_materia.md` (y su PDF): cada tema del programa contra el proyecto, con su evidencia o la razón por la que no aplica.

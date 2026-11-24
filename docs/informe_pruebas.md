@@ -37,6 +37,7 @@ pruebas automatizadas con pytest y medicion de cobertura con coverage.
 | Valores limite | 16 | 16 | 0 | 0 |
 | Temas de la materia (senales, shell) | 6 | 6 | 0 | 0 |
 | Odometro (elemento 11) | 20 | 20 | 0 | 0 |
+| Panel de control (mandos y atajos) | 10 | 10 | 0 | 0 |
 | Particion de equivalencia | 10 | 10 | 0 | 0 |
 | Presentacion (caja negra) | 7 | 7 | 0 | 0 |
 | Basada en requisitos | 3 | 3 | 0 | 0 |
@@ -44,7 +45,7 @@ pruebas automatizadas con pytest y medicion de cobertura con coverage.
 | Sistema (archivos, bitacoras, concurrencia) | 37 | 37 | 0 | 0 |
 | Integracion UI (Tkinter) | 6 | 6 | 0 | 0 |
 | Transicion de estados | 11 | 11 | 0 | 0 |
-| **Total** | **198** | **198** | **0** | **0** |
+| **Total** | **208** | **208** | **0** | **0** |
 
 Las ejecuciones cuentan cada variante parametrizada por separado; la matriz de
 trazabilidad agrupa por caso de prueba (CP).
@@ -110,4 +111,4 @@ de las pruebas y el resultado de junit.
 
 ## 10. Conclusion
 
-Las 198 ejecuciones pasan, la cobertura de la logica es completa y no quedan defectos abiertos: la logica cumple R01-R08 segun las pruebas definidas.
+Las 208 ejecuciones pasan, la cobertura de la logica es completa y no quedan defectos abiertos: la logica cumple R01-R08 segun las pruebas definidas.

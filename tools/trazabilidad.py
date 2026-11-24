@@ -20,6 +20,7 @@ TECNICAS = {
     "test_odometro.py": "Odometro (elemento 11)",
     "test_robustez.py": "Robustez (auditoria y ataque QA)",
     "test_materia.py": "Temas de la materia (senales, shell)",
+    "test_panel.py": "Panel de control (mandos y atajos)",
 }
 
 # Los casos parametrizados llegan como "test_x[param]": se agrupan por funcion

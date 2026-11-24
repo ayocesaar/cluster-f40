@@ -4,6 +4,17 @@ Equipo 3 · Sistemas Operativos (UAG) · Máquina virtual `ubuntuserver` (Ubuntu
 
 **(VM)** se escribe en la terminal de la VM (`ayocesaar@ubuntuserver:~/cluster-f40$`). **(Windows)** se escribe en una PowerShell de Windows (`PS C:\Users\W11>`).
 
+## 0. Panel de control (todo lo de esta hoja con botones)
+
+**(Windows)** Abrir el panel desde la VM (con el servidor de ventanas abierto, sección 1):
+
+```
+$env:DISPLAY = "127.0.0.1:0.0"
+ssh -Y -p 2222 ayocesaar@127.0.0.1 "cd ~/cluster-f40 && ./abrir_panel.sh"
+```
+
+En el panel: **Abrir tablero**, **CONTACTO** (M), marcha (1-5), acelerador (W) y freno (S). Las fallas, las entradas inválidas, los escenarios CA-01 a CA-10 y las pruebas también tienen botones.
+
 ## 1. Conexión y arranque
 
 **(Windows)** Encender la VM, solo si está apagada:

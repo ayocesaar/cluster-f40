@@ -263,3 +263,16 @@
   relacionan con el clúster); bomba fork y desbordamiento de pila (destructivos); prioridades de
   tiempo real con nice/SCHED_FIFO (requieren root, contra el privilegio mínimo).
 - Pruebas anteriores: sin cambios (huella sha256).
+
+## Etapa 16 — Panel de control (administrador)
+- Fecha: 2026-11-24
+- Qué se hizo: panel_admin.py y panel/ (fisica.py, comandos.py, ventana.py). Es un proceso aparte que
+  escribe datos/vehiculo.conf con el candado y la escritura atómica de escribir_dato.py; el tablero
+  no cambia. Cabina austera inspirada en el F40 (piso de fibra, pedales de aluminio perforado,
+  compuerta de cambios, llave de contacto), física simplificada con cifras aproximadas no oficiales,
+  luces, fallas de sensores (R02, R04, R05, R08), entradas inválidas con restauración, atajos de
+  comandos con consola, y los escenarios CA-01 a CA-10 reproducidos en vivo desde el mismo CSV.
+- Pruebas nuevas: CP-155 a CP-162 (tests/test_panel.py). CP-159 recorre 20 000 pasos al azar y
+  comprueba que el panel nunca produce un dato que el lector rechace.
+- Pruebas anteriores: sin cambios (huella sha256).
+- Qué generó la IA: el panel, sus pruebas y la documentación; el diseño lo pidió el equipo.
