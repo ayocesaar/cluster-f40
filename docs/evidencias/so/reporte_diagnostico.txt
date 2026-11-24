@@ -1,10 +1,10 @@
 REPORTE DE DIAGNOSTICO - CLUSTER F40
-Fecha: 2026-11-24 01:22:24
+Fecha: 2026-11-24 02:03:33
 Usuario: ayocesaar
 Kernel: 5.15.0-203-generic
-Carpeta analizada: /tmp/evidencia_so.2Vf0KL/logs
+Carpeta analizada: /tmp/evidencia_so.47Nhl3/logs
 Archivos: 1 de eventos, 1 de errores
-INFO: 96
+INFO: 77
 WARN: 0
 ERROR: 0 (rechazados: 0)
 Testigo 9 encendido: 0 veces

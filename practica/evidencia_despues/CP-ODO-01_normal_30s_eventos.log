@@ -1,16 +1,16 @@
-2026-11-24T01:22:25-06:00 INFO  sistema inicio modo=archivo=datos/vehiculo.conf lectura_ms=100 refresco_ms=50
-2026-11-24T01:22:25-06:00 INFO  odometro odometro_cargado km=62.000 resultado=aceptado
-2026-11-24T01:22:25-06:00 INFO  lector_datos valor_actualizado motor=1 resultado=aceptado
-2026-11-24T01:22:25-06:00 INFO  lector_datos valor_actualizado velocidad=120 resultado=aceptado
-2026-11-24T01:22:25-06:00 INFO  lector_datos valor_actualizado rpm=3000 resultado=aceptado
-2026-11-24T01:22:25-06:00 INFO  lector_datos valor_actualizado presion_aceite=5 resultado=aceptado
-2026-11-24T01:22:25-06:00 INFO  lector_datos valor_actualizado temp_agua=90 resultado=aceptado
-2026-11-24T01:22:25-06:00 INFO  lector_datos valor_actualizado presion_turbo=0.8 resultado=aceptado
-2026-11-24T01:22:25-06:00 INFO  modelo_vehiculo motor_encendido (R01)
-2026-11-24T01:22:30-06:00 INFO  odometro odometro_guardado km=62.165 resultado=aceptado
-2026-11-24T01:22:35-06:00 INFO  odometro odometro_guardado km=62.332 resultado=aceptado
-2026-11-24T01:22:40-06:00 INFO  odometro odometro_guardado km=62.500 resultado=aceptado
-2026-11-24T01:22:45-06:00 INFO  odometro odometro_guardado km=62.668 resultado=aceptado
-2026-11-24T01:22:50-06:00 INFO  odometro odometro_guardado km=62.835 resultado=aceptado
-2026-11-24T01:22:55-06:00 INFO  odometro odometro_guardado km=62.997 resultado=aceptado
-2026-11-24T01:22:55-06:00 INFO  sistema fin info=15 warn=0 error=0
+2026-11-24T02:03:33-06:00 INFO  sistema inicio modo=archivo=datos/vehiculo.conf lectura_ms=100 refresco_ms=50
+2026-11-24T02:03:33-06:00 INFO  odometro odometro_cargado km=62.000 resultado=aceptado
+2026-11-24T02:03:33-06:00 INFO  lector_datos valor_actualizado motor=1 resultado=aceptado
+2026-11-24T02:03:33-06:00 INFO  lector_datos valor_actualizado velocidad=120 resultado=aceptado
+2026-11-24T02:03:33-06:00 INFO  lector_datos valor_actualizado rpm=3000 resultado=aceptado
+2026-11-24T02:03:33-06:00 INFO  lector_datos valor_actualizado presion_aceite=5 resultado=aceptado
+2026-11-24T02:03:33-06:00 INFO  lector_datos valor_actualizado temp_agua=90 resultado=aceptado
+2026-11-24T02:03:33-06:00 INFO  lector_datos valor_actualizado presion_turbo=0.8 resultado=aceptado
+2026-11-24T02:03:33-06:00 INFO  modelo_vehiculo motor_encendido (R01)
+2026-11-24T02:03:38-06:00 INFO  odometro odometro_guardado km=62.163 resultado=aceptado
+2026-11-24T02:03:43-06:00 INFO  odometro odometro_guardado km=62.334 resultado=aceptado
+2026-11-24T02:03:49-06:00 INFO  odometro odometro_guardado km=62.501 resultado=aceptado
+2026-11-24T02:03:54-06:00 INFO  odometro odometro_guardado km=62.670 resultado=aceptado
+2026-11-24T02:03:59-06:00 INFO  odometro odometro_guardado km=62.840 resultado=aceptado
+2026-11-24T02:04:04-06:00 INFO  odometro odometro_guardado km=62.996 resultado=aceptado
+2026-11-24T02:04:04-06:00 INFO  sistema fin info=15 warn=0 error=0

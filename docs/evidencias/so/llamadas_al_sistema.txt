@@ -1,16 +1,16 @@
 == Llamadas al sistema de una escritura atomica (temas 2.1, 4.3 y 4.4) ==
 Comando: strace -f -e trace=openat,write,fsync,chmod,fchmod,fchmodat,rename,flock python tools/escribir_dato.py velocidad=88
-Fecha: 2026-11-24 01:22:04  Kernel: 5.15.0-203-generic
+Fecha: 2026-11-24 02:03:12  Kernel: 5.15.0-203-generic
 
 Se muestran solo las llamadas sobre el archivo de datos, su temporal y su candado:
-openat(AT_FDCWD, "/tmp/evidencia_so.2Vf0KL/datos/vehiculo.conf.escritura.lock", O_RDWR|O_CREAT|O_APPEND|O_CLOEXEC, 0666) = 3
+openat(AT_FDCWD, "/tmp/evidencia_so.47Nhl3/datos/vehiculo.conf.escritura.lock", O_RDWR|O_CREAT|O_APPEND|O_CLOEXEC, 0666) = 3
 flock(3, LOCK_EX)                 = 0
-openat(AT_FDCWD, "/tmp/evidencia_so.2Vf0KL/datos/vehiculo.conf", O_RDONLY|O_CLOEXEC) = 4
-openat(AT_FDCWD, "/tmp/evidencia_so.2Vf0KL/datos/.vehiculo.st60sb2e.tmp", O_RDWR|O_CREAT|O_EXCL|O_NOFOLLOW|O_CLOEXEC, 0600) = 4
+openat(AT_FDCWD, "/tmp/evidencia_so.47Nhl3/datos/vehiculo.conf", O_RDONLY|O_CLOEXEC) = 4
+openat(AT_FDCWD, "/tmp/evidencia_so.47Nhl3/datos/.vehiculo.nu2fa1ni.tmp", O_RDWR|O_CREAT|O_EXCL|O_NOFOLLOW|O_CLOEXEC, 0600) = 4
 write(4, "# Datos de entrada del cluster F"..., 222) = 222
 fsync(4)                          = 0
-chmod("/tmp/evidencia_so.2Vf0KL/datos/.vehiculo.st60sb2e.tmp", 0640) = 0
-rename("/tmp/evidencia_so.2Vf0KL/datos/.vehiculo.st60sb2e.tmp", "/tmp/evidencia_so.2Vf0KL/datos/vehiculo.conf") = 0
+chmod("/tmp/evidencia_so.47Nhl3/datos/.vehiculo.nu2fa1ni.tmp", 0640) = 0
+rename("/tmp/evidencia_so.47Nhl3/datos/.vehiculo.nu2fa1ni.tmp", "/tmp/evidencia_so.47Nhl3/datos/vehiculo.conf") = 0
 write(1, "OK vehiculo.conf: velocidad=88\n", 31) = 31
 
 Lectura: flock(LOCK_EX) serializa escritores; write+fsync guardan el temporal; rename lo publica de forma atomica.

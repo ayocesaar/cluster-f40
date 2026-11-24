@@ -5,7 +5,7 @@ los 10 elementos, con la numeracion oficial de la especificacion).
 No importa Tkinter, para que las pruebas puedan verificar lo que el usuario
 veria sin abrir una ventana. ui/tablero.py solo dibuja lo que devuelve vista()."""
 
-# Paleta 8-bit del tablero.
+# Colores de estado que dibuja el tablero (la aguja y los testigos toman estos colores).
 COLOR_NORMAL = "#e8e8f0"
 COLOR_ROJO = "#ff4d4d"
 COLOR_AMBAR = "#ffb02e"

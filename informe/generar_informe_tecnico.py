@@ -234,7 +234,7 @@ def construir():
                       "escritura atómica, permisos y rotación de archivos.")
     vinetas(doc, [
         "Dentro del alcance: entrada por archivo, configuración externa, validación, modelo con reglas R01–R08, interfaz "
-        "Tkinter 8-bit, bitácoras, pruebas P01–P12 y métricas.",
+        "Tkinter estilo F40, bitácoras, pruebas P01–P12 y métricas.",
         "Fuera del alcance: hardware, ECU y sensores reales; calibraciones del F40; plataformas distintas de Linux y Windows.",
         "La interfaz sigue la distribución del tablero del F40: velocímetro y tacómetro grandes al centro, medidores chicos "
         "a los lados y los testigos críticos arriba, entre las esferas."])
@@ -320,7 +320,7 @@ def construir():
     vinetas(doc, [
         "En memoria: un objeto EstadoCluster de tamaño fijo, el diccionario del último valor válido (10 claves) y un buzón de "
         "capacidad 1. No hay historial en RAM, así que la memoria no crece con el tiempo.",
-        "La ventana crea sus figuras de pixeles una sola vez y después solo las mueve o recolorea; guarda el último valor "
+        "La ventana crea sus figuras (menos de 300) una sola vez y después solo mueve las agujas o recolorea; guarda el último valor "
         "dibujado para no repetir trabajo (localidad: se reutilizan los mismos objetos).",
         "Persistencia: config/cluster.ini y datos/vehiculo.conf se sobrescriben completos (acceso secuencial); las bitácoras "
         "solo se agregan al final y rotan por tamaño (max_bytes y número de respaldos).",

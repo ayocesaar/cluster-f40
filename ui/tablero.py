@@ -1,83 +1,71 @@
-"""Interfaz Tkinter del cluster F40 simulado, con estetica 8-bit.
+"""Interfaz Tkinter del cluster F40 simulado.
 
-Sigue la distribucion del tablero del F40: velocimetro y tacometro grandes al
-centro, medidores chicos a los lados y los testigos criticos arriba, entre las
-dos esferas. Todo se dibuja con bloques de pixeles. Solo dibuja lo que entrega
-ui.presentacion.vista(estado) y envia los valores de los controles a
-EstadoCluster; no contiene reglas de negocio."""
+Inspirada en el cuadro del F40 (1987): capota negra mate sobre un tablero forrado
+de fieltro gris, esferas negras con numerales en blanco calido de la epoca, el
+tacometro grande al centro, el velocimetro a su derecha con el odometro de tambor,
+el turbo a la izquierda y los medidores chicos de aceite y agua a un lado. Los
+testigos van en una barra aparte, con su simbolo. No usa logotipos de la marca.
+
+Solo dibuja lo que entrega ui.presentacion.vista(estado) y envia los valores de
+los controles a EstadoCluster; no contiene reglas de negocio. Lo que las pruebas
+observan se conserva: items[n]["aguja"] y ["valor"] (1-5), items[n]["forma"]
+(6-10; ovalos 6-8 y rectangulos 9-10) e items[11] (odometro de 6 digitos)."""
 
 import math
 import tkinter as tk
+import tkinter.font as tkfont
 
 from ui.presentacion import (COLOR_AMBAR, COLOR_APAGADO, COLOR_NORMAL, COLOR_ROJO, CRITICA, ELEMENTOS, vista,
                              vista_odometro)
 
 PERIODO_REFRESCO_MS = 50
-ANCHO, ALTO = 1040, 470
-FUENTE = "Courier New"
+ANCHO, ALTO = 1120, 500
+FUENTE = "Helvetica"
+FUENTE_TAMBOR = "Courier New"
 
-FONDO = "#0d0d17"
-CARCASA = "#171724"
-CARA = "#0a0a12"
-BISEL = "#34344c"
-COLOR_TEXTO = "#c8c8dc"
-MARCA = "#d8d8e8"
-MARCA_MENOR = "#6e6e8c"
-ICONO_APAGADO = "#4a4a66"
-ICONO_ENCENDIDO = "#0d0d17"
+FONDO = "#1b1b1d"            # ventana
+FIELTRO = "#3a3a3c"          # tablero forrado de fieltro gris
+CAPOTA = "#101011"           # capota negra mate del cuadro
+CAPOTA_BORDE = "#232326"
+COPA = "#060606"             # hueco donde se asienta cada esfera
+CARA = "#0b0b0b"
+NUMERO = "#ece6d2"           # blanco calido de los numerales de epoca
+MARCA_MENOR = "#8f8a7c"
+ZONA_ROJA = "#c62828"
+ZONA_AMBAR = "#d98c1a"
+BISEL = "#2c2c2f"
+BISEL_LUZ = "#55555a"
+COLOR_TEXTO = "#c9c9c4"
+ICONO_APAGADO = "#4b4b55"
+ICONO_ENCENDIDO = "#101010"
 VERDE_TEXTO = "#4fd06b"
+# Nombre usado por versiones anteriores para el color del contorno normal del turbo.
+CARCASA = CAPOTA
 
 FORMATOS = {1: "{:.1f} km/h", 2: "{:.2f} bar", 3: "{:.0f} RPM", 4: "{:.1f} C", 5: "{:.2f} bar"}
+BARRIDO = 270                 # grados de la escala: de las 7:30 a las 4:30, como las esferas de epoca
 
-# Medidores 1-5: centro, radio, paso de marcas menores y mayores, y la zona de
-# advertencia que se pinta en la escala (solo decorativa; el color de la aguja
-# lo decide ui.presentacion).
+# Medidores 1-5: centro, radio, marcas, numerales, zona pintada en la escala (decorativa: el
+# color de la aguja lo decide ui.presentacion) y rotulo dentro de la esfera.
 MEDIDORES = {
-    1: {"cx": 355, "cy": 262, "r": 150, "menor": 20, "mayor": 40, "zona": lambda v: None},
-    3: {"cx": 685, "cy": 262, "r": 150, "menor": 500, "mayor": 1000,
-        "zona": lambda v: COLOR_ROJO if v >= 8000 else None},
-    2: {"cx": 110, "cy": 158, "r": 62, "menor": 1, "mayor": 5,
-        "zona": lambda v: COLOR_AMBAR if v < 1 else None},
-    4: {"cx": 110, "cy": 360, "r": 62, "menor": 15, "mayor": 45,
-        "zona": lambda v: COLOR_ROJO if v > 110 else None},
-    5: {"cx": 930, "cy": 158, "r": 62, "menor": 0.25, "mayor": 1,
-        "zona": lambda v: COLOR_AMBAR if v > 1.5 else None},
+    3: {"cx": 565, "cy": 228, "r": 165, "mayor": 1000, "menor": 250, "divisor": 1000, "letra": 18,
+        "zonas": [(8000, 9000, ZONA_ROJA)], "rotulo": "RPM x 1000"},
+    1: {"cx": 900, "cy": 238, "r": 140, "mayor": 40, "menor": 10, "divisor": 1, "letra": 13,
+        "zonas": [], "rotulo": "km/h"},
+    5: {"cx": 275, "cy": 238, "r": 98, "mayor": 0.5, "menor": 0.1, "divisor": 1, "letra": 11,
+        "zonas": [(1.5, 2.0, ZONA_AMBAR)], "rotulo": "TURBO  bar"},
+    2: {"cx": 90, "cy": 150, "r": 64, "mayor": 2, "menor": 1, "divisor": 1, "letra": 9,
+        "zonas": [(0, 1, ZONA_AMBAR)], "rotulo": "ACEITE bar"},
+    4: {"cx": 90, "cy": 322, "r": 64, "mayor": 30, "menor": 10, "divisor": 1, "letra": 9,
+        "zonas": [(110, 130, ZONA_ROJA)], "rotulo": "AGUA  C"},
 }
 
-# Testigos 6-10: centro y lado. El 6 y el 8 van dentro del velocimetro, el 7
-# dentro del tacometro y los criticos 9 y 10 arriba, entre las esferas.
-TESTIGOS = {
-    6: (297, 354, 44), 8: (413, 354, 44), 7: (685, 354, 44),
-    9: (485, 78, 56), 10: (555, 78, 56),
-}
-
-ICONOS = {
-    "IZQ": ("...X....", "..XX....", ".XXXXXXX", "XXXXXXXX", "XXXXXXXX", ".XXXXXXX", "..XX....", "...X...."),
-    "DER": ("....X...", "....XX..", "XXXXXXX.", "XXXXXXXX", "XXXXXXXX", "XXXXXXX.", "....XX..", "....X..."),
-    7: ("XX..XXX.", "...X...X", "XX.X...X", "...X...X", "XX.X...X", "...X...X", "XX..XXX.", "........"),
-    8: ("...XX...", "...XX...", "..X..X..", "..X..X..", ".X.XX.X.", ".X....X.", "X......X", "XXXXXXXX"),
-    9: ("........", ".XX.....", ".XX....X", "XXXXXXX.", "XXXXXX..", ".XXXXX.X", ".XXXXX..", "........"),
-    10: ("..XXXX..", ".X....X.", "X..XX..X", "X..XX..X", "X..XX..X", "X......X", ".X.XX.X.", "..XXXX.."),
-}
-
-# Letras de 5x7 pixeles para el titulo.
-LETRAS = {
-    "F": ("11111", "10000", "10000", "11110", "10000", "10000", "10000"),
-    "4": ("00010", "00110", "01010", "10010", "11111", "00010", "00010"),
-    "0": ("01110", "10001", "10011", "10101", "11001", "10001", "01110"),
-    "C": ("01110", "10001", "10000", "10000", "10000", "10001", "01110"),
-    "L": ("10000", "10000", "10000", "10000", "10000", "10000", "11111"),
-    "U": ("10001", "10001", "10001", "10001", "10001", "10001", "01110"),
-    "S": ("01111", "10000", "10000", "01110", "00001", "00001", "11110"),
-    "T": ("11111", "00100", "00100", "00100", "00100", "00100", "00100"),
-    "E": ("11111", "10000", "10000", "11110", "10000", "10000", "11111"),
-    "R": ("11110", "10001", "10001", "11110", "10100", "10010", "10001"),
-    "8": ("01110", "10001", "10001", "01110", "10001", "10001", "01110"),
-    "-": ("00000", "00000", "00000", "11111", "00000", "00000", "00000"),
-    "B": ("11110", "10001", "10001", "11110", "10001", "10001", "11110"),
-    "I": ("11111", "00100", "00100", "00100", "00100", "00100", "11111"),
-    " ": ("00000",) * 7,
-}
+# Testigos 6-10 en la barra de testigos: centro, ancho y alto. 6-8 lentes redondas;
+# 9 y 10 (criticos) rectangulos con marco rojo.
+BARRA = (400, 436, 1040, 490)
+TESTIGOS = {6: (445, 463, 34, 34), 7: (525, 463, 34, 34), 8: (605, 463, 34, 34),
+            9: (725, 463, 74, 38), 10: (865, 463, 74, 38)}
+NOMBRES_TESTIGO = {6: "DIRECC.", 7: "ALTAS", 8: "EMERG.", 9: "PRES. ACEITE", 10: "FRENOS"}
 
 # (setter de EstadoCluster, etiqueta, minimo, maximo, resolucion, conversion)
 DESLIZADORES = (
@@ -96,13 +84,16 @@ INTERRUPTORES = (
 )
 
 
-def _rejilla(v):
-    """Ajusta una coordenada a la rejilla de 3 px: da el escalonado de 8 bits."""
-    return round(v / 3) * 3
-
-
 def _angulo(fraccion):
-    return math.radians(210 - 240 * fraccion)
+    """Angulo en radianes (antihorario desde las 3) para una fraccion de la escala."""
+    return math.radians(225 - BARRIDO * fraccion)
+
+
+def _mezclar(a, b, t):
+    """Color intermedio entre a y b (#rrggbb)."""
+    ca = [int(a[i:i + 2], 16) for i in (1, 3, 5)]
+    cb = [int(b[i:i + 2], 16) for i in (1, 3, 5)]
+    return "#" + "".join(f"{round(x + (y - x) * t):02x}" for x, y in zip(ca, cb))
 
 
 class Tablero:
@@ -122,7 +113,7 @@ class Tablero:
         self.despues_del_tick = None
         self.periodo_ms = PERIODO_REFRESCO_MS
         self._controles = []
-        self.canvas = tk.Canvas(raiz, width=ANCHO, height=ALTO, bg=FONDO, highlightthickness=0)
+        self.canvas = tk.Canvas(raiz, width=ANCHO, height=ALTO, bg=FIELTRO, highlightthickness=0)
         self.canvas.grid(row=0, column=0, columnspan=2, padx=10, pady=10)
         self._dibujar_carcasa()
         self._dibujar_medidores()
@@ -130,163 +121,186 @@ class Tablero:
         self._dibujar_estado()
         self._crear_controles()
         self.mensaje = tk.Label(raiz, text="", fg=COLOR_AMBAR, bg=FONDO, font=(FUENTE, 10, "bold"))
-        self.mensaje.grid(row=2, column=0, columnspan=2, sticky="w", padx=10, pady=(0, 10))
+        self.mensaje.grid(row=2, column=0, columnspan=2, sticky="w", padx=10, pady=(0, 6))
         # Avisos del sistema (por ejemplo, un odometro restaurado); no los borra la siguiente entrada valida.
         self.aviso = tk.Label(raiz, text="", fg=COLOR_AMBAR, bg=FONDO, font=(FUENTE, 10, "bold"))
-        self.aviso.grid(row=3, column=0, columnspan=2, sticky="w", padx=10, pady=(0, 10))
+        self.aviso.grid(row=3, column=0, columnspan=2, sticky="w", padx=10, pady=(0, 8))
         # Los digitos del odometro quedan sobre la aguja del velocimetro (DEF-12).
         self.canvas.tag_raise(self.items[11]["caja"])
+        self.canvas.tag_raise("tambor")
         self.canvas.tag_raise(self.items[11]["valor"])
         self._programar()
 
     # ------------------------------------------------------------------ dibujo fijo
 
-    def _pixel(self, x, y, lado, color):
-        return self.canvas.create_rectangle(x, y, x + lado, y + lado, fill=color, outline="")
-
-    def _texto_pixel(self, x, y, texto, lado, color):
-        for letra in texto:
-            for fila, renglon in enumerate(LETRAS.get(letra, LETRAS[" "])):
-                for col, bit in enumerate(renglon):
-                    if bit == "1":
-                        self._pixel(x + col * lado, y + fila * lado, lado, color)
-            x += 6 * lado
-
     def _dibujar_carcasa(self):
-        self._texto_pixel(20, 10, "F40 CLUSTER 8-BIT", 3, COLOR_ROJO)
-        self.canvas.create_text(ANCHO - 20, 20, text="SIMULACION DIDACTICA  R01-R08", anchor="e",
-                                fill=COLOR_TEXTO, font=(FUENTE, 9, "bold"))
-        x0, y0, x1, y1, p = 8, 42, ANCHO - 8, ALTO - 6, 6
-        self.canvas.create_polygon(
-            x0, y0 + 3 * p, x0 + p, y0 + 3 * p, x0 + p, y0 + 2 * p, x0 + 2 * p, y0 + 2 * p, x0 + 2 * p, y0 + p,
-            x0 + 3 * p, y0 + p, x0 + 3 * p, y0, x1 - 3 * p, y0, x1 - 3 * p, y0 + p, x1 - 2 * p, y0 + p,
-            x1 - 2 * p, y0 + 2 * p, x1 - p, y0 + 2 * p, x1 - p, y0 + 3 * p, x1, y0 + 3 * p,
-            x1, y1 - 3 * p, x1 - p, y1 - 3 * p, x1 - p, y1 - 2 * p, x1 - 2 * p, y1 - 2 * p, x1 - 2 * p, y1 - p,
-            x1 - 3 * p, y1 - p, x1 - 3 * p, y1, x0 + 3 * p, y1, x0 + 3 * p, y1 - p, x0 + 2 * p, y1 - p,
-            x0 + 2 * p, y1 - 2 * p, x0 + p, y1 - 2 * p, x0 + p, y1 - 3 * p, x0, y1 - 3 * p,
-            fill=CARCASA, outline="")
+        c = self.canvas
+        c.create_text(22, 16, text="F40", anchor="w", fill=NUMERO, font=(FUENTE, 15, "bold italic"))
+        c.create_text(70, 17, text="CUADRO DE INSTRUMENTOS  ·  SIMULACION DIDACTICA", anchor="w",
+                      fill=COLOR_TEXTO, font=(FUENTE, 8, "bold"))
+        c.create_text(ANCHO - 20, 17, text="R01-R08  ·  ELEMENTOS 1-11", anchor="e", fill=COLOR_TEXTO,
+                      font=(FUENTE, 8, "bold"))
+        # Capota negra mate: una sola pieza curva, mas alta sobre el tacometro, como en el F40.
+        contorno = (14, 410, 14, 100, 34, 74, 170, 64, 372, 60, 400, 34, 565, 22, 735, 30, 765, 52,
+                    1040, 62, 1092, 80, 1108, 118, 1108, 404, 1080, 424, 44, 424)
+        c.create_polygon(contorno, smooth=True, splinesteps=24, fill=CAPOTA, outline=CAPOTA_BORDE, width=3)
+        c.create_polygon(contorno, smooth=True, splinesteps=24, fill="", outline="#18181a", width=1)
+
+    def _escala(self, numero, m):
+        c, e = self.canvas, ELEMENTOS[numero]
+        cx, cy, r = m["cx"], m["cy"], m["r"]
+        rango = e["maximo"] - e["minimo"]
+        grande = r > 120
+        # Zonas pintadas en la escala (rojo en el tacometro y el agua, ambar en turbo y aceite).
+        for desde, hasta, color in m["zonas"]:
+            f0, f1 = (desde - e["minimo"]) / rango, (hasta - e["minimo"]) / rango
+            radio = r - (14 if grande else 9)
+            c.create_arc(cx - radio, cy - radio, cx + radio, cy + radio, start=225 - BARRIDO * f1,
+                         extent=BARRIDO * (f1 - f0), style="arc", outline=color, width=7 if grande else 5)
+        pasos = round(rango / m["menor"])
+        for i in range(pasos + 1):
+            v = e["minimo"] + i * m["menor"]
+            relativo = (v - e["minimo"]) / m["mayor"]
+            mayor = abs(relativo - round(relativo)) < 1e-6
+            a = _angulo((v - e["minimo"]) / rango)
+            largo = (16 if mayor else 8) if grande else (10 if mayor else 5)
+            r1, r2 = r - 7, r - 7 - largo
+            en_zona = any(d <= v <= h for d, h, _ in m["zonas"])
+            color = NUMERO if mayor else MARCA_MENOR
+            if en_zona and mayor:
+                color = next(col for d, h, col in m["zonas"] if d <= v <= h)
+            c.create_line(cx + r1 * math.cos(a), cy - r1 * math.sin(a), cx + r2 * math.cos(a), cy - r2 * math.sin(a),
+                          fill=color, width=(3 if grande else 2) if mayor else 1)
+            if mayor:
+                rn = r - (40 if grande else 25)
+                texto = f"{v / m['divisor']:g}"
+                c.create_text(cx + rn * math.cos(a), cy - rn * math.sin(a), text=texto, fill=color,
+                              font=(FUENTE, m["letra"], "bold"))
 
     def _dibujar_medidores(self):
+        c = self.canvas
         for numero, m in MEDIDORES.items():
             e = ELEMENTOS[numero]
             cx, cy, r = m["cx"], m["cy"], m["r"]
-            grande = r > 100
-            g = 5 if grande else 4
-
-            # Esfera: renglones de pixeles que forman un disco escalonado.
-            for dy in range(-r, r, g):
-                medio = int(math.sqrt(max(0, r * r - (dy + g / 2) ** 2)) // g) * g
-                self.canvas.create_rectangle(cx - medio, cy + dy, cx + medio, cy + dy + g, fill=CARA, outline="")
-
-            # Bisel: anillo de bloques (el del turbo cambia de color con R05).
-            anillo = []
-            cuenta = round(2 * math.pi * r / 8)
-            for i in range(cuenta):
-                a = 2 * math.pi * i / cuenta
-                x, y = _rejilla(cx + (r - 3) * math.cos(a)), _rejilla(cy - (r - 3) * math.sin(a))
-                anillo.append(self._pixel(x - 2, y - 2, 5, BISEL))
-
-            # Escala: marcas menores y mayores, y numeros en las mayores.
-            pasos = round((e["maximo"] - e["minimo"]) / m["menor"])
-            for i in range(pasos + 1):
-                v = e["minimo"] + i * m["menor"]
-                mayor = abs((v - e["minimo"]) / m["mayor"] - round((v - e["minimo"]) / m["mayor"])) < 1e-6
-                a = _angulo((v - e["minimo"]) / (e["maximo"] - e["minimo"]))
-                lado = (8 if mayor else 4) if grande else (6 if mayor else 3)
-                rr = r - (15 if grande else 11)
-                x, y = _rejilla(cx + rr * math.cos(a)), _rejilla(cy - rr * math.sin(a))
-                zona = m["zona"](v)
-                self._pixel(x - lado // 2, y - lado // 2, lado, zona or (MARCA if mayor else MARCA_MENOR))
-                if mayor:
-                    rn = r - (36 if grande else 24)
-                    etiqueta = v / 1000 if numero == 3 else v
-                    self.canvas.create_text(cx + rn * math.cos(a), cy - rn * math.sin(a), text=f"{etiqueta:g}",
-                                            fill=zona or MARCA, font=(FUENTE, 12 if grande else 8, "bold"))
-
-            # Aguja: bloques en linea recta que saltan de casilla en casilla.
-            paso = 5 if grande else 4
-            inicio, fin = (10, r - 22) if grande else (6, r - 15)
+            grande = r > 120
+            # Copa hundida en la capota, bisel delgado y esfera negra con un leve degradado al centro.
+            c.create_oval(cx - r - 10, cy - r - 10, cx + r + 10, cy + r + 10, fill=COPA, outline="#2a2a2d", width=2)
+            anillo = c.create_oval(cx - r - 3, cy - r - 3, cx + r + 3, cy + r + 3, fill=BISEL, outline=BISEL_LUZ,
+                                   width=2)
+            for k in range(6):
+                rr = r - k * r / 7
+                c.create_oval(cx - rr, cy - rr, cx + rr, cy + rr, fill=_mezclar(CARA, "#161616", k / 6), outline="")
+            self._escala(numero, m)
+            c.create_text(cx, cy - r * 0.34, text=m["rotulo"], fill=MARCA_MENOR,
+                          font=(FUENTE, 9 if grande else 7, "bold"))
             if numero == 1:
-                # Elemento 11: odometro de 6 digitos en la esfera del velocimetro, como en el F40.
-                # Se dibuja antes que la aguja para que esta pase por encima.
-                caja = self.canvas.create_rectangle(cx - 50, cy - 70, cx + 50, cy - 44, fill=CARA, outline=BISEL, width=2)
-                texto = self.canvas.create_text(cx, cy - 57, text="000000", fill=COLOR_NORMAL,
-                                                font=(FUENTE, 15, "bold"))
-                self.canvas.create_text(cx, cy - 80, text="11 ODOMETRO KM", fill=COLOR_TEXTO, font=(FUENTE, 7, "bold"))
+                # Elemento 11: odometro de tambor de 6 digitos en la esfera del velocimetro, como en el F40.
+                letra = tkfont.Font(root=self.raiz, family=FUENTE_TAMBOR, size=15, weight="bold")
+                celda = letra.measure("0")
+                ancho, alto, y0 = 6 * celda, 24, cy + 40
+                caja = c.create_rectangle(cx - ancho / 2 - 3, y0 - 3, cx + ancho / 2 + 3, y0 + alto + 3, fill="#000000",
+                                          outline="#3a3a3e", width=2)
+                for k in range(6):
+                    x0 = cx - ancho / 2 + k * ancho / 6
+                    c.create_rectangle(x0 + 1, y0, x0 + ancho / 6 - 1, y0 + alto,
+                                       fill="#1c1c1c" if k % 2 else "#161616", outline="", tags="tambor")
+                # Un solo texto de 6 digitos (lo leen las pruebas); el tambor dibuja una celda por digito.
+                texto = c.create_text(cx, y0 + alto / 2 + 1, text="000000", fill=NUMERO, font=letra)
+                c.create_text(cx + ancho / 2 + 16, y0 + alto / 2, text="km", fill=MARCA_MENOR, font=(FUENTE, 8, "bold"))
+                c.create_text(cx, y0 + alto + 12, text="11 ODOMETRO", fill=MARCA_MENOR, font=(FUENTE, 7, "bold"))
                 self.items[11] = {"caja": caja, "valor": texto}
-            bloques = [self._pixel(cx, cy, paso, COLOR_NORMAL) for _ in range(inicio, fin, paso)]
-            self._pixel(cx - 6, cy - 6, 12, MARCA)
-            if grande:
-                # Ventana tipo LCD: la cifra queda por encima de la aguja cuando esta pasa por debajo.
-                self.canvas.create_rectangle(cx - 72, cy + 21, cx + 72, cy + 51, fill=CARA, outline=BISEL, width=2)
+            valor = c.create_text(cx, cy + r * (0.68 if grande else 0.62), text="", fill=COLOR_NORMAL,
+                                  font=(FUENTE, 11 if grande else 8, "bold"))
 
-            valor = self.canvas.create_text(cx, cy + (36 if grande else 44), text="", fill=COLOR_NORMAL,
-                                            font=(FUENTE, 18 if grande else 10, "bold"))
-            if grande:
-                self.canvas.create_text(cx, cy + 58, text="KM/H" if numero == 1 else "x1000 RPM",
-                                        fill=COLOR_TEXTO, font=(FUENTE, 9, "bold"))
-            self.canvas.create_text(cx, cy + r + (16 if grande else 13), text=f"{numero}  {e['nombre'].upper()}",
-                                    fill=COLOR_TEXTO, font=(FUENTE, 11 if grande else 8, "bold"))
-            self.items[numero] = {"arco": anillo[0], "anillo": anillo, "aguja": bloques[0], "bloques": bloques,
-                                  "valor": valor, "centro": (cx, cy), "inicio": inicio, "paso": paso,
-                                  "ultimo": None}
+            # Aguja conica con contrapeso; se dibuja despues de la escala y antes de la tapa central.
+            aguja = c.create_polygon(0, 0, 0, 0, 0, 0, fill=COLOR_NORMAL, outline="#1a1a1a", width=1)
+            tapa = r * (0.09 if grande else 0.13)
+            c.create_oval(cx - tapa, cy - tapa, cx + tapa, cy + tapa, fill="#1d1d1f", outline="#5a5a5f", width=2)
+            c.create_oval(cx - tapa / 2.5, cy - tapa / 2.5, cx + tapa / 2.5, cy + tapa / 2.5, fill="#2c2c30", outline="")
+            c.create_text(cx, cy + r + (17 if grande else 15), text=f"{numero} · {e['nombre'].upper()}",
+                          fill=COLOR_TEXTO, font=(FUENTE, 9 if grande else 7, "bold"))
+            self.items[numero] = {"aguja": aguja, "bloques": [aguja], "valor": valor, "anillo": [anillo],
+                                  "arco": anillo, "centro": (cx, cy), "radio": r, "ultimo": None}
+
+    def _simbolo(self, clave, cx, cy):
+        """Simbolo de un testigo con primitivas. Devuelve [(item, atributo que toma el color)]."""
+        c, piezas = self.canvas, []
+        if clave in ("IZQ", "DER"):
+            d = -1 if clave == "IZQ" else 1
+            piezas.append((c.create_polygon(cx + d * 11, cy, cx - d, cy - 10, cx - d, cy - 4, cx - d * 11, cy - 4,
+                                            cx - d * 11, cy + 4, cx - d, cy + 4, cx - d, cy + 10, outline=""), "fill"))
+        elif clave == 7:        # luces altas: faro con rayos horizontales
+            piezas.append((c.create_arc(cx - 4, cy - 8, cx + 12, cy + 8, start=90, extent=180, style="chord",
+                                        outline=""), "fill"))
+            piezas += [(c.create_line(cx - 12, cy + dy, cx - 5, cy + dy, width=2), "fill") for dy in (-6, -2, 2, 6)]
+        elif clave == 8:        # intermitentes: doble triangulo
+            piezas.append((c.create_line(cx, cy - 11, cx + 11, cy + 8, cx - 11, cy + 8, cx, cy - 11, width=3,
+                                         joinstyle="miter"), "fill"))
+            piezas.append((c.create_line(cx, cy - 4, cx + 5, cy + 4, cx - 5, cy + 4, cx, cy - 4, width=2), "fill"))
+        elif clave == 9:        # presion de aceite: aceitera con gota
+            piezas.append((c.create_polygon(cx - 14, cy - 2, cx + 4, cy - 2, cx + 8, cy + 6, cx - 14, cy + 6,
+                                            outline=""), "fill"))
+            piezas.append((c.create_line(cx + 4, cy - 2, cx + 14, cy - 6, width=3), "fill"))
+            piezas.append((c.create_rectangle(cx - 9, cy - 6, cx - 3, cy - 2, outline=""), "fill"))
+            piezas.append((c.create_oval(cx + 13, cy + 1, cx + 17, cy + 7, outline=""), "fill"))
+        elif clave == 10:       # frenos: circulo con signo de admiracion entre parentesis
+            piezas.append((c.create_oval(cx - 9, cy - 9, cx + 9, cy + 9, width=2), "outline"))
+            piezas.append((c.create_arc(cx - 15, cy - 13, cx + 15, cy + 13, start=120, extent=120, style="arc",
+                                        width=2), "outline"))
+            piezas.append((c.create_arc(cx - 15, cy - 13, cx + 15, cy + 13, start=-60, extent=120, style="arc",
+                                        width=2), "outline"))
+            piezas.append((c.create_text(cx, cy, text="!", font=(FUENTE, 11, "bold")), "fill"))
+        return piezas
 
     def _dibujar_testigos(self):
-        for numero, (cx, cy, lado) in TESTIGOS.items():
-            media = lado // 2
+        c = self.canvas
+        x0, y0, x1, y1 = BARRA
+        c.create_rectangle(x0, y0, x1, y1, fill="#0c0c0d", outline=CAPOTA_BORDE, width=2)
+        for numero, (cx, cy, ancho, alto) in TESTIGOS.items():
             critica = ELEMENTOS[numero]["categoria"] == CRITICA
             if critica:
-                forma = self.canvas.create_rectangle(cx - media, cy - media, cx + media, cy + media,
-                                                     fill=COLOR_APAGADO, outline=COLOR_ROJO, width=4)
-                self.canvas.create_text(cx, cy - media - 12, text="CRITICA", fill=COLOR_ROJO,
-                                        font=(FUENTE, 8, "bold"))
-                px = 5
+                forma = c.create_rectangle(cx - ancho / 2, cy - alto / 2 - 4, cx + ancho / 2, cy + alto / 2 - 4,
+                                           fill=COLOR_APAGADO, outline=COLOR_ROJO, width=3)
             else:
-                forma = self.canvas.create_oval(cx - media, cy - media, cx + media, cy + media,
-                                                fill=COLOR_APAGADO, outline=BISEL, width=3)
-                px = 3
-            iconos = {}
-            for clave in (("IZQ", "DER") if numero == 6 else (numero,)):
-                origen_x, origen_y = cx - 4 * px, cy - 4 * px
-                iconos[clave] = [self._pixel(origen_x + col * px, origen_y + fila * px, px, ICONO_APAGADO)
-                                 for fila, renglon in enumerate(ICONOS[clave])
-                                 for col, bit in enumerate(renglon) if bit == "X"]
-            simbolo = self.canvas.create_text(cx - media - 8, cy - media + 4, text=str(numero), fill=COLOR_TEXTO,
-                                              font=(FUENTE, 9, "bold"))
-            self.items[numero] = {"forma": forma, "simbolo": simbolo, "iconos": iconos, "ultimo": None}
+                forma = c.create_oval(cx - ancho / 2, cy - alto / 2 - 4, cx + ancho / 2, cy + alto / 2 - 4,
+                                      fill=COLOR_APAGADO, outline=BISEL_LUZ, width=2)
+            iconos = {clave: self._simbolo(clave, cx, cy - 4)
+                      for clave in (("IZQ", "DER") if numero == 6 else (numero,))}
+            c.create_text(cx, cy + alto / 2 + 5, text=f"{numero} {NOMBRES_TESTIGO[numero]}", fill=MARCA_MENOR,
+                          font=(FUENTE, 7, "bold"))
+            self.items[numero] = {"forma": forma, "iconos": iconos, "ultimo": None}
 
     def _dibujar_estado(self):
-        x0, y0, x1, y1 = 872, 282, 988, 412
-        self.canvas.create_rectangle(x0, y0, x1, y1, fill=CARA, outline=BISEL, width=4)
-        self.canvas.create_text(x0 + 12, y0 + 16, text="MOTOR", anchor="w", fill=COLOR_TEXTO, font=(FUENTE, 9, "bold"))
-        self._txt_motor = self.canvas.create_text(x0 + 12, y0 + 40, text="", anchor="w", font=(FUENTE, 18, "bold"))
-        self.canvas.create_text(x0 + 12, y0 + 70, text="RELOJ", anchor="w", fill=COLOR_TEXTO, font=(FUENTE, 9, "bold"))
-        self._txt_reloj = self.canvas.create_text(x0 + 12, y0 + 94, text="", anchor="w", fill=VERDE_TEXTO,
-                                                  font=(FUENTE, 14, "bold"))
-        self._txt_fuente = self.canvas.create_text(x0 + 12, y0 + 116, text="FUENTE: MANUAL", anchor="w",
-                                                   fill=COLOR_TEXTO, font=(FUENTE, 7, "bold"))
+        c = self.canvas
+        c.create_rectangle(22, 436, 380, 490, fill="#0c0c0d", outline=CAPOTA_BORDE, width=2)
+        c.create_text(36, 451, text="MOTOR", anchor="w", fill=MARCA_MENOR, font=(FUENTE, 8, "bold"))
+        self._txt_motor = c.create_text(36, 472, text="", anchor="w", font=(FUENTE, 15, "bold"))
+        c.create_text(120, 451, text="RELOJ", anchor="w", fill=MARCA_MENOR, font=(FUENTE, 8, "bold"))
+        self._txt_reloj = c.create_text(120, 472, text="", anchor="w", fill=VERDE_TEXTO, font=(FUENTE, 13, "bold"))
+        self._txt_fuente = c.create_text(232, 462, text="FUENTE: MANUAL", anchor="w", fill=COLOR_TEXTO,
+                                         font=(FUENTE, 8, "bold"))
 
     # ------------------------------------------------------------------ controles
 
     def _crear_controles(self):
-        estilo = {"bg": FONDO, "fg": COLOR_TEXTO, "font": (FUENTE, 10, "bold")}
+        estilo = {"bg": FONDO, "fg": COLOR_TEXTO, "font": (FUENTE, 9, "bold")}
         deslizadores = tk.Frame(self.raiz, bg=FONDO)
         deslizadores.grid(row=1, column=0, sticky="nw", padx=10)
         for i, (setter, etiqueta, minimo, maximo, resolucion, convertir) in enumerate(DESLIZADORES):
             var = tk.DoubleVar(value=minimo)
             manejador = (lambda s=setter, c=convertir, v=var: self.enviar(s, c(v.get())))
             control = tk.Scale(deslizadores, label=etiqueta, from_=minimo, to=maximo, resolution=resolucion,
-                               orient="horizontal", length=300, variable=var, command=lambda _v, m=manejador: m(),
-                               troughcolor=BISEL, activebackground=COLOR_AMBAR, sliderrelief="flat", bd=0,
+                               orient="horizontal", length=290, variable=var, command=lambda _v, m=manejador: m(),
+                               troughcolor="#2e2e33", activebackground=ZONA_AMBAR, sliderrelief="raised", bd=0,
                                highlightthickness=0, **estilo)
-            control.grid(row=i // 3, column=i % 3, sticky="w", padx=(0, 16), pady=2)
+            control.grid(row=i // 3, column=i % 3, sticky="w", padx=(0, 14), pady=2)
             self._controles.append(control)
             self.variables[setter] = var
             self._manejadores[setter] = manejador
 
         interruptores = tk.Frame(self.raiz, bg=FONDO)
         interruptores.grid(row=1, column=1, sticky="nw", padx=10)
-        botones = {"selectcolor": CARCASA, "activebackground": FONDO, "activeforeground": COLOR_TEXTO,
+        botones = {"selectcolor": "#2e2e33", "activebackground": FONDO, "activeforeground": COLOR_TEXTO,
                    "highlightthickness": 0, "bd": 0, **estilo}
         for i, (setter, texto) in enumerate(INTERRUPTORES):
             var = tk.BooleanVar(value=False)
@@ -317,7 +331,7 @@ class Tablero:
         """Los valores llegan de un archivo: los controles solo muestran lo leido."""
         for control in self._controles:
             control.configure(state="disabled")
-        self.canvas.itemconfigure(self._txt_fuente, text=f"FUENTE: {origen}"[:22])
+        self.canvas.itemconfigure(self._txt_fuente, text=f"FUENTE: {origen}"[:30])
 
     def enviar(self, setter, valor):
         """Envia un valor a EstadoCluster; si se rechaza, lo muestra en pantalla."""
@@ -343,6 +357,20 @@ class Tablero:
 
     # ------------------------------------------------------------------ refresco
 
+    def _puntos_aguja(self, it, fraccion):
+        cx, cy = it["centro"]
+        r = it["radio"]
+        a = _angulo(min(1.0, max(0.0, fraccion)))
+        largo, cola = r * 0.86, r * 0.20
+        base = max(3.0, r * 0.035)
+        ux, uy = math.cos(a), -math.sin(a)          # direccion de la punta (y de pantalla hacia abajo)
+        px, py = -uy, ux                            # perpendicular
+        return (cx + ux * largo, cy + uy * largo,
+                cx + px * base, cy + py * base,
+                cx - ux * cola + px * base * 1.6, cy - uy * cola + py * base * 1.6,
+                cx - ux * cola - px * base * 1.6, cy - uy * cola - py * base * 1.6,
+                cx - px * base, cy - py * base)
+
     def refrescar(self):
         v = vista(self.estado)
         for numero in range(1, 6):
@@ -352,18 +380,13 @@ class Tablero:
             if it["ultimo"] == clave:
                 continue
             it["ultimo"] = clave
-            cx, cy = it["centro"]
-            a = _angulo(min(1.0, max(0.0, d["fraccion"])))
-            media = it["paso"] // 2
-            for k, bloque in enumerate(it["bloques"]):
-                r = it["inicio"] + k * it["paso"]
-                x, y = _rejilla(cx + r * math.cos(a)), _rejilla(cy - r * math.sin(a))
-                self.canvas.coords(bloque, x - media, y - media, x - media + it["paso"], y - media + it["paso"])
-                self.canvas.itemconfigure(bloque, fill=d["color"])
+            self.canvas.coords(it["aguja"], *self._puntos_aguja(it, d["fraccion"]))
+            self.canvas.itemconfigure(it["aguja"], fill=d["color"])
             if numero == 5:
-                contorno = BISEL if d["color"] == COLOR_NORMAL else d["color"]
-                for bloque in it["anillo"]:
-                    self.canvas.itemconfigure(bloque, fill=contorno)
+                # R05: el contorno del turbo se pinta ambar mientras la presion supera 1.5 bar.
+                ambar = d["color"] != COLOR_NORMAL
+                self.canvas.itemconfigure(it["arco"], outline=d["color"] if ambar else BISEL_LUZ,
+                                          width=5 if ambar else 2)
 
         for numero in range(6, 11):
             d, it = v[numero], self.items[numero]
@@ -374,12 +397,11 @@ class Tablero:
                 continue
             it["ultimo"] = clave
             visible = "DER" if lado == "DER" else ("IZQ" if numero == 6 else numero)
-            for nombre, pixeles in it["iconos"].items():
-                estado = "normal" if nombre == visible else "hidden"
-                for p in pixeles:
-                    self.canvas.itemconfigure(p, state=estado,
-                                              fill=ICONO_ENCENDIDO if d["encendido"] else ICONO_APAGADO)
-
+            color = ICONO_ENCENDIDO if d["encendido"] else ICONO_APAGADO
+            for nombre, piezas in it["iconos"].items():
+                for pieza, atributo in piezas:
+                    self.canvas.itemconfigure(pieza, state="normal" if nombre == visible else "hidden",
+                                              **{atributo: color})
         motor = self.estado.motor_activo
         self.canvas.itemconfigure(self._txt_motor, text="ON" if motor else "OFF",
                                   fill=VERDE_TEXTO if motor else COLOR_TEXTO)

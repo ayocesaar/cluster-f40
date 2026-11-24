@@ -36,6 +36,6 @@ tools/escribir_dato.py             50      0     10      0   100%
 tools/simulador.py                 42      0      6      0   100%
 ui/__init__.py                      0      0      0      0   100%
 ui/presentacion.py                 21      0      0      0   100%
-ui/tablero.py                     247      0     62      0   100%
+ui/tablero.py                     287      0     58      1    99%   246->253
 ---------------------------------------------------------------------------
-TOTAL                            3759    241    666     40    93%
+TOTAL                            3799    241    662     41    93%

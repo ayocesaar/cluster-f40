@@ -72,7 +72,7 @@ def arquitectura():
     rel = caja(d, 40, 460, 300, 95, "Reloj", "logic/reloj.py\nreal o simulado (pruebas)", "logica")
 
     pre = caja(d, 430, 650, 300, 95, "Presentacion", "ui/presentacion.py\nestado -> colores y agujas", "ui")
-    tab = caja(d, 820, 640, 300, 115, "Interfaz 8-bit", "ui/tablero.py (Tkinter)\n10 elementos, solo dibuja", "ui")
+    tab = caja(d, 820, 640, 300, 115, "Interfaz estilo F40", "ui/tablero.py (Tkinter)\n10 elementos, solo dibuja", "ui")
     mon = caja(d, 40, 650, 300, 95, "Monitor de eventos", "sistema/monitor.py\ntestigos 9 y 10 primero", "proceso")
 
     bit = caja(d, 40, 830, 300, 95, "Registrador", "sistema/bitacora.py\nrotacion por tamano", "log")

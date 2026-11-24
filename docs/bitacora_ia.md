@@ -276,3 +276,17 @@
   comprueba que el panel nunca produce un dato que el lector rechace.
 - Pruebas anteriores: sin cambios (huella sha256).
 - Qué generó la IA: el panel, sus pruebas y la documentación; el diseño lo pidió el equipo.
+
+## Etapa 17 — Rediseño del cuadro inspirado en el F40
+- Fecha: 2026-11-24
+- Qué se hizo: ui/tablero.py dibuja ahora un cuadro inspirado en el del F40 en lugar de la estética
+  8-bit: capota negra mate curva (más alta sobre el tacómetro) sobre un tablero de fieltro gris,
+  esferas negras con numerales en blanco cálido de época, escalas con marcas mayores y menores,
+  zonas pintadas (roja 8000-9000 RPM y >110 °C, ámbar >1.5 bar de turbo y <1 bar de aceite), agujas
+  cónicas con contrapeso y tapa central, odómetro de tambor de 6 dígitos en el velocímetro y una
+  barra de testigos con sus símbolos (flechas, faro, triángulo, aceitera, freno). Sin logotipos.
+- Contrato que se conserva (pruebas sin cambios): items[1-5] aguja/valor/bloques, items[6-10] forma
+  (óvalos 6-8, rectángulos 9-10), items[11] un solo texto de 6 dígitos, controles y métodos públicos.
+- Medición (tools de la etapa, VM con Xvfb): construir la ventana 143 ms (antes 222 ms) y menos de
+  300 figuras (antes 1206); ciclo con dibujo 21 ms (antes 19 ms).
+- Se descartó el reflejo del cristal con trama (stipple): en pantalla se veía como puntos.

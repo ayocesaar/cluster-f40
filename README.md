@@ -1,6 +1,6 @@
 # Clúster F40 simulado
 
-Simulador del clúster de instrumentos del **Ferrari F40 (1987)**, con interfaz de estética 8-bit, para el proyecto
+Simulador del clúster de instrumentos del **Ferrari F40 (1987)**, con una interfaz inspirada en el cuadro del F40 (capota negra, esferas negras con numerales de época, odómetro de tambor), para el proyecto
 final de Sistemas Operativos (UAG), Equipo 3. Los once elementos (diez de la especificación original más el odómetro) se controlan con **datos externos** (un archivo que
 el tablero relee sin reiniciar); los eventos y los errores se registran en **bitácoras separadas**. Los rangos y
 umbrales son parámetros didácticos, no calibraciones oficiales del F40.
@@ -52,7 +52,7 @@ cluster-f40/
 ├── logs/                   # eventos.log y errores.log (se crean al ejecutar)
 ├── logic/                  # modelo: estado.py (reglas R01-R08), reloj.py y odometro.py
 ├── sistema/                # config.py, lector.py (hilo + buzón), bitacora.py, monitor.py, odometro_archivo.py
-├── ui/                     # presentacion.py y tablero.py (Tkinter 8-bit)
+├── ui/                     # presentacion.py y tablero.py (Tkinter, cuadro estilo F40)
 ├── aceptacion/             # ejecutor de escenarios de aceptación
 ├── tests/                  # pruebas (P01-P12 en test_sistema.py) y datos de prueba
 ├── tools/                  # simulador, escribir_dato, métricas, capturas, trazabilidad

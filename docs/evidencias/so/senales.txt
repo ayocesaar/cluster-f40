@@ -1,14 +1,14 @@
 == Terminacion por senal (tema 3.2) ==
 Comando: kill -TERM PID; wait PID; echo $?
-Fecha: 2026-11-24 01:22:10  Kernel: 5.15.0-203-generic
+Fecha: 2026-11-24 02:03:18  Kernel: 5.15.0-203-generic
 
-kill -TERM 1854 -> codigo de salida del cluster: 0 (0 = cierre ordenado)
+kill -TERM 4443 -> codigo de salida del cluster: 0 (0 = cierre ordenado)
 
 -- Ultimas lineas de eventos.log --
-2026-11-24T01:22:10-06:00 INFO  lector_datos valor_actualizado presion_turbo=1.03 resultado=aceptado
-2026-11-24T01:22:10-06:00 INFO  sistema senal_recibida SIGTERM cierre ordenado
-2026-11-24T01:22:10-06:00 INFO  odometro odometro_guardado km=0.004 resultado=aceptado
-2026-11-24T01:22:10-06:00 INFO  sistema fin info=95 warn=0 error=0
+2026-11-24T02:03:18-06:00 INFO  lector_datos valor_actualizado presion_turbo=0.73 resultado=aceptado
+2026-11-24T02:03:18-06:00 INFO  sistema senal_recibida SIGTERM cierre ordenado
+2026-11-24T02:03:18-06:00 INFO  odometro odometro_guardado km=0.003 resultado=aceptado
+2026-11-24T02:03:18-06:00 INFO  sistema fin info=76 warn=0 error=0
 
 -- Kilometraje guardado al cerrar (tema 5.1: lo que debe sobrevivir al apagado) --
-0.004462
+0.002826

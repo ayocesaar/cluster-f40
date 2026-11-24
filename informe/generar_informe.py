@@ -677,10 +677,11 @@ def construir():
         "un selector de direccional) y el clúster los muestra en 5 medidores de aguja y 5 testigos luminosos. "
         "Los rangos y umbrales son parámetros didácticos definidos por la especificación del curso.")
     doc.add_paragraph(
-        "La interfaz tiene una estética 8-bit inspirada en la distribución del tablero del F40: velocímetro y "
-        "tacómetro grandes al centro, medidores chicos a los lados y los dos testigos críticos arriba, entre las "
-        "esferas. Agujas, esferas y escalas se dibujan con bloques de pixeles; los testigos 6, 7 y 8 van dentro de "
-        "las esferas. Se abre en Windows, Linux y macOS con Python 3.10 o superior (ver README.md).")
+        "La interfaz se inspira en el cuadro del F40: capota negra mate sobre un tablero de fieltro gris, tacómetro "
+        "grande al centro (zona roja desde 8000 RPM), velocímetro a la derecha con el odómetro de tambor, turbo a la "
+        "izquierda y los medidores de aceite y agua a un lado; esferas negras con numerales de época y agujas cónicas. "
+        "Los testigos 6 a 10 van en una barra aparte con su símbolo; los críticos 9 y 10 son rectángulos con marco "
+        "rojo. Se abre en Windows, Linux y macOS con Python 3.10 o superior (ver README.md).")
     doc.add_paragraph("Arquitectura del software:")
     tabla(doc, ["Módulo", "Responsabilidad"], [
         ("logic/estado.py", "Estado del clúster y reglas R01–R08; valida las entradas; sin dependencias de interfaz."),

@@ -403,7 +403,7 @@ def construir():
     doc.add_heading("2. Introducción", level=1)
     doc.add_paragraph(
         "El sistema bajo prueba simula el clúster de instrumentos de un Ferrari F40 (1987): diez elementos que se "
-        "controlan con datos externos, se validan, se dibujan en una interfaz Tkinter de estética 8-bit y se registran "
+        "controlan con datos externos, se validan, se dibujan en una interfaz Tkinter inspirada en el cuadro del F40 y se registran "
         "en bitácoras, más un odómetro (elemento 11) que se calcula a partir de la velocidad. No hay ECU ni sensores "
         "reales; los rangos son parámetros didácticos.")
     doc.add_paragraph(
