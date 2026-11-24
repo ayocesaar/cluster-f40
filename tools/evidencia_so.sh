@@ -28,14 +28,14 @@ printf 'velocidad=\xef\xbc\x95\n' > "$trabajo/digito_no_ascii.conf"
 
 # 2.1 Llamadas al sistema y 4.1 inodo: escritura atomica de escribir_dato.py
 ls -li "$datos" > "$trabajo/inodo_antes.txt"
-strace -f -e trace=openat,write,fsync,fchmod,rename,flock -o "$trabajo/strace.txt" \
+strace -f -e trace=openat,write,fsync,chmod,fchmod,fchmodat,rename,flock -o "$trabajo/strace.txt" \
     "$py" "$raiz/tools/escribir_dato.py" --archivo "$datos" velocidad=88 > /dev/null
 ls -li "$datos" > "$trabajo/inodo_despues.txt"
 {
     encabezado "Llamadas al sistema de una escritura atomica (temas 2.1, 4.3 y 4.4)" \
-        "strace -f -e trace=openat,write,fsync,fchmod,rename,flock python tools/escribir_dato.py velocidad=88"
+        "strace -f -e trace=openat,write,fsync,chmod,fchmod,fchmodat,rename,flock python tools/escribir_dato.py velocidad=88"
     echo "Se muestran solo las llamadas sobre el archivo de datos, su temporal y su candado:"
-    grep -E 'vehiculo|\.tmp|lock|fsync|flock|rename' "$trabajo/strace.txt" | grep -v ENOENT | sed 's/^[0-9]* *//'
+    grep -E 'vehiculo|\.tmp|lock|fsync|flock|rename|write\([0-9]+, "# Datos' "$trabajo/strace.txt" | grep -v ENOENT | sed 's/^[0-9]* *//'
     echo
     echo "Lectura: flock(LOCK_EX) serializa escritores; write+fsync guardan el temporal; rename lo publica de forma atomica."
 } > "$salida/llamadas_al_sistema.txt"
@@ -62,7 +62,7 @@ sleep 6
     echo
     ps -o pid,ppid,stat,ni,pri,nlwp,rss,vsz,cmd -p "$sim","$app"
     echo
-    echo "-- Hilos del cluster (ps -L): hilo principal de Tkinter + hilo lector --"
+    echo "-- Hilos del cluster (ps -L): principal (Tkinter), lector (HiloLector) y uno interno de la biblioteca Tcl/Tk --"
     ps -L -o pid,lwp,stat,pcpu,comm -p "$app"
     echo
     echo "-- Arbol de procesos --"
