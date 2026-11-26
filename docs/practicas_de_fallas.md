@@ -1,4 +1,4 @@
-# Prácticas de fallas automáticas y física del F40 (Etapa 21)
+# Prácticas de fallas automáticas y física del F40 (Etapas 21 y 22)
 
 ## Prácticas de fallas (botones del panel)
 
@@ -18,7 +18,7 @@ El tablero lo muestra en vivo, la consola narra cada paso y al final dice APROBA
 | Fuga de aceite | Inyecta la fuga con el motor en ralentí, apaga e intenta arrancar | Testigo 9 y WARN; no arranca; STOP · ACEITE; tras el taller arranca |
 | Sobrecalentamiento | Radiador dañado manejando a 60 km/h | Agua en rojo (R04); la ECU corta a 120 °C; caliente no arranca; reparado y frío arranca |
 | Turbo | Sobrepresión a fondo en 2a | Contorno ámbar (R05); corte enclavado; tras reparar arranca |
-| Frenos | Frenada a fondo desde 100 km/h sana y con la falla | Testigo 10; distancia más de 2.5 veces mayor (por ejemplo 31 m contra 113 m) |
+| Frenos | Frenada a fondo desde 100 km/h sana y con la falla | Testigo 10; distancia más de 2.5 veces mayor (lo medido está en `docs/evidencias/practicas.txt`) |
 | Puertas | Acelera con la puerta abierta; la abre a 40 km/h | No avanza (interbloqueo); WARN de puerta en movimiento (R09) |
 | Cinturón | Contacto y manejo sin abrochar | Testigo 13; WARN sobre 10 km/h (R10); al abrochar se apaga |
 | Combustible | Reserva y luego 80 mL | Reserva y WARN (R11); se apaga; no arranca hasta llenar |
@@ -26,7 +26,7 @@ El tablero lo muestra en vivo, la consola narra cada paso y al final dice APROBA
 | Batería débil | Intenta arrancar al 6 % | No arranca; el motor de arranque gira lento; cargada arranca |
 | Weber-Marelli | Un banco sin encendido | Ralentí irregular sin testigo; 40–80 km/h en 2a mucho más lento |
 | Limitador | 1a a fondo | Tacómetro en rojo (R03); nunca pasa de 8200 rpm |
-| Lluvia sin ABS | Pista mojada | Patina al acelerar; se bloquea al frenar a fondo; dosificando frena en menos distancia |
+| Lluvia sin ABS | Pista mojada | Patina al acelerar; se bloquea al frenar a fondo; dosificando (70 %) frena en menos distancia |
 | 0-100 km/h | Salida con el turbo cargado y cambios a 7600 rpm | Tiempo dentro del rango publicado (3.5 a 5.0 s; la cifra más citada es 4.1 s) |
 | Velocímetro | Velocidad constante a 80 km/h, sano y descalibrado | Sano nunca indica menos (R39); descalibrado indica menos |
 
@@ -52,7 +52,13 @@ panel muestra la palanca y los pedales del robot).
 | Turbos | Dos IHI a 1.1 bar | Wikipedia, supercars.net | Presión nominal del modelo |
 | Sin ABS, sin control de tracción, sin dirección asistida ni servofreno | — | Revista de Ferrari, Top Gear, Octane | Las llantas patinan y se bloquean |
 | 0–100 km/h | 4.1 s (la más citada; hay pruebas de 3.5 a 5.0 s) | auto-data, fastestlaps | Calibración del empuje: el modelo da unos 4.7 s en la práctica |
-| Velocidad máxima | 324 km/h | Fichas publicadas | Calibración de la resistencia del aire: el modelo da unos 326 km/h |
+| Velocidad máxima | 324 km/h | ADAC (datos del fabricante) | Calibración de la resistencia del aire: el modelo da unos 326 km/h |
+| Línea roja | 7750 rpm | Hagerty, supercars.net (Etapa 22) | rpm de referencia de las velocidades por marcha |
+| Relaciones de la caja | 2.769 / 1.722 / 1.227 / 0.963 / 0.767 | Foro GT Planet que cita a Auto Motor und Sport (1989); cars-data.com (Etapa 22) | Velocidad de cada marcha a 7750 rpm: 90 / 144.7 / 203.1 / 258.8 / 324.9 km/h |
+| Frenada | 60 a 0 mph en 119 ft (36.3 m) | duPont Registry (Etapa 22; no nombra la prueba) | Frenado a fondo de 34.6 km/h por segundo (CP-211) |
+| Consumo normalizado | ciudad 18.4, 90 km/h 8.6 y 120 km/h 10.3 L/100 km | ADAC, datos del fabricante (Etapa 22) | Calibración del consumo por potencia (CP-214; `docs/evidencias/consumo.txt`) |
+| Peso | 1250 kg en orden de marcha (UE); 1100 kg en seco | ADAC; evo (Etapa 22) | Masa del modelo: 1350 kg (1250 más unos 100 kg de prueba) |
+| Llantas y compresión | 245/40 ZR17 y 335/35 ZR17; 7.8:1 | ADAC; Auto Motor und Sport y supercars.net (Etapa 22) | Referencia (el modelo no las usa) |
 
 - **Curva de par:** entre los dos puntos verificados la curva es aproximada. Bajo 2500 rpm, o
   mientras el turbo carga, el motor empuja como uno atmosférico, así que se siente el retraso del
@@ -65,6 +71,16 @@ panel muestra la palanca y los pedales del robot).
   130 °C y vuelve a normal con 125 °C o menos.
 - **Agujas con inercia:** en cada refresco de 50 ms la aguja recorre el 35 % del camino que le falta,
   como un instrumento analógico. El color y la cifra cambian de inmediato.
-- **Pendiente de verificar:** las relaciones de marcha (una sola fuente), el peso (de 1100 a
-  1235 kg según la fuente), las rpm del limitador y la forma exacta de la curva entre los puntos
-  verificados.
+- **Velocidades por marcha (Etapa 22):** salen de las relaciones de la caja con la 1a a 90 km/h a 7750 rpm. Las
+  demás quedan en 144.7, 203.1, 258.8 y 324.9 km/h; la prueba citada de Auto Motor und Sport da 90, 144 y 201 km/h al
+  cambiar entre 7400 y 7700 rpm (CP-210). Por eso el manejo normal cambia a 4000 rpm: a 4500 rpm la 2a ya pasaba de
+  80 km/h y no se llegaba a la 3a.
+- **Consumo por potencia (Etapa 22):** consumo = 2 L/h en ralentí + 0.4 L/h por cada 1000 rpm más + potencia entregada /
+  (25 % × 32 MJ/L). Con las tres pruebas de consumo de UN R84 (4 ciclos urbanos, 90 y 120 km/h constantes) el modelo
+  queda a ± 10 % del consumo del fabricante (CP-214, `python3 tools/consumo.py`). El rendimiento y el término de las rpm
+  se calibraron: no son datos del F40.
+- **Frenado (Etapa 22):** 34.6 km/h por segundo a fondo para que de 60 mph pare en 36.3 m, como la cifra publicada. Así
+  dosificar en mojado sigue frenando antes que bloquear, pero hay que pisar 70 % (con 55 % ya no alcanza).
+- **Pendiente de verificar:** la prueba de origen de la frenada y de las relaciones (fuentes secundarias), las rpm del
+  limitador real y la forma exacta de la curva de par entre los puntos verificados. Lista completa en
+  `docs/realismo_y_liberacion.md`, sección 6.

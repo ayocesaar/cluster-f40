@@ -221,11 +221,16 @@
 | CP-207 | Practicas de fallas, par motor, adherencia y aceite | R14 | el aceite sigue al agua mas lento y se calienta con la carga; la clave temp_aceite (0-160 C) llega al elemento 17, que se pone en rojo sobre 130 C y vuelve a normal con 125 C o menos (R14) con WARN e INFO. | `test_practicas.py::test_cp207_temperatura_de_aceite` | PASS |
 | CP-208 | Practicas de fallas, par motor, adherencia y aceite | - | las agujas se mueven con inercia de instrumento analogico (un refresco recorre solo parte del camino y en unos 15 llegan), pero el color y la cifra cambian de inmediato; la barra del elemento 17 dibuja la temperatura de aceite. | `test_practicas.py::test_cp208_agujas_con_inercia_y_barra_de_aceite` | PASS |
 | CP-209 | Practicas de fallas, par motor, adherencia y aceite | - | tools/practicas.py corre una o todas las practicas, escribe el reporte con cada verificacion y termina con 0 cuando todas aprueban. | `test_practicas.py::test_cp209_herramienta_de_practicas_deja_evidencia` | PASS |
+| CP-210 | Datos verificados: marchas, frenado de 1987, R84 y consumo | - | la velocidad de cada marcha a la linea roja (7750 rpm) sigue las relaciones verificadas de la caja (2.769, 1.722, 1.227, 0.963 y 0.767): velocidad x relacion es la misma en las cinco; 1a a 90 km/h y 2a y 3a como la prueba citada (144 y 201 km/h entre 7400 y 7700 rpm, a 2 % o menos); 5a cerca de la maxima publicada de 324 km/h. | `test_verificacion.py::test_cp210_velocidades_por_marcha_con_las_relaciones_verificadas` | PASS |
+| CP-211 | Datos verificados: marchas, frenado de 1987, R84 y consumo | R13 | con el freno a fondo el modelo para de 60 mph (96.56 km/h) en 36.3 m +- 1 m, como la prueba publicada (119 ft); la formula de la Directiva 71/320/CEE vigente en 1987 para M1 da 50.7 m a 80 km/h; L03 exige ese criterio y el de R13-H: la unidad sana pasa los dos y con un circuito perdido falla los dos. | `test_verificacion.py::test_cp211_frenado_calibrado_y_directiva_71_320_de_1987` | PASS |
+| CP-212 | Datos verificados: marchas, frenado de 1987, R84 y consumo | - | el consumo sale de la potencia entregada: 2 L/h en ralenti, mas con las rpm y mucho mas a plena carga; a velocidad constante gasta mas a 120 que a 90 km/h; la masa sigue el peso en orden de marcha publicado (1250 kg) mas la carga de prueba. | `test_verificacion.py::test_cp212_consumo_por_potencia` | PASS |
+| CP-213 | Datos verificados: marchas, frenado de 1987, R84 y consumo | R84 | la tolerancia de UN R84 (+-1 km/h con +-0.5 s, fuera a lo mas 0.5 s seguidos) acepta seguir el perfil con un retraso de 0.4 s y rechaza ir 1.5 km/h abajo durante 1 s; el robot del banco recorre el ECE-15 sin salir de ella y L06 la exige. | `test_verificacion.py::test_cp213_tolerancia_r84_del_ciclo_urbano` | PASS |
+| CP-214 | Datos verificados: marchas, frenado de 1987, R84 y consumo | R84 | las tres pruebas de consumo de UN R84 sobre el modelo (4 ciclos urbanos, 90 y 120 km/h) quedan a +-10 % del consumo del fabricante que publica ADAC (18.4, 8.6 y 10.3 L/100 km); tools/consumo.py deja la evidencia y termina con 0. | `test_verificacion.py::test_cp214_consumo_normalizado_contra_el_fabricante` | PASS |
 
 ## Resumen
 
-- Casos de prueba: 219
-- Pasaron: 219
+- Casos de prueba: 224
+- Pasaron: 224
 - Fallo esperado por defecto abierto (XFAIL): 0
 - Fallaron / otros: 0
 
@@ -245,8 +250,9 @@
 | R10 | CP-168 |
 | R11 | CP-169, CP-177 |
 | R12 | CP-170, CP-172, CP-173, CP-174, CP-177 |
-| R13 | CP-166, CP-179, CP-197 |
+| R13 | CP-166, CP-179, CP-197, CP-211 |
 | R14 | CP-207 |
 | R39 | CP-179, CP-182 |
+| R84 | CP-213, CP-214 |
 
 Requisitos sin casos: ninguno

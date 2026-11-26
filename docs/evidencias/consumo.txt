@@ -1,0 +1,10 @@
+CONSUMO NORMALIZADO - modelo del panel (panel/fisica.py) contra el dato del fabricante (ADAC)
+Pruebas de UN R84: ciclo urbano (4 ciclos ECE-15 desde frio) y 90 y 120 km/h constantes.
+Modelo: 2 L/h en ralenti + 0.4 L/h por cada 1000 rpm + potencia / (0.25 x 32 MJ/L); masa 1350 kg.
+Tolerancia del modelo: +-10 % (criterio del equipo).
+
+  OK  ciudad    modelo  17.3 L/100 km  publicado  18.4  (-5.8 %)  4 ciclos, 3.943 km; fuera de tolerancia 0.00 s
+  OK  90 km/h   modelo   8.9 L/100 km  publicado   8.6  (+4.1 %)  5a; velocidad a +-0.00 km/h
+  OK  120 km/h  modelo  10.4 L/100 km  publicado  10.3  (+1.2 %)  5a; velocidad a +-0.00 km/h
+
+Resultado: 3/3 pruebas de consumo dentro de la tolerancia (2.2 s de calculo)

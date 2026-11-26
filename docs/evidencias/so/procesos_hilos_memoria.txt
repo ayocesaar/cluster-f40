@@ -1,40 +1,40 @@
 == Procesos e hilos del cluster (temas 3.1, 3.2 y 3.4) ==
 Comando: ps, pstree, /proc/PID/status
-Fecha: 2026-11-26 16:51:10  Kernel: 5.15.0-204-generic
+Fecha: 2026-11-26 17:51:46  Kernel: 5.15.0-204-generic
 
-Shell (PID 5453) -> fork+exec de dos procesos: simulador (productor, PID 5480) y cluster (consumidor, PID 5481)
+Shell (PID 9115) -> fork+exec de dos procesos: simulador (productor, PID 9142) y cluster (consumidor, PID 9143)
 
     PID    PPID STAT  NI PRI NLWP   RSS    VSZ CMD
-   5480    5453 S      0  19    1 13608  21016 python /home/ayocesaar/cluster-f40/tools/simulador.py --archivo /tmp/evidencia_so.szGcNu/datos/vehiculo.conf --periodo-ms 100 --duracion-s 20
-   5481    5453 Sl     0  19    4 28776 193956 python /home/ayocesaar/cluster-f40/main.py --proyecto /tmp/evidencia_so.szGcNu
+   9142    9115 S      0  19    1 13680  21020 python /home/ayocesaar/cluster-f40/tools/simulador.py --archivo /tmp/evidencia_so.yG5yAB/datos/vehiculo.conf --periodo-ms 100 --duracion-s 20
+   9143    9115 Sl     0  19    4 28576 193956 python /home/ayocesaar/cluster-f40/main.py --proyecto /tmp/evidencia_so.yG5yAB
 
 -- Hilos del cluster (ps -L): principal (Tkinter), lector (HiloLector) y uno interno de la biblioteca Tcl/Tk --
     PID     LWP STAT %CPU COMMAND
-   5481    5481 Sl   15.8 python
-   5481    5483 Sl    0.2 python
-   5481    5484 Sl    1.2 python
-   5481    5485 Sl    0.2 python
+   9143    9143 Sl    4.1 python
+   9143    9145 Sl    0.0 python
+   9143    9146 Sl    0.4 python
+   9143    9147 Sl    0.0 python
 
 -- Arbol de procesos --
-bash(5453)-+-pstree(5490)
-           |-python(5480)
-           |-python(5481)-+-{python}(5483)
-           |              |-{python}(5484)
-           |              `-{python}(5485)
-           `-sed(5491)
+bash(9115)-+-pstree(9152)
+           |-python(9142)
+           |-python(9143)-+-{python}(9145)
+           |              |-{python}(9146)
+           |              `-{python}(9147)
+           `-sed(9153)
 
--- Memoria virtual y residente (tema 5.3): /proc/5481/status --
+-- Memoria virtual y residente (tema 5.3): /proc/9143/status --
 Name:	python
 State:	S (sleeping)
 VmPeak:	  251296 kB
 VmSize:	  193956 kB
-VmRSS:	   28776 kB
+VmRSS:	   28576 kB
 VmSwap:	       0 kB
 Threads:	4
-voluntary_ctxt_switches:	1012
-nonvoluntary_ctxt_switches:	682
+voluntary_ctxt_switches:	1365
+nonvoluntary_ctxt_switches:	309
 
 -- Archivos abiertos por el cluster (descriptores, tema 4.3) --
-4 -> /tmp/evidencia_so.szGcNu/logs/eventos.log
-5 -> /tmp/evidencia_so.szGcNu/logs/errores.log
-6 -> /tmp/evidencia_so.szGcNu/datos/odometro.txt.lock
+4 -> /tmp/evidencia_so.yG5yAB/logs/eventos.log
+5 -> /tmp/evidencia_so.yG5yAB/logs/errores.log
+6 -> /tmp/evidencia_so.yG5yAB/datos/odometro.txt.lock

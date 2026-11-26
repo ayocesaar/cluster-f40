@@ -51,7 +51,8 @@ pruebas automatizadas con pytest y medicion de cobertura con coverage.
 | test_sonido | 7 | 7 | 0 | 0 |
 | Integracion UI (Tkinter) | 6 | 6 | 0 | 0 |
 | Transicion de estados | 11 | 11 | 0 | 0 |
-| **Total** | **273** | **273** | **0** | **0** |
+| test_verificacion | 5 | 5 | 0 | 0 |
+| **Total** | **278** | **278** | **0** | **0** |
 
 Las ejecuciones cuentan cada variante parametrizada por separado; la matriz de
 trazabilidad agrupa por caso de prueba (CP).
@@ -78,7 +79,7 @@ de las pruebas y el resultado de junit.
 
 ## 7. Defectos
 
-- Defectos registrados: 16
+- Defectos registrados: 17
 - Defectos abiertos: 0
 - DEF-01 (testigo 10 parpadeando con el motor apagado) fue rechazado: R08
   no condiciona el testigo al motor. Se revirtio la correccion de la Etapa 7
@@ -117,4 +118,4 @@ de las pruebas y el resultado de junit.
 
 ## 10. Conclusion
 
-Las 273 ejecuciones pasan, la cobertura de la logica es completa y no quedan defectos abiertos: la logica cumple R01-R08 segun las pruebas definidas.
+Las 278 ejecuciones pasan, la cobertura de la logica es completa y no quedan defectos abiertos: la logica cumple R01-R08 segun las pruebas definidas.

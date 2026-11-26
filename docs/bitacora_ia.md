@@ -377,3 +377,25 @@
   velocímetro ahora usa la velocidad del momento de la lectura.
 - Pruebas nuevas: CP-203 a CP-209 (tests/test_practicas.py; CP-203 corre las 15 prácticas). Pruebas
   anteriores: sin cambios (huella sha256).
+
+## Etapa 22 — Verificación de lo pendiente: normas de la época y datos del fabricante
+- Fecha: 2026-11-26
+- Pedido del equipo: verificar todo lo que estaba marcado como pendiente de verificar.
+- Verificado en el texto (docs/realismo_y_liberacion.md, sección 5): Directiva 71/320/CEE consolidada al
+  3-1-1986, la vigente en 1987 (M1: 80 km/h, s <= 0.1 v + v²/150, dm >= 5.8 m/s², <= 500 N); Directiva
+  75/443/CEE del velocímetro (nunca indica menos; V1 - V2 <= V2/10 + 4 km/h); UN R84 (± 1 km/h y ± 0.5 s en
+  el ciclo urbano; 90 y 120 km/h a ± 2 km/h); FMVSS 208 S7.3 en el CFR de 1996; datos del fabricante en
+  ADAC (1250 kg, 120 L, consumo 18.4 / 8.6 / 10.3 L/100 km, llantas); 1100 kg en seco (evo); línea roja
+  7750 rpm (Hagerty, supercars.net); relaciones de la caja (dos fuentes secundarias); 60-0 mph en 119 ft
+  (duPont Registry). Varias páginas respondieron 403 (NHTSA, FastestLaps, cars-data): no se usan como fuente.
+- Banco: L03 exige también el criterio de 1987 y L06 la tolerancia de UN R84 (antes ± 2 km/h del equipo).
+- Modelo: velocidades por marcha con las relaciones verificadas; frenado a fondo calibrado con la frenada
+  publicada (34.6 km/h por segundo); consumo por potencia calibrado con el consumo del fabricante
+  (tools/consumo.py, docs/evidencias/consumo.txt); masa justificada con el peso en orden de marcha.
+- Ajustes del robot (no de las pruebas): el manejo normal cambia a 4000 rpm (la 2a más larga ya no llegaba a
+  la 3a antes de 80 km/h) y en mojado dosifica al 70 %. DEF-17: el embrague quedaba a fondo solo dos
+  ciclos y CP-205 podía no verlo; ahora la palanca se mueve con el embrague a fondo.
+- Discrepancia que no se cambió: R03 pone el rojo en 8000 rpm y la línea roja real es 7750 rpm; queda para
+  decidir con el profesor.
+- Pruebas nuevas: CP-210 a CP-214 (tests/test_verificacion.py). Pruebas anteriores: sin cambios (huella
+  sha256).

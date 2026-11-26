@@ -306,3 +306,24 @@ en el borde del cambio de digito. Los casos se corrigieron a 1.5 km (45 s y 15 s
 **Observado:** en b1d4fad el panel escribia la velocidad con round(v, 1): una velocidad real de 80.04 km/h se enviaba como 80.0 km/h, es decir, el tablero indicaba menos que la velocidad real. UN R39 5.3 exige 0 <= V1 - V2.
 
 **Correccion:** el sensor del panel redondea hacia arriba a la decima (Vehiculo.velocidad_indicada); la diferencia queda entre 0 y 0.1 km/h, dentro de 0.1 V2 + 4 km/h. La falla simulada "velocimetro" (indica 5 % menos) hace que L05 y L06 rechacen la unidad.
+
+## DEF-17 - El robot de las practicas pisaba el embrague a fondo solo dos ciclos
+
+| Campo | Valor |
+|-------|-------|
+| ID | DEF-17 |
+| Estado | Cerrado (Etapa 22) |
+| Severidad / prioridad | Baja / media |
+| Requisitos relacionados | Practicas de fallas: la palanca y los pedales muestran lo que hace el robot |
+| Componente | panel/practicas.py (Mando.cambiar) |
+| Detectado en | Suite completa al calibrar el frenado con el dato publicado (26-nov-2026) |
+| Caso de prueba | CP-205 (tests/test_practicas.py) |
+
+**Observado:** el robot pisaba el embrague y movia la palanca a los 0.22 s, cuando el pedal apenas llegaba al fondo
+(5 unidades por segundo): el embrague pasaba de 0.9 solo dos ciclos de 50 ms. CP-205 revisa el dibujo del panel cada tres
+ciclos, asi que verlo dependia de en que ciclo empezaba el cambio. Al acortarse la frenada con el frenado calibrado, la
+practica de puertas ya no coincidio y CP-205 fallo. La prueba no se cambio.
+
+**Correccion:** la palanca se mueve a los 0.27 s, con el embrague a fondo al menos tres ciclos, como lo haria una persona.
+Cada cambio tarda 0.05 s mas; el 0-100 de la practica sigue dentro del rango publicado.
+

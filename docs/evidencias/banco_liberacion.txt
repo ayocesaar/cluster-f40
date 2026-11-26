@@ -1,6 +1,6 @@
 BANCO DE LIBERACION DE PRODUCCION - Ferrari F40 (1987), cluster simulado
-Fecha: 2026-11-26T16:53:35-06:00  Python 3.10.12  Linux
-Normas: UN R13-H anexo 3 (frenado), UN R39 (velocimetro), ciclo ECE-15; ver docs/realismo_y_liberacion.md. Cifras del vehiculo aproximadas.
+Fecha: 2026-11-26T17:53:55-06:00  Python 3.10.12  Linux
+Normas: UN R13-H anexo 3 y Directiva 71/320/CEE de 1986 (frenado), UN R39 y Directiva 75/443/CEE (velocimetro), ciclo ECE-15 con las tolerancias de UN R84; ver docs/realismo_y_liberacion.md.
 
 Unidad: sin fallas
   L01 APROBADA  Arranque, ralenti y presion de aceite  [Fin de linea (criterio del equipo)]
@@ -9,18 +9,18 @@ Unidad: sin fallas
   L02 APROBADA  Prueba de testigos al dar contacto  [UN R13-H 5.2.21.4]
        criterio: Todos encienden 2 s y se apagan si no hay falla (9, 10, 13 y 15 apagados)
        medido:   encendidos en la prueba: 10/10; despues de 2 s: ninguno
-  L03 APROBADA  Frenado tipo 0 (en frio)  [UN R13-H anexo 3, 2.1.1 A]
-       criterio: Desde 100 km/h: s <= 70 m y dm >= 6.43 m/s2
-       medido:   s = 30.1 m, dm = 12.78 m/s2
+  L03 APROBADA  Frenado tipo 0 (en frio)  [UN R13-H anexo 3, 2.1.1 A y Directiva 71/320/CEE (1986)]
+       criterio: Desde 100 km/h: s <= 70 m y dm >= 6.43 m/s2; de 1987 (M1), desde 80 km/h: s <= 50.7 m y dm >= 5.8 m/s2
+       medido:   s = 38.9 m, dm = 9.89 m/s2; desde 80 km/h: s = 25.0 m, dm = 9.89 m/s2
   L04 APROBADA  Frenado tipo I (perdida de eficiencia en caliente)  [UN R13-H anexo 3, 1.5]
        criterio: 15 frenadas 120->60 km/h cada 45 s; en caliente dm >= 75 % de 6.43 y >= 60 % del valor en frio
-       medido:   frenos a 438 C; dm caliente 10.99 m/s2 (frio 12.78; minimo 7.67)
+       medido:   frenos a 438 C; dm caliente 8.52 m/s2 (frio 9.89; minimo 5.94)
   L05 APROBADA  Exactitud del velocimetro  [UN R39 5.2.5, 5.3 y anexo 3]
        criterio: A 40, 80 y 120 km/h: 0 <= V1 - V2 <= 0.1 V2 + 4 km/h (nunca indica menos)
        medido:   V1 - V2 en km/h: 40: +0.00 a +0.00; 80: +0.00 a +0.00; 120: +0.00 a +0.00
-  L06 APROBADA  Ciclo urbano ECE-15 y odometro  [ECE-15 (prueba tipo I de emisiones)]
-       criterio: 195 s y 0.99403 km (+-2 %); seguimiento <= 2 km/h; odometro del cuadro a <= 1 % de la distancia real
-       medido:   error maximo 1.22 km/h; distancia real 0.9857 km; odometro del cuadro 0.9871 km (0.15 %); consumo 21.3 L/100 km (informativo)
+  L06 APROBADA  Ciclo urbano ECE-15 y odometro  [ECE-15; tolerancias de UN R84 anexo 5]
+       criterio: 195 s y 0.99403 km (+-2 %); +-1 km/h y +-0.5 s (fuera a lo mas 0.5 s seguidos); odometro del cuadro a <= 1 % de la distancia real
+       medido:   diferencia maxima en el mismo instante 1.22 km/h; fuera de +-1 km/h y +-0.5 s: 0.00 s; distancia real 0.9857 km; odometro del cuadro 0.9871 km (0.15 %); consumo de un ciclo 17.3 L/100 km (informativo)
   L07 APROBADA  Enfriamiento a carga sostenida  [Criterio del equipo (no es una norma)]
        criterio: 300 s a 250 km/h sin pasar de 110 C (R04) ni detener el motor
        medido:   agua maxima 96.4 C en 300 s a 250 km/h
@@ -39,18 +39,18 @@ Unidad: fuga_aceite
   L02 APROBADA  Prueba de testigos al dar contacto  [UN R13-H 5.2.21.4]
        criterio: Todos encienden 2 s y se apagan si no hay falla (9, 10, 13 y 15 apagados)
        medido:   encendidos en la prueba: 10/10; despues de 2 s: ninguno
-  L03 APROBADA  Frenado tipo 0 (en frio)  [UN R13-H anexo 3, 2.1.1 A]
-       criterio: Desde 100 km/h: s <= 70 m y dm >= 6.43 m/s2
-       medido:   s = 30.1 m, dm = 12.78 m/s2
+  L03 APROBADA  Frenado tipo 0 (en frio)  [UN R13-H anexo 3, 2.1.1 A y Directiva 71/320/CEE (1986)]
+       criterio: Desde 100 km/h: s <= 70 m y dm >= 6.43 m/s2; de 1987 (M1), desde 80 km/h: s <= 50.7 m y dm >= 5.8 m/s2
+       medido:   s = 38.9 m, dm = 9.89 m/s2; desde 80 km/h: s = 25.0 m, dm = 9.89 m/s2
   L04 APROBADA  Frenado tipo I (perdida de eficiencia en caliente)  [UN R13-H anexo 3, 1.5]
        criterio: 15 frenadas 120->60 km/h cada 45 s; en caliente dm >= 75 % de 6.43 y >= 60 % del valor en frio
-       medido:   frenos a 438 C; dm caliente 10.99 m/s2 (frio 12.78; minimo 7.67)
+       medido:   frenos a 438 C; dm caliente 8.52 m/s2 (frio 9.89; minimo 5.94)
   L05 APROBADA  Exactitud del velocimetro  [UN R39 5.2.5, 5.3 y anexo 3]
        criterio: A 40, 80 y 120 km/h: 0 <= V1 - V2 <= 0.1 V2 + 4 km/h (nunca indica menos)
        medido:   V1 - V2 en km/h: 40: +0.00 a +0.00; 80: +0.00 a +0.00; 120: +0.00 a +0.00
-  L06 RECHAZADA Ciclo urbano ECE-15 y odometro  [ECE-15 (prueba tipo I de emisiones)]
-       criterio: 195 s y 0.99403 km (+-2 %); seguimiento <= 2 km/h; odometro del cuadro a <= 1 % de la distancia real
-       medido:   error maximo 9.21 km/h; distancia real 0.9687 km; odometro del cuadro 0.9700 km (0.14 %); consumo 19.3 L/100 km (informativo); ECU: motor detenido por falta de aceite (fuga, nivel bajo o presion insuficiente) (R12). No arranca hasta reparar.
+  L06 RECHAZADA Ciclo urbano ECE-15 y odometro  [ECE-15; tolerancias de UN R84 anexo 5]
+       criterio: 195 s y 0.99403 km (+-2 %); +-1 km/h y +-0.5 s (fuera a lo mas 0.5 s seguidos); odometro del cuadro a <= 1 % de la distancia real
+       medido:   diferencia maxima en el mismo instante 9.75 km/h; fuera de +-1 km/h y +-0.5 s: 13.75 s; distancia real 0.9663 km; odometro del cuadro 0.9676 km (0.14 %); consumo de un ciclo 15.4 L/100 km (informativo); ECU: motor detenido por falta de aceite (fuga, nivel bajo o presion insuficiente) (R12). No arranca hasta reparar.
   L07 RECHAZADA Enfriamiento a carga sostenida  [Criterio del equipo (no es una norma)]
        criterio: 300 s a 250 km/h sin pasar de 110 C (R04) ni detener el motor
        medido:   agua maxima 96.4 C en 188 s a 250 km/h; ECU: motor detenido por falta de aceite (fuga, nivel bajo o presion insuficiente) (R12). No arranca hasta reparar.
@@ -69,18 +69,18 @@ Unidad: radiador
   L02 APROBADA  Prueba de testigos al dar contacto  [UN R13-H 5.2.21.4]
        criterio: Todos encienden 2 s y se apagan si no hay falla (9, 10, 13 y 15 apagados)
        medido:   encendidos en la prueba: 10/10; despues de 2 s: ninguno
-  L03 APROBADA  Frenado tipo 0 (en frio)  [UN R13-H anexo 3, 2.1.1 A]
-       criterio: Desde 100 km/h: s <= 70 m y dm >= 6.43 m/s2
-       medido:   s = 30.1 m, dm = 12.78 m/s2
+  L03 APROBADA  Frenado tipo 0 (en frio)  [UN R13-H anexo 3, 2.1.1 A y Directiva 71/320/CEE (1986)]
+       criterio: Desde 100 km/h: s <= 70 m y dm >= 6.43 m/s2; de 1987 (M1), desde 80 km/h: s <= 50.7 m y dm >= 5.8 m/s2
+       medido:   s = 38.9 m, dm = 9.89 m/s2; desde 80 km/h: s = 25.0 m, dm = 9.89 m/s2
   L04 APROBADA  Frenado tipo I (perdida de eficiencia en caliente)  [UN R13-H anexo 3, 1.5]
        criterio: 15 frenadas 120->60 km/h cada 45 s; en caliente dm >= 75 % de 6.43 y >= 60 % del valor en frio
-       medido:   frenos a 438 C; dm caliente 10.99 m/s2 (frio 12.78; minimo 7.67)
+       medido:   frenos a 438 C; dm caliente 8.52 m/s2 (frio 9.89; minimo 5.94)
   L05 APROBADA  Exactitud del velocimetro  [UN R39 5.2.5, 5.3 y anexo 3]
        criterio: A 40, 80 y 120 km/h: 0 <= V1 - V2 <= 0.1 V2 + 4 km/h (nunca indica menos)
        medido:   V1 - V2 en km/h: 40: +0.00 a +0.00; 80: +0.00 a +0.00; 120: +0.00 a +0.00
-  L06 RECHAZADA Ciclo urbano ECE-15 y odometro  [ECE-15 (prueba tipo I de emisiones)]
-       criterio: 195 s y 0.99403 km (+-2 %); seguimiento <= 2 km/h; odometro del cuadro a <= 1 % de la distancia real
-       medido:   error maximo 50.00 km/h; distancia real 0.1423 km; odometro del cuadro 0.1429 km (0.43 %); consumo 33.6 L/100 km (informativo); ECU: motor detenido por sobretemperatura del agua (>= 120 C) (R12). No arranca hasta reparar.
+  L06 RECHAZADA Ciclo urbano ECE-15 y odometro  [ECE-15; tolerancias de UN R84 anexo 5]
+       criterio: 195 s y 0.99403 km (+-2 %); +-1 km/h y +-0.5 s (fuera a lo mas 0.5 s seguidos); odometro del cuadro a <= 1 % de la distancia real
+       medido:   diferencia maxima en el mismo instante 50.00 km/h; fuera de +-1 km/h y +-0.5 s: 69.15 s; distancia real 0.1423 km; odometro del cuadro 0.1429 km (0.43 %); consumo de un ciclo 26.9 L/100 km (informativo); ECU: motor detenido por sobretemperatura del agua (>= 120 C) (R12). No arranca hasta reparar.
   L07 RECHAZADA Enfriamiento a carga sostenida  [Criterio del equipo (no es una norma)]
        criterio: 300 s a 250 km/h sin pasar de 110 C (R04) ni detener el motor
        medido:   agua maxima 120.0 C en 39 s a 250 km/h; ECU: motor detenido por sobretemperatura del agua (>= 120 C) (R12). No arranca hasta reparar.
@@ -99,24 +99,24 @@ Unidad: sobrepresion_turbo
   L02 APROBADA  Prueba de testigos al dar contacto  [UN R13-H 5.2.21.4]
        criterio: Todos encienden 2 s y se apagan si no hay falla (9, 10, 13 y 15 apagados)
        medido:   encendidos en la prueba: 10/10; despues de 2 s: ninguno
-  L03 APROBADA  Frenado tipo 0 (en frio)  [UN R13-H anexo 3, 2.1.1 A]
-       criterio: Desde 100 km/h: s <= 70 m y dm >= 6.43 m/s2
-       medido:   s = 30.1 m, dm = 12.78 m/s2
+  L03 APROBADA  Frenado tipo 0 (en frio)  [UN R13-H anexo 3, 2.1.1 A y Directiva 71/320/CEE (1986)]
+       criterio: Desde 100 km/h: s <= 70 m y dm >= 6.43 m/s2; de 1987 (M1), desde 80 km/h: s <= 50.7 m y dm >= 5.8 m/s2
+       medido:   s = 38.9 m, dm = 9.89 m/s2; desde 80 km/h: s = 25.0 m, dm = 9.89 m/s2
   L04 APROBADA  Frenado tipo I (perdida de eficiencia en caliente)  [UN R13-H anexo 3, 1.5]
        criterio: 15 frenadas 120->60 km/h cada 45 s; en caliente dm >= 75 % de 6.43 y >= 60 % del valor en frio
-       medido:   frenos a 438 C; dm caliente 10.99 m/s2 (frio 12.78; minimo 7.67)
+       medido:   frenos a 438 C; dm caliente 8.52 m/s2 (frio 9.89; minimo 5.94)
   L05 APROBADA  Exactitud del velocimetro  [UN R39 5.2.5, 5.3 y anexo 3]
        criterio: A 40, 80 y 120 km/h: 0 <= V1 - V2 <= 0.1 V2 + 4 km/h (nunca indica menos)
        medido:   V1 - V2 en km/h: 40: +0.00 a +0.00; 80: +0.00 a +0.00; 120: +0.00 a +0.00
-  L06 APROBADA  Ciclo urbano ECE-15 y odometro  [ECE-15 (prueba tipo I de emisiones)]
-       criterio: 195 s y 0.99403 km (+-2 %); seguimiento <= 2 km/h; odometro del cuadro a <= 1 % de la distancia real
-       medido:   error maximo 1.22 km/h; distancia real 0.9857 km; odometro del cuadro 0.9871 km (0.15 %); consumo 21.3 L/100 km (informativo)
+  L06 APROBADA  Ciclo urbano ECE-15 y odometro  [ECE-15; tolerancias de UN R84 anexo 5]
+       criterio: 195 s y 0.99403 km (+-2 %); +-1 km/h y +-0.5 s (fuera a lo mas 0.5 s seguidos); odometro del cuadro a <= 1 % de la distancia real
+       medido:   diferencia maxima en el mismo instante 1.22 km/h; fuera de +-1 km/h y +-0.5 s: 0.00 s; distancia real 0.9857 km; odometro del cuadro 0.9871 km (0.15 %); consumo de un ciclo 17.3 L/100 km (informativo)
   L07 APROBADA  Enfriamiento a carga sostenida  [Criterio del equipo (no es una norma)]
        criterio: 300 s a 250 km/h sin pasar de 110 C (R04) ni detener el motor
        medido:   agua maxima 95.5 C en 300 s a 250 km/h
   L08 RECHAZADA Turbo y valvula de descarga a plena carga  [Criterio del equipo (umbral de R05)]
        criterio: 6 s a fondo en 3a desde 100 km/h: presion <= 1.5 bar sin corte
-       medido:   presion maxima 1.78 bar; ECU: motor detenido por sobrepresion del turbo (> 1.5 bar durante 1 s) (R12). No arranca hasta reparar.
+       medido:   presion maxima 1.77 bar; ECU: motor detenido por sobrepresion del turbo (> 1.5 bar durante 1 s) (R12). No arranca hasta reparar.
   L09 APROBADA  Interbloqueo de puertas  [Medida de seguridad agregada (el F40 de 1987 no la tenia)]
        criterio: Con la puerta abierta no avanza aunque se acelere y el testigo 12 enciende; al cerrar avanza
        medido:   puerta abierta: 0.0 km/h, testigo encendido; cerrada: 69.9 km/h en 3 s
@@ -129,18 +129,18 @@ Unidad: frenos
   L02 RECHAZADA Prueba de testigos al dar contacto  [UN R13-H 5.2.21.4]
        criterio: Todos encienden 2 s y se apagan si no hay falla (9, 10, 13 y 15 apagados)
        medido:   encendidos en la prueba: 10/10; despues de 2 s: testigo 10
-  L03 RECHAZADA Frenado tipo 0 (en frio)  [UN R13-H anexo 3, 2.1.1 A]
-       criterio: Desde 100 km/h: s <= 70 m y dm >= 6.43 m/s2
-       medido:   s = 95.0 m, dm = 4.03 m/s2
+  L03 RECHAZADA Frenado tipo 0 (en frio)  [UN R13-H anexo 3, 2.1.1 A y Directiva 71/320/CEE (1986)]
+       criterio: Desde 100 km/h: s <= 70 m y dm >= 6.43 m/s2; de 1987 (M1), desde 80 km/h: s <= 50.7 m y dm >= 5.8 m/s2
+       medido:   s = 120.7 m, dm = 3.16 m/s2; desde 80 km/h: s = 78.1 m, dm = 3.16 m/s2
   L04 RECHAZADA Frenado tipo I (perdida de eficiencia en caliente)  [UN R13-H anexo 3, 1.5]
        criterio: 15 frenadas 120->60 km/h cada 45 s; en caliente dm >= 75 % de 6.43 y >= 60 % del valor en frio
-       medido:   frenos a 438 C; dm caliente 3.52 m/s2 (frio 4.03; minimo 4.82)
+       medido:   frenos a 438 C; dm caliente 2.77 m/s2 (frio 3.16; minimo 4.82)
   L05 APROBADA  Exactitud del velocimetro  [UN R39 5.2.5, 5.3 y anexo 3]
        criterio: A 40, 80 y 120 km/h: 0 <= V1 - V2 <= 0.1 V2 + 4 km/h (nunca indica menos)
        medido:   V1 - V2 en km/h: 40: +0.00 a +0.00; 80: +0.00 a +0.00; 120: +0.00 a +0.00
-  L06 APROBADA  Ciclo urbano ECE-15 y odometro  [ECE-15 (prueba tipo I de emisiones)]
-       criterio: 195 s y 0.99403 km (+-2 %); seguimiento <= 2 km/h; odometro del cuadro a <= 1 % de la distancia real
-       medido:   error maximo 1.22 km/h; distancia real 0.9857 km; odometro del cuadro 0.9871 km (0.15 %); consumo 21.3 L/100 km (informativo)
+  L06 APROBADA  Ciclo urbano ECE-15 y odometro  [ECE-15; tolerancias de UN R84 anexo 5]
+       criterio: 195 s y 0.99403 km (+-2 %); +-1 km/h y +-0.5 s (fuera a lo mas 0.5 s seguidos); odometro del cuadro a <= 1 % de la distancia real
+       medido:   diferencia maxima en el mismo instante 1.22 km/h; fuera de +-1 km/h y +-0.5 s: 0.00 s; distancia real 0.9857 km; odometro del cuadro 0.9871 km (0.15 %); consumo de un ciclo 17.3 L/100 km (informativo)
   L07 APROBADA  Enfriamiento a carga sostenida  [Criterio del equipo (no es una norma)]
        criterio: 300 s a 250 km/h sin pasar de 110 C (R04) ni detener el motor
        medido:   agua maxima 96.4 C en 300 s a 250 km/h
@@ -159,18 +159,18 @@ Unidad: velocimetro
   L02 APROBADA  Prueba de testigos al dar contacto  [UN R13-H 5.2.21.4]
        criterio: Todos encienden 2 s y se apagan si no hay falla (9, 10, 13 y 15 apagados)
        medido:   encendidos en la prueba: 10/10; despues de 2 s: ninguno
-  L03 APROBADA  Frenado tipo 0 (en frio)  [UN R13-H anexo 3, 2.1.1 A]
-       criterio: Desde 100 km/h: s <= 70 m y dm >= 6.43 m/s2
-       medido:   s = 30.1 m, dm = 12.78 m/s2
+  L03 APROBADA  Frenado tipo 0 (en frio)  [UN R13-H anexo 3, 2.1.1 A y Directiva 71/320/CEE (1986)]
+       criterio: Desde 100 km/h: s <= 70 m y dm >= 6.43 m/s2; de 1987 (M1), desde 80 km/h: s <= 50.7 m y dm >= 5.8 m/s2
+       medido:   s = 38.9 m, dm = 9.89 m/s2; desde 80 km/h: s = 25.0 m, dm = 9.89 m/s2
   L04 APROBADA  Frenado tipo I (perdida de eficiencia en caliente)  [UN R13-H anexo 3, 1.5]
        criterio: 15 frenadas 120->60 km/h cada 45 s; en caliente dm >= 75 % de 6.43 y >= 60 % del valor en frio
-       medido:   frenos a 438 C; dm caliente 10.99 m/s2 (frio 12.78; minimo 7.67)
+       medido:   frenos a 438 C; dm caliente 8.52 m/s2 (frio 9.89; minimo 5.94)
   L05 RECHAZADA Exactitud del velocimetro  [UN R39 5.2.5, 5.3 y anexo 3]
        criterio: A 40, 80 y 120 km/h: 0 <= V1 - V2 <= 0.1 V2 + 4 km/h (nunca indica menos)
        medido:   V1 - V2 en km/h: 40: -2.00 a -2.00; 80: -4.00 a -4.00; 120: -6.00 a -6.00
-  L06 RECHAZADA Ciclo urbano ECE-15 y odometro  [ECE-15 (prueba tipo I de emisiones)]
-       criterio: 195 s y 0.99403 km (+-2 %); seguimiento <= 2 km/h; odometro del cuadro a <= 1 % de la distancia real
-       medido:   error maximo 1.22 km/h; distancia real 0.9857 km; odometro del cuadro 0.9378 km (4.85 %); consumo 21.3 L/100 km (informativo)
+  L06 RECHAZADA Ciclo urbano ECE-15 y odometro  [ECE-15; tolerancias de UN R84 anexo 5]
+       criterio: 195 s y 0.99403 km (+-2 %); +-1 km/h y +-0.5 s (fuera a lo mas 0.5 s seguidos); odometro del cuadro a <= 1 % de la distancia real
+       medido:   diferencia maxima en el mismo instante 1.22 km/h; fuera de +-1 km/h y +-0.5 s: 0.00 s; distancia real 0.9857 km; odometro del cuadro 0.9378 km (4.85 %); consumo de un ciclo 17.3 L/100 km (informativo)
   L07 APROBADA  Enfriamiento a carga sostenida  [Criterio del equipo (no es una norma)]
        criterio: 300 s a 250 km/h sin pasar de 110 C (R04) ni detener el motor
        medido:   agua maxima 96.4 C en 300 s a 250 km/h
@@ -189,18 +189,18 @@ Unidad: alternador
   L02 APROBADA  Prueba de testigos al dar contacto  [UN R13-H 5.2.21.4]
        criterio: Todos encienden 2 s y se apagan si no hay falla (9, 10, 13 y 15 apagados)
        medido:   encendidos en la prueba: 10/10; despues de 2 s: ninguno
-  L03 APROBADA  Frenado tipo 0 (en frio)  [UN R13-H anexo 3, 2.1.1 A]
-       criterio: Desde 100 km/h: s <= 70 m y dm >= 6.43 m/s2
-       medido:   s = 30.1 m, dm = 12.78 m/s2
+  L03 APROBADA  Frenado tipo 0 (en frio)  [UN R13-H anexo 3, 2.1.1 A y Directiva 71/320/CEE (1986)]
+       criterio: Desde 100 km/h: s <= 70 m y dm >= 6.43 m/s2; de 1987 (M1), desde 80 km/h: s <= 50.7 m y dm >= 5.8 m/s2
+       medido:   s = 38.9 m, dm = 9.89 m/s2; desde 80 km/h: s = 25.0 m, dm = 9.89 m/s2
   L04 APROBADA  Frenado tipo I (perdida de eficiencia en caliente)  [UN R13-H anexo 3, 1.5]
        criterio: 15 frenadas 120->60 km/h cada 45 s; en caliente dm >= 75 % de 6.43 y >= 60 % del valor en frio
-       medido:   frenos a 438 C; dm caliente 10.99 m/s2 (frio 12.78; minimo 7.67)
+       medido:   frenos a 438 C; dm caliente 8.52 m/s2 (frio 9.89; minimo 5.94)
   L05 APROBADA  Exactitud del velocimetro  [UN R39 5.2.5, 5.3 y anexo 3]
        criterio: A 40, 80 y 120 km/h: 0 <= V1 - V2 <= 0.1 V2 + 4 km/h (nunca indica menos)
        medido:   V1 - V2 en km/h: 40: +0.00 a +0.00; 80: +0.00 a +0.00; 120: +0.00 a +0.00
-  L06 APROBADA  Ciclo urbano ECE-15 y odometro  [ECE-15 (prueba tipo I de emisiones)]
-       criterio: 195 s y 0.99403 km (+-2 %); seguimiento <= 2 km/h; odometro del cuadro a <= 1 % de la distancia real
-       medido:   error maximo 1.22 km/h; distancia real 0.9857 km; odometro del cuadro 0.9872 km (0.15 %); consumo 20.9 L/100 km (informativo); ECU: motor detenido por voltaje insuficiente (la gestion Weber-Marelli se apaga bajo 10.5 V) (R12). No arranca hasta reparar.
+  L06 APROBADA  Ciclo urbano ECE-15 y odometro  [ECE-15; tolerancias de UN R84 anexo 5]
+       criterio: 195 s y 0.99403 km (+-2 %); +-1 km/h y +-0.5 s (fuera a lo mas 0.5 s seguidos); odometro del cuadro a <= 1 % de la distancia real
+       medido:   diferencia maxima en el mismo instante 1.22 km/h; fuera de +-1 km/h y +-0.5 s: 0.00 s; distancia real 0.9857 km; odometro del cuadro 0.9872 km (0.15 %); consumo de un ciclo 16.9 L/100 km (informativo); ECU: motor detenido por voltaje insuficiente (la gestion Weber-Marelli se apaga bajo 10.5 V) (R12). No arranca hasta reparar.
   L07 RECHAZADA Enfriamiento a carga sostenida  [Criterio del equipo (no es una norma)]
        criterio: 300 s a 250 km/h sin pasar de 110 C (R04) ni detener el motor
        medido:   agua maxima 96.4 C en 188 s a 250 km/h; ECU: motor detenido por voltaje insuficiente (la gestion Weber-Marelli se apaga bajo 10.5 V) (R12). No arranca hasta reparar.
@@ -219,18 +219,18 @@ Unidad: ecu_banco
   L02 APROBADA  Prueba de testigos al dar contacto  [UN R13-H 5.2.21.4]
        criterio: Todos encienden 2 s y se apagan si no hay falla (9, 10, 13 y 15 apagados)
        medido:   encendidos en la prueba: 10/10; despues de 2 s: ninguno
-  L03 APROBADA  Frenado tipo 0 (en frio)  [UN R13-H anexo 3, 2.1.1 A]
-       criterio: Desde 100 km/h: s <= 70 m y dm >= 6.43 m/s2
-       medido:   s = 30.1 m, dm = 12.78 m/s2
+  L03 APROBADA  Frenado tipo 0 (en frio)  [UN R13-H anexo 3, 2.1.1 A y Directiva 71/320/CEE (1986)]
+       criterio: Desde 100 km/h: s <= 70 m y dm >= 6.43 m/s2; de 1987 (M1), desde 80 km/h: s <= 50.7 m y dm >= 5.8 m/s2
+       medido:   s = 38.9 m, dm = 9.89 m/s2; desde 80 km/h: s = 25.0 m, dm = 9.89 m/s2
   L04 APROBADA  Frenado tipo I (perdida de eficiencia en caliente)  [UN R13-H anexo 3, 1.5]
        criterio: 15 frenadas 120->60 km/h cada 45 s; en caliente dm >= 75 % de 6.43 y >= 60 % del valor en frio
-       medido:   frenos a 331 C; dm caliente 12.32 m/s2 (frio 12.78; minimo 7.67)
+       medido:   frenos a 331 C; dm caliente 9.55 m/s2 (frio 9.89; minimo 5.94)
   L05 APROBADA  Exactitud del velocimetro  [UN R39 5.2.5, 5.3 y anexo 3]
        criterio: A 40, 80 y 120 km/h: 0 <= V1 - V2 <= 0.1 V2 + 4 km/h (nunca indica menos)
        medido:   V1 - V2 en km/h: 40: +0.00 a +0.00; 80: +0.00 a +0.00; 120: +0.00 a +0.00
-  L06 APROBADA  Ciclo urbano ECE-15 y odometro  [ECE-15 (prueba tipo I de emisiones)]
-       criterio: 195 s y 0.99403 km (+-2 %); seguimiento <= 2 km/h; odometro del cuadro a <= 1 % de la distancia real
-       medido:   error maximo 1.22 km/h; distancia real 0.9857 km; odometro del cuadro 0.9871 km (0.15 %); consumo 31.6 L/100 km (informativo)
+  L06 APROBADA  Ciclo urbano ECE-15 y odometro  [ECE-15; tolerancias de UN R84 anexo 5]
+       criterio: 195 s y 0.99403 km (+-2 %); +-1 km/h y +-0.5 s (fuera a lo mas 0.5 s seguidos); odometro del cuadro a <= 1 % de la distancia real
+       medido:   diferencia maxima en el mismo instante 1.22 km/h; fuera de +-1 km/h y +-0.5 s: 0.00 s; distancia real 0.9857 km; odometro del cuadro 0.9871 km (0.15 %); consumo de un ciclo 17.3 L/100 km (informativo)
   L07 APROBADA  Enfriamiento a carga sostenida  [Criterio del equipo (no es una norma)]
        criterio: 300 s a 250 km/h sin pasar de 110 C (R04) ni detener el motor
        medido:   agua maxima 98.0 C en 300 s a 250 km/h
@@ -252,4 +252,4 @@ MATRIZ: falla inyectada -> pruebas que la detectan -> dictamen
   alternador           L01, L07         RECHAZADO: fallaron L01, L07 (7/9 aprobadas)
   ecu_banco            L01              RECHAZADO: fallaron L01 (8/9 aprobadas)
 
-Resultado: el banco distingue: la unidad sana es APTA y cada falla es RECHAZADA (21.5 s de simulacion acelerada).
+Resultado: el banco distingue: la unidad sana es APTA y cada falla es RECHAZADA (7.5 s de simulacion acelerada).

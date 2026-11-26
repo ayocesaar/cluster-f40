@@ -1,32 +1,32 @@
 Prueba P12 - ejecucion prolongada con metricas reales
-Duracion medida: 60.1 s (solicitada 60 s)
+Duracion medida: 60.0 s (solicitada 60 s)
 Configuracion: lectura cada 100 ms, refresco cada 50 ms, bitacoras de 16384 bytes con 2 respaldos
 Productor: proceso tools/simulador.py escribiendo el archivo de datos cada 100 ms (escritura atomica)
 
 Intervalo real de actualizacion del tablero (ms):
-  ciclos=1076 promedio=55.8 mediana=53.7 p95=65.4 maximo=172.6
+  ciclos=1164 promedio=51.5 mediana=51.2 p95=53.1 maximo=72.3
 
 Datos procesados:
-  lecturas completas del archivo=501 snapshots aplicados por la interfaz=501
-  simulador: 527 escrituras atomicas en vehiculo.conf
-  simulador: codigo de salida=0 escrituras=527 (minimo 300) valido=si
+  lecturas completas del archivo=563 snapshots aplicados por la interfaz=563
+  simulador: 592 escrituras atomicas en vehiculo.conf
+  simulador: codigo de salida=0 escrituras=592 (minimo 300) valido=si
 
 Latencia archivo -> tablero (ms; cota de diseno: lectura 100 + refresco 50 = 150):
-  muestras=501 promedio=104.0 p95=156.3 maximo=295.9 dentro_de_cota=si
-  eventos registrados: INFO=1421 WARN=20 ERROR=0
-  lineas presentes en bitacoras: eventos=434 errores=0 (las antiguas se descartan al rotar)
+  muestras=563 promedio=85.6 p95=136.7 maximo=154.1 dentro_de_cota=si
+  eventos registrados: INFO=1580 WARN=20 ERROR=0
+  lineas presentes en bitacoras: eventos=425 errores=0 (las antiguas se descartan al rotar)
 
 Memoria (RSS):
-  inicio=29216 KB fin=29596 KB diferencia=380 KB
+  inicio=29108 KB fin=29428 KB diferencia=320 KB
 
 Bitacoras (bytes):
-  inicio={'errores.log': 0, 'eventos.log': 766}
-  fin={'errores.log': 0, 'eventos.log': 9299, 'eventos.log.1': 16345, 'eventos.log.2': 16304}
-  total final=41948 limite teorico=49152 acotado=si
+  inicio={'errores.log': 0, 'eventos.log': 317}
+  fin={'errores.log': 0, 'eventos.log': 8339, 'eventos.log.1': 16371, 'eventos.log.2': 16358}
+  total final=41068 limite teorico=49152 acotado=si
 
 ps al inicio:
 PID    PPID STAT %CPU %MEM   RSS    VSZ CMD
-   5401    5388 Sl   18.6  1.4 29596 194620 python tools/ejecucion_prolongada.py --duracion-s 60
+   9063    9050 Sl   10.5  1.4 29428 194620 python tools/ejecucion_prolongada.py --duracion-s 60
 ps al final:
 PID    PPID STAT %CPU %MEM   RSS    VSZ CMD
-   5401    5388 Sl    9.3  1.4 29596 195644 python tools/ejecucion_prolongada.py --duracion-s 60
+   9063    9050 Sl    3.3  1.4 29428 195644 python tools/ejecucion_prolongada.py --duracion-s 60

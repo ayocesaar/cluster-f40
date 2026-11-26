@@ -15,9 +15,16 @@ Normas (texto verificado; citas y limites en docs/realismo_y_liberacion.md):
   la velocidad indicada nunca es menor que la real y 0 <= V1 - V2 <= 0.1 V2 + 4 km/h
   (+ 6 km/h en la conformidad de la produccion, anexo 3).
 - Ciclo urbano ECE-15 de la prueba tipo I de emisiones: 195 s, 994.03 m, maximo 50 km/h.
-Las cifras del vehiculo son aproximadas. Los valores de la Directiva 71/320/CEE vigentes en
-1987 quedan pendientes de verificar: se usan los de R13-H. El enfriamiento, el turbo y el
-interbloqueo de puertas son criterios del equipo, no de una norma."""
+Etapa 22 (textos de la epoca verificados):
+- Directiva 71/320/CEE, version consolidada del 3-1-1986 (la vigente en 1987), anexo II 2.1.1.1.1:
+  categoria M1, tipo O con el motor desembragado a 80 km/h, s <= 0.1 v + v^2/150 y dm >= 5.8 m/s^2
+  (fuerza en el pedal <= 500 N: el modelo no la representa). L03 exige esto y R13-H.
+- Directiva 75/443/CEE, 4.4 (velocimetro, vigente en 1987): nunca indica menos que la real y
+  V1 - V2 <= V2/10 + 4 km/h, la misma relacion de R39 que usa L05.
+- UN R84, anexo 5 (ciclo urbano): +-1 km/h entre la velocidad y la teorica, +-0.5 s de tolerancia de
+  tiempo combinadas; en los cambios de fase se acepta salir hasta 0.5 s seguidos. L06 lo exige.
+  Pruebas de consumo: ciclo urbano (4 ciclos) y 90 y 120 km/h constantes (+-2 km/h).
+El enfriamiento, el turbo y el interbloqueo de puertas son criterios del equipo, no de una norma."""
 
 from dataclasses import dataclass
 
@@ -41,6 +48,16 @@ DM_TIPO0 = 6.43               # m/s^2
 def distancia_tipo0(v):
     """Distancia maxima de frenado tipo 0 (m) para v en km/h: 0.1 v + 0.0060 v^2."""
     return 0.1 * v + 0.0060 * v ** 2
+
+
+# ------------------------------------------------------------ Directiva 71/320/CEE (texto de 1986)
+V_TIPO0_1987 = 80.0           # km/h, categoria M1, motor desembragado (anexo II, 2.1.1.1.1)
+DM_TIPO0_1987 = 5.8           # m/s^2
+
+
+def distancia_tipo0_1987(v):
+    """Distancia maxima (m) de la Directiva 71/320/CEE vigente en 1987 para M1: 0.1 v + v^2/150."""
+    return 0.1 * v + v ** 2 / 150
 
 
 def desaceleracion_media(vb, ve, sb, se):
@@ -71,7 +88,9 @@ ECE15 = ((0, 0), (11, 0), (15, 15), (23, 15), (28, 0), (49, 0), (61, 32), (85, 3
          (143, 50), (155, 50), (163, 35), (176, 35), (188, 0), (195, 0))
 DURACION_ECE15_S = 195.0
 DISTANCIA_ECE15_KM = 0.99403
-TOLERANCIA_SEGUIMIENTO_KMH = 2.0     # criterio del equipo (la tolerancia oficial queda pendiente de verificar)
+TOLERANCIA_SEGUIMIENTO_KMH = 1.0     # UN R84 anexo 5: +-1 km/h ...
+TOLERANCIA_TIEMPO_S = 0.5            # ... y +-0.5 s, combinadas
+FUERA_MAXIMO_S = 0.5                 # en un cambio de fase se acepta salir de la tolerancia hasta 0.5 s seguidos
 TOLERANCIA_ODOMETRO = 0.01           # el odometro del cuadro contra la distancia real: 1 %
 
 
@@ -80,6 +99,22 @@ def interpolar(perfil, t):
         if t0 <= t <= t1:
             return v0 + (v1 - v0) * (t - t0) / (t1 - t0) if t1 > t0 else v1
     return perfil[-1][1]
+
+
+def fuera_de_tolerancia_r84(historia, perfil=ECE15, dt=None):
+    """Tramo continuo mas largo (s) en que la velocidad sale de la tolerancia de UN R84: en cada instante t
+    se acepta si, para algun momento entre t - 0.5 s y t + 0.5 s, la diferencia con el perfil es <= 1 km/h.
+    historia: [(t, km/h)] a paso constante."""
+    if len(historia) < 2:
+        return 0.0
+    paso = dt or historia[1][0] - historia[0][0]
+    pasos = max(1, int(round(TOLERANCIA_TIEMPO_S / paso)))
+    racha = peor = 0
+    for t, velocidad in historia:
+        dentro = min(abs(velocidad - interpolar(perfil, t + k * paso)) for k in range(-pasos, pasos + 1))
+        racha = 0 if dentro <= TOLERANCIA_SEGUIMIENTO_KMH + 1e-9 else racha + 1
+        peor = max(peor, racha)
+    return peor * paso
 
 
 def marcha_ece15(v, objetivo):
@@ -248,10 +283,15 @@ def _frenada_tipo0(v, v0=V_TIPO0):
 
 def prueba_tipo0(fallas):
     s, dm = _frenada_tipo0(_vehiculo(fallas))
-    maximo = distancia_tipo0(V_TIPO0)
-    return Resultado("L03", "Frenado tipo 0 (en frio)", "UN R13-H anexo 3, 2.1.1 A",
-                     f"Desde {V_TIPO0:g} km/h: s <= {maximo:g} m y dm >= {DM_TIPO0:g} m/s2",
-                     f"s = {s:.1f} m, dm = {dm:.2f} m/s2", s <= maximo and dm >= DM_TIPO0)
+    s87, _ = _frenada_tipo0(_vehiculo(fallas), V_TIPO0_1987)
+    dm87 = V_TIPO0_1987 ** 2 / (25.92 * s87)              # desaceleracion media de toda la frenada
+    maximo, maximo87 = distancia_tipo0(V_TIPO0), distancia_tipo0_1987(V_TIPO0_1987)
+    ok = s <= maximo and dm >= DM_TIPO0 and s87 <= maximo87 and dm87 >= DM_TIPO0_1987
+    return Resultado("L03", "Frenado tipo 0 (en frio)", "UN R13-H anexo 3, 2.1.1 A y Directiva 71/320/CEE (1986)",
+                     f"Desde {V_TIPO0:g} km/h: s <= {maximo:g} m y dm >= {DM_TIPO0:g} m/s2; de 1987 (M1), desde "
+                     f"{V_TIPO0_1987:g} km/h: s <= {maximo87:.1f} m y dm >= {DM_TIPO0_1987:g} m/s2",
+                     f"s = {s:.1f} m, dm = {dm:.2f} m/s2; desde {V_TIPO0_1987:g} km/h: s = {s87:.1f} m, "
+                     f"dm = {dm87:.2f} m/s2", ok)
 
 
 def prueba_tipo1(fallas):
@@ -303,10 +343,12 @@ def prueba_velocimetro(fallas):
                      "V1 - V2 en km/h: " + "; ".join(detalle), ok)
 
 
-def recorrer_ece15(fallas=None, odometro_km=0.0):
-    """Conduce el ciclo urbano completo; devuelve (vehiculo, cuadro, error maximo, km reales, avisos)."""
-    v, ecu, avisos = _vehiculo(fallas), Ecu(), []
-    v.temp_agua = 40.0                       # el ciclo empieza con el motor frio
+def recorrer_ece15(fallas=None, odometro_km=0.0, historia=None, vehiculo=None):
+    """Conduce el ciclo urbano completo; devuelve (vehiculo, cuadro, error maximo, km reales, avisos).
+    Si se da historia (una lista), le agrega (t, km/h reales) de cada paso; con vehiculo sigue con esa unidad."""
+    v, ecu, avisos = vehiculo or _vehiculo(fallas), Ecu(), []
+    if vehiculo is None:
+        v.temp_agua = 40.0                   # el ciclo empieza con el motor frio
     conductor, cuadro = Conductor(ECE15, marcha_ece15), CadenaCuadro(odometro_km)
     error, km, t, n = 0.0, 0.0, 0.0, 0
     while t < DURACION_ECE15_S - 1e-9:
@@ -315,25 +357,77 @@ def recorrer_ece15(fallas=None, odometro_km=0.0):
         t, n = t + DT, n + 1
         km += v.velocidad * DT / 3600
         error = max(error, abs(v.velocidad - conductor.objetivo(t)))
+        if historia is not None:
+            historia.append((t, v.velocidad))
         if n % 2 == 0:
             cuadro.aplicar(v.lecturas(), v.lecturas_extra(ecu.proteccion), con_vista=False)
     return v, cuadro, error, km, avisos
 
 
 def prueba_ece15(fallas):
-    v, cuadro, error, km, avisos = recorrer_ece15(fallas)
+    historia = []
+    v, cuadro, error, km, avisos = recorrer_ece15(fallas, historia=historia)
+    fuera = fuera_de_tolerancia_r84(historia, dt=DT)
     odometro = cuadro.estado.odometro.km
     desvio_ciclo = abs(km - DISTANCIA_ECE15_KM) / DISTANCIA_ECE15_KM
     desvio_odometro = abs(odometro - km) / km if km > 0 else 1.0
-    ok = error <= TOLERANCIA_SEGUIMIENTO_KMH and desvio_ciclo <= 0.02 and desvio_odometro <= TOLERANCIA_ODOMETRO
+    ok = fuera <= FUERA_MAXIMO_S and desvio_ciclo <= 0.02 and desvio_odometro <= TOLERANCIA_ODOMETRO
     consumo = (COMBUSTIBLE_INICIAL_L - v.combustible_l) / km * 100 if km > 0 else 0.0
-    medido = (f"error maximo {error:.2f} km/h; distancia real {km:.4f} km; odometro del cuadro {odometro:.4f} km "
-              f"({desvio_odometro * 100:.2f} %); consumo {consumo:.1f} L/100 km (informativo)")
+    medido = (f"diferencia maxima en el mismo instante {error:.2f} km/h; fuera de +-1 km/h y +-0.5 s: {fuera:.2f} s; "
+              f"distancia real {km:.4f} km; odometro del cuadro {odometro:.4f} km ({desvio_odometro * 100:.2f} %); "
+              f"consumo de un ciclo {consumo:.1f} L/100 km (informativo)")
     if avisos:
         medido += f"; {avisos[-1]}"
-    return Resultado("L06", "Ciclo urbano ECE-15 y odometro", "ECE-15 (prueba tipo I de emisiones)",
-                     f"195 s y {DISTANCIA_ECE15_KM:g} km (+-2 %); seguimiento <= {TOLERANCIA_SEGUIMIENTO_KMH:g} "
-                     f"km/h; odometro del cuadro a <= 1 % de la distancia real", medido, ok)
+    return Resultado("L06", "Ciclo urbano ECE-15 y odometro", "ECE-15; tolerancias de UN R84 anexo 5",
+                     f"195 s y {DISTANCIA_ECE15_KM:g} km (+-2 %); +-{TOLERANCIA_SEGUIMIENTO_KMH:g} km/h y "
+                     f"+-{TOLERANCIA_TIEMPO_S:g} s (fuera a lo mas {FUERA_MAXIMO_S:g} s seguidos); odometro del "
+                     f"cuadro a <= 1 % de la distancia real", medido, ok)
+
+
+# ------------------------------------------------------------ consumo normalizado (UN R84)
+CONSUMO_PUBLICADO = (("ciudad", 18.4), ("90 km/h", 8.6), ("120 km/h", 10.3))   # L/100 km, fabricante (ADAC)
+TOLERANCIA_CONSUMO = 0.10             # criterio del equipo: el modelo a +-10 % de la cifra publicada
+TOLERANCIA_CONSTANTE_KMH = 2.0        # UN R84: +-2 km/h en las pruebas a velocidad constante
+
+
+def consumo_constante(velocidad, fallas=None, segundos=120.0):
+    """Consumo (L/100 km) a velocidad constante en 5a tras estabilizar 20 s; devuelve tambien la
+    diferencia maxima con la velocidad pedida."""
+    v, ecu, avisos = _vehiculo(fallas, marcha="5", velocidad=velocidad), Ecu(), []
+    conductor = Conductor(lambda _t: velocidad)
+    for n in range(int(20 / DT)):
+        conductor.aplicar(v, n * DT)
+        _paso(v, ecu, avisos)
+    inicial, km, desvio = v.combustible_l, 0.0, 0.0
+    for n in range(int(segundos / DT)):
+        conductor.aplicar(v, n * DT)
+        _paso(v, ecu, avisos)
+        km += v.velocidad * DT / 3600
+        desvio = max(desvio, abs(v.velocidad - velocidad))
+    return (inicial - v.combustible_l) / km * 100, desvio
+
+
+def consumo_normalizado(fallas=None):
+    """Las tres pruebas de consumo de UN R84 sobre el modelo: ciudad (4 ciclos ECE-15 desde frio) y 90 y
+    120 km/h constantes. Devuelve [(prueba, L/100 km del modelo, publicado, ok, detalle)]."""
+    v = _vehiculo(fallas)
+    v.temp_agua = 40.0
+    inicial, km, fuera = v.combustible_l, 0.0, 0.0
+    for _ in range(4):
+        historia = []
+        _, _, _, tramo, _ = recorrer_ece15(fallas, historia=historia, vehiculo=v)
+        km += tramo
+        fuera = max(fuera, fuera_de_tolerancia_r84(historia, dt=DT))
+    medidos = [((inicial - v.combustible_l) / km * 100, fuera <= FUERA_MAXIMO_S,
+                f"4 ciclos, {km:.3f} km; fuera de tolerancia {fuera:.2f} s")]
+    for velocidad in (90.0, 120.0):
+        consumo, desvio = consumo_constante(velocidad, fallas)
+        medidos.append((consumo, desvio <= TOLERANCIA_CONSTANTE_KMH, f"5a; velocidad a +-{desvio:.2f} km/h"))
+    resultados = []
+    for (prueba, publicado), (consumo, seguimiento, detalle) in zip(CONSUMO_PUBLICADO, medidos):
+        ok = seguimiento and abs(consumo - publicado) <= TOLERANCIA_CONSUMO * publicado
+        resultados.append((prueba, consumo, publicado, ok, detalle))
+    return resultados
 
 
 def prueba_enfriamiento(fallas):

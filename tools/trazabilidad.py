@@ -27,6 +27,7 @@ TECNICAS = {
     "test_caja_negra.py": "Caja negra (archivo binario de acceso directo)",
     "test_electrico.py": "Sistema electrico, Weber-Marelli y sonidos de cabina",
     "test_practicas.py": "Practicas de fallas, par motor, adherencia y aceite",
+    "test_verificacion.py": "Datos verificados: marchas, frenado de 1987, R84 y consumo",
 }
 
 # Los casos parametrizados llegan como "test_x[param]": se agrupan por funcion

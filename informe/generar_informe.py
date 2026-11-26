@@ -62,6 +62,7 @@ TECNICAS = {
     "test_caja_negra": "Caja negra (archivo binario de acceso directo)",
     "test_electrico": "Sistema electrico, Weber-Marelli y sonidos de cabina",
     "test_practicas": "Practicas de fallas, par motor, adherencia y aceite",
+    "test_verificacion": "Datos verificados: marchas, frenado de 1987, R84 y consumo",
 }
 
 PRODUCCION = ("logic/estado.py", "logic/reloj.py", "ui/presentacion.py", "ui/tablero.py",

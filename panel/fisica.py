@@ -27,23 +27,33 @@ F40 (577 Nm a 4000 rpm y 478 CV a 7000 rpm, unos 480 Nm) y depende de la presion
 turbo). Las llantas tienen un limite de adherencia y el F40 no tenia ABS ni control de traccion
 (revista de Ferrari): si se pide mas, las traseras patinan al acelerar o las cuatro se bloquean al
 frenar, y en pista mojada el limite baja a 55 %. El aceite tiene su propia temperatura: sigue a la
-del agua, mas lento, y sube con la carga."""
+del agua, mas lento, y sube con la carga.
+
+Etapa 22 (datos verificados): las velocidades por marcha siguen las relaciones de la caja (2.769,
+1.722, 1.227, 0.963 y 0.767); el consumo sale de la potencia que entrega el motor y se calibro con el
+consumo normalizado del fabricante (ADAC: ciudad 18.4, 90 km/h 8.6 y 120 km/h 10.3 L/100 km); el
+frenado a fondo se calibro con la prueba publicada de 60 a 0 mph en 119 ft (36.3 m). Las fuentes y
+lo que sigue pendiente estan en docs/practicas_de_fallas.md."""
 
 import math
 from dataclasses import dataclass, field
 
 RALENTI = 1000
-CORTE = 7750                 # rpm de referencia para las velocidades por marcha (aprox.)
-LIMITADOR = 8200             # permite ver el tacometro en rojo (R03: >= 8000)
-# Velocidad aproximada al llegar a CORTE en cada marcha (pendiente de verificar).
-VELOCIDAD_AL_CORTE = {"1": 90.0, "2": 135.0, "3": 190.0, "4": 255.0, "5": 324.0, "R": 50.0}
+CORTE = 7750                 # rpm: linea roja del tacometro del F40 (verificado: Hagerty, supercars.net)
+LIMITADOR = 8200             # criterio del equipo: permite ver R03 (>= 8000); el real queda pendiente
+# Relaciones de la caja de 5 marchas (Etapa 22: coinciden dos fuentes secundarias, ver la documentacion).
+RELACIONES = {"1": 2.769, "2": 1.722, "3": 1.227, "4": 0.963, "5": 0.767}
+# Velocidad al llegar a CORTE en cada marcha: 1a a 90 km/h y las demas en proporcion a las relaciones
+# (2a 144.7, 3a 203.1, 4a 258.8 y 5a 324.9 km/h; la prueba citada de Auto Motor und Sport da 90, 144 y
+# 201 km/h en 1a, 2a y 3a). La reversa queda aproximada.
+VELOCIDAD_AL_CORTE = {**{m: round(90.0 * RELACIONES["1"] / r, 1) for m, r in RELACIONES.items()}, "R": 50.0}
 # Empuje por marcha en km/h por segundo con el par maximo (Etapa 21: se multiplica por el factor de
 # par). Calibrado para que el 0-100 de unos 4.2 s y la maxima unos 326 km/h; datos publicados del
 # F40: 4.1 s (la cifra mas citada; hay pruebas de 3.5 a 5.0 s) y 324 km/h.
 EMPUJE = {"1": 48.0, "2": 35.2, "3": 24.0, "4": 16.0, "5": 10.4, "R": 19.2}
 RESISTENCIA_BASE = 0.8           # km/h por segundo: rodadura y transmision (aprox.)
 RESISTENCIA_AIRE = 0.000065      # por (km/h)^2: calibrada con la maxima publicada de 324 km/h
-FRENADO = 45.0               # km/h por segundo con el freno a fondo
+FRENADO = 34.6               # km/h por segundo con el freno a fondo: 60-0 mph en 36.3 m (119 ft publicados)
 FRENO_MOTOR = 2.0            # km/h por segundo en marcha sin acelerar
 TURBO_MAXIMO = 1.1           # bar de sobrepresion normal (aprox.)
 TURBO_RETRASO_S = 0.5        # constante de tiempo del turbo (retraso perceptible)
@@ -54,9 +64,13 @@ CARGA_TERMICA = 12.0         # C adicionales a plena carga sobre la temperatura 
 TANQUE_L = 120.0             # capacidad del tanque del F40 (cararac.com y auto-data.net)
 COMBUSTIBLE_INICIAL_L = 60.0
 CONSUMO_RALENTI_LH = 2.0     # litros por hora en ralenti (aprox.)
-CONSUMO_PLENA_LH = 140.0     # litros por hora a plena carga (aprox.: unos 350 kW con 300 g/kWh)
+# Etapa 22: consumo = friccion y bombas (crece con las rpm) + potencia / (rendimiento x poder calorifico),
+# calibrado con el consumo normalizado del fabricante (ADAC, ciclo de la Directiva 80/1268/CEE).
+CONSUMO_POR_MIL_RPM_LH = 0.4     # litros por hora por cada 1000 rpm sobre el ralenti (calibrado)
+RENDIMIENTO_MOTOR = 0.25         # fraccion de la energia del combustible que llega a las ruedas (calibrado)
+PODER_CALORIFICO_MJ_L = 32.0     # gasolina (aprox.)
 FRENADO_CON_FALLA = 0.30     # fraccion del frenado que queda con un circuito perdido (aprox.)
-MASA_KG = 1350.0             # con conductor e instrumentos de prueba (aprox.)
+MASA_KG = 1350.0             # 1250 kg en orden de marcha segun la UE (ADAC) + unos 100 kg de prueba (aprox.)
 CALOR_FRENOS_J_K = 6000.0    # capacidad termica de discos y pastillas (aprox.)
 AMBIENTE_C = 25.0
 FADING_DESDE_C, FADING_HASTA_C, FADING_MINIMO = 350.0, 750.0, 0.60   # eficiencia de 1.0 a 0.6 (aprox.)
@@ -156,6 +170,8 @@ class Vehiculo:
     patinando: bool = False     # las traseras patinan al acelerar (sin control de traccion)
     bloqueado: bool = False     # las llantas se bloquean al frenar (sin ABS)
     temp_aceite: float = 40.0
+    # Etapa 22
+    potencia_kw: float = 0.0    # potencia que entrega el motor a las ruedas
 
     # ----------------------------------------------------------------- mandos
     def cambiar(self, marcha):
@@ -253,9 +269,11 @@ class Vehiculo:
         cambio = (generacion - cargas) * dt * ACELERACION_ELECTRICA / 3600.0 / CAPACIDAD_BATERIA_AH
         self.bateria = _limitar(self.bateria + cambio, 0.0, 1.0)
 
-        # Combustible: sin combustible el motor se apaga solo.
+        # Combustible: sale de la potencia entregada; sin combustible el motor se apaga solo.
+        self.potencia_kw = (MASA_KG * max(0.0, empuje) / 3.6 * self.velocidad / 3.6 / 1000.0
+                            if self.motor and self.acoplado else 0.0)
         if self.motor:
-            consumo_lh = CONSUMO_RALENTI_LH + CONSUMO_PLENA_LH * carga_motor
+            consumo_lh = self.consumo_lh()
             self.combustible_l = max(0.0, self.combustible_l - consumo_lh * dt / 3600.0)
             if self.combustible_l == 0.0:
                 self.motor = False
@@ -263,6 +281,14 @@ class Vehiculo:
         if self.fallas.fuga_aceite:
             ritmo = FUGA_ACEITE_PCT_S if self.motor else FUGA_ACEITE_PCT_S / 10
             self.nivel_aceite = max(0.0, self.nivel_aceite - ritmo * dt)
+
+    def consumo_lh(self):
+        """Litros por hora ahora: friccion y bombas (2 L/h en ralenti, mas con las rpm) mas la potencia
+        entregada entre el rendimiento del motor y el poder calorifico de la gasolina."""
+        if not self.motor:
+            return 0.0
+        friccion = max(0.0, CONSUMO_RALENTI_LH + CONSUMO_POR_MIL_RPM_LH * (self.rpm - RALENTI) / 1000.0)
+        return friccion + self.potencia_kw * 3.6 / (RENDIMIENTO_MOTOR * PODER_CALORIFICO_MJ_L)
 
     @property
     def adherencia(self):

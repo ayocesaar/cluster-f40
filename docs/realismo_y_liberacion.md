@@ -64,16 +64,18 @@ lector (`formatear` → `convertir`) y llega a `EstadoCluster` en ciclos de 100 
 |---|---|---|
 | L01 Arranque, ralentí, aceite y carga | Fin de línea (criterio del equipo) | Arranca; en los últimos 5 s de 30 s: 950–1050 rpm estables, aceite ≥ 1.2 bar y carga ≥ 13.5 V (Etapa 20) |
 | L02 Prueba de testigos | UN R13-H 5.2.21.4 | Todos encienden 2 s; 9, 10, 13 y 15 se apagan si no hay falla |
-| L03 Frenado tipo 0 | UN R13-H anexo 3, 2.1.1 A | Desde 100 km/h, motor desembragado: s ≤ 0.1 v + 0.0060 v² (70 m) y dm ≥ 6.43 m/s² |
+| L03 Frenado tipo 0 | UN R13-H anexo 3, 2.1.1 A y Directiva 71/320/CEE (texto vigente en 1987) | Desde 100 km/h, motor desembragado: s ≤ 0.1 v + 0.0060 v² (70 m) y dm ≥ 6.43 m/s²; y el criterio de 1987 para M1: desde 80 km/h, s ≤ 0.1 v + v²/150 (50.7 m) y desaceleración media ≥ 5.8 m/s² (Etapa 22) |
 | L04 Frenado tipo I (fading) | UN R13-H anexo 3, 1.5 | 15 frenadas de 120 a 60 km/h cada 45 s a 3 m/s²; en caliente dm ≥ 75 % de 6.43 y ≥ 60 % del valor en frío |
-| L05 Velocímetro | UN R39 5.2.5, 5.3 y anexo 3 | A 40, 80 y 120 km/h: 0 ≤ V1 − V2 ≤ 0.1 V2 + 4 km/h (nunca indica menos) |
-| L06 Ciclo urbano y odómetro | Ciclo ECE-15 (prueba tipo I de emisiones) | 195 s y 0.994 km (± 2 %); seguimiento ≤ 2 km/h (criterio del equipo); odómetro del cuadro a ≤ 1 % |
+| L05 Velocímetro | UN R39 5.2.5, 5.3 y anexo 3; la Directiva 75/443/CEE de la época pide lo mismo | A 40, 80 y 120 km/h: 0 ≤ V1 − V2 ≤ 0.1 V2 + 4 km/h (nunca indica menos) |
+| L06 Ciclo urbano y odómetro | Ciclo ECE-15; tolerancias de UN R84, anexo 5 (Etapa 22) | 195 s y 0.994 km (± 2 %); ± 1 km/h con ± 0.5 s de tolerancia de tiempo, fuera a lo más 0.5 s seguidos; odómetro del cuadro a ≤ 1 % |
 | L07 Enfriamiento | Criterio del equipo (no es una norma) | 300 s a 250 km/h sin pasar de 110 °C ni detener el motor |
 | L08 Turbo | Criterio del equipo (umbral de R05) | 6 s a fondo en 3a: presión ≤ 1.5 bar sin corte |
 | L09 Puertas | Medida agregada por el equipo | Con la puerta abierta no avanza y el testigo 12 enciende; al cerrar avanza |
 
 `dm` es la desaceleración media totalmente desarrollada, `dm = (vb² − ve²) / (25.92 (se − sb))`, con vb = 0.8 v0
-y ve = 0.1 v0. El dictamen es **APTO PARA PRODUCCIÓN** si las 9 aprueban; si no, **RECHAZADO** con la lista de
+y ve = 0.1 v0. Para el criterio de 1987 se usa la desaceleración media de toda la frenada, v0² / (25.92 s): el texto
+de 1986 liga el segundo término de la fórmula con la desaceleración media (v²/150 equivale a 5.8 m/s²). La fuerza en el
+pedal (≤ 500 N) no se representa en el modelo. El dictamen es **APTO PARA PRODUCCIÓN** si las 9 aprueban; si no, **RECHAZADO** con la lista de
 pruebas que fallaron. Con `--evidencia` el banco prueba la unidad sana y cada falla por separado y comprueba que
 **distingue**: la sana sale apta y cada falla sale rechazada por la prueba de su sistema (CP-182).
 
@@ -104,19 +106,39 @@ podía indicar menos que la velocidad real, lo que R39 prohíbe (DEF-16, corregi
 | Gestión Weber-Marelli IAW con encendido e inyección separados por banco de cilindros; dos turbos IHI a 1.1 bar; 577 Nm a 4000 rpm | Wikipedia (Ferrari F40), supercars.net, ultimatespecs, cararac | Verificado en varias fuentes (Etapa 20) |
 | Sin ABS, sin control de tracción, sin dirección asistida ni servofreno | Revista de Ferrari (ferrari.com), Top Gear, Octane | Verificado (Etapa 21) |
 | Cinturón: luz de al menos 60 s y señal audible de 4 a 8 s al dar contacto | FMVSS 208 S7.3 (texto vigente; interpretaciones de NHTSA) | Verificado el texto vigente |
+| Directiva 71/320/CEE vigente en 1987 (versión consolidada del 3-1-1986), anexo II 2.1.1.1.1: M1, tipo O con el motor desembragado a 80 km/h, s ≤ 0.1 v + v²/150, dm ≥ 5.8 m/s² y fuerza ≤ 500 N; con el motor embragado (30 a 80 % de vmax) solo se registra | EUR-Lex, CELEX 01971L0320-19860103, https://eur-lex.europa.eu/legal-content/EN/TXT/PDF/?uri=CELEX:01971L0320-19860103 | Verificado (texto leído, Etapa 22) |
+| Directiva 75/443/CEE (velocímetro), 4.3.6 y 4.4: instrumentos a ± 1.0 %, la velocidad indicada nunca es menor que la real y V1 − V2 ≤ V2/10 + 4 km/h | EUR-Lex, CELEX 31975L0443, https://eur-lex.europa.eu/legal-content/EN/TXT/PDF/?uri=CELEX:31975L0443 | Verificado (Etapa 22; el PDF es un escaneo y la fórmula se leyó del texto reconocido) |
+| UN R84 (consumo de combustible), anexo 5: ± 1 km/h entre la velocidad y la teórica al acelerar, a velocidad constante y al frenar; más en los cambios de fase si no pasa de 0.5 s cada vez; ± 0.5 s de tiempo, combinadas; 4 ciclos urbanos (4.052 km teóricos); pruebas a 90 y 120 km/h constantes con ± 2 km/h | ONU, E/ECE/324 Rev.1/Add.83, https://digitallibrary.un.org/record/225859/files/E_ECE_324_Rev.1_Add.83_E_ECE_TRANS_505_Rev.1_Add.83-EN.pdf | Verificado (texto leído, Etapa 22) |
+| FMVSS 208 S7.3 en el 49 CFR del 1-10-1996: el fabricante elige (1) señal audible de 4 a 8 s y luz de al menos 60 s si el cinturón no está abrochado, o (2) luz de 4 a 8 s al dar contacto y señal audible si no está abrochado | govinfo, https://www.govinfo.gov/content/pkg/CFR-1996-title49-vol5/pdf/CFR-1996-title49-vol5-sec571-208.pdf | Verificado el texto de 1996 (Etapa 22) |
+| Datos del fabricante del F40: 1250 kg en orden de marcha (UE), 0-100 km/h en 4.1 s, 324 km/h, tanque de 120 L, consumo ciudad 18.4, 90 km/h 8.6 y 120 km/h 10.3 L/100 km, llantas 245/40 ZR17 y 335/35 ZR17 | ADAC Autokatalog, https://www.adac.de/rund-ums-fahrzeug/autokatalog/marken-modelle/ferrari/f40/1generation/260875/ | Verificado (Etapa 22) |
+| Peso en seco 1100 kg | evo, https://www.evo.co.uk/ferrari/f40/6214/ferrari-f40-review-history-prices-and-specs | Verificado (Etapa 22) |
+| Compresión 7.8:1 | Auto Motor und Sport; supercars.net | Verificado en dos fuentes (Etapa 22) |
+| Línea roja del tacómetro: 7750 rpm | Hagerty, https://www.hagerty.com/media/archived/fever-dream-of-a-ferrari-f40/ ; supercars.net, https://www.supercars.net/blog/the-ferrari-f40/ | Verificado en dos fuentes (Etapa 22) |
+| Relaciones de la caja: 2.769, 1.722, 1.227, 0.963 y 0.767 | Foro GT Planet que cita la prueba de Auto Motor und Sport de 1989, https://www.gtplanet.net/forum/threads/difficult-car-ferrari-f40.310621/ ; cars-data.com da las mismas según el buscador (la página respondió 403) | Dos fuentes secundarias coinciden (Etapa 22) |
+| Frenado de 60 a 0 mph en 119 ft (36.3 m) | duPont Registry, https://news.dupontregistry.com/ferrari/ferrari-f40-specs-price-photos-review/ (no nombra la prueba; el buscador la atribuye a Road & Track, pero esa página respondió 403) | Una fuente abierta (Etapa 22) |
 
 ## 6. Pendiente de verificar (no se presenta como dato)
 
-- Los valores de la **Directiva 71/320/CEE** vigentes en 1987: el texto no se pudo descargar. Se usan los de UN R13-H.
-- La versión de **UN R39** vigente en 1987 (se leyó el texto adoptado en la ADR 18/03 de 2006).
-- La tolerancia oficial de velocidad del ciclo ECE-15: se usa ± 2 km/h como criterio del equipo.
-- La versión de **FMVSS 208 S7.3** vigente en 1987.
-- Presión de turbo nominal, línea roja, distancia de frenado y consumo reales del F40: el modelo usa cifras aproximadas.
-- Si el F40 de 1987 tenía testigo de puerta o de cinturón: los elementos 12 y 13 se presentan como adicionales.
+En la Etapa 22 se verificó lo que estaba pendiente (sección 5): la Directiva 71/320/CEE vigente en 1987, la Directiva
+75/443/CEE del velocímetro (pide lo mismo que R39), la tolerancia del ciclo urbano (UN R84), el texto de FMVSS 208 de
+1996 y los datos del fabricante del F40. Lo que queda:
+
+- **FMVSS 208 S7.3 de 1987:** se leyó la edición del CFR de 1996; la de 1987 no se pudo descargar (NHTSA responde 403).
+- **Cómo se combinan las tolerancias de UN R84:** el texto remite a una figura que no se encontró; el equipo usa la
+  envolvente de ± 1 km/h dentro de ± 0.5 s. UN R84 es de 1990; la Directiva 80/1268/CEE, su equivalente europeo de
+  1987, no se leyó.
+- **Origen de dos datos del F40:** la frenada de 119 ft (una fuente abierta que no nombra la prueba) y las relaciones de
+  marcha (dos fuentes secundarias). El diferencial (3.62 según el foro) no se usa.
+- **Las rpm del limitador real:** ninguna fuente las da; el modelo corta a 8200 rpm para que se vea R03.
+- **R03 contra el auto real:** la especificación pone el rojo del tacómetro en 8000 rpm y la línea roja real es 7750 rpm.
+  Se conserva la especificación (y sus pruebas); queda para decidir con el profesor.
+- Si el F40 de 1987 tenía testigo de puerta o de cinturón, y la lista exacta de testigos del cuadro original (el manual
+  técnico no se pudo consultar): los elementos 12 y 13 se presentan como adicionales.
+- Las cifras eléctricas (batería de 40 Ah, alternador de 70 A, cargas, 10.5 V de corte) son genéricas de un sistema de
+  12 V, no del F40. La forma de la curva de par entre los dos puntos verificados es aproximada.
+- **Fuentes que se contradicen:** supercars.net da llantas delanteras 235/45 ZR17 y frenos con servo; ADAC (datos del
+  fabricante) da 245/40 ZR17 y la revista de Ferrari dice que no tenía servofreno. Se usan ADAC y Ferrari.
 - El interbloqueo de puertas y las protecciones de la ECU son medidas del equipo, no del auto original.
-- Etapa 20: las cifras eléctricas (batería de 40 Ah, alternador de 70 A, cargas, 10.5 V de corte) son genéricas de un
-  sistema de 12 V, no del F40; la lista exacta de testigos del cuadro original (el manual técnico no se pudo consultar),
-  las rpm del limitador y las relaciones de marcha (una sola fuente) quedan pendientes de verificar.
 
 ## 7. Cómo demostrarlo en la exposición (3 minutos)
 

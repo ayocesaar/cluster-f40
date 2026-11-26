@@ -1,6 +1,6 @@
-CP-ODO-01|30|000062 -> 000063 (1 km) e INFO odometro_actualizado|tablero 000062 (km internos 62.998); 7 lineas de bitacora del odometro|Fallido
+CP-ODO-01|30|000062 -> 000063 (1 km) e INFO odometro_actualizado|tablero 000062 (km internos 62.997); 7 lineas de bitacora del odometro|Fallido
 CP-ODO-01 v2|45|000062 -> 000063 (1.5 km) e INFO odometro_actualizado|tablero 000063 (km internos 63.498); 11 lineas de bitacora del odometro|Aprobado
-CP-ODO-02|10|999999 -> 000000 (1 km) y la vuelta registrada|tablero 999999 (km internos 999999.990); 3 lineas de bitacora del odometro|Fallido
-CP-ODO-02 v2|15|999999 -> 000000 (1.5 km) y la vuelta registrada|tablero 000000 (km internos 0.491); 5 lineas de bitacora del odometro|Aprobado
-CP-ODO-03|5|000000, aviso en pantalla y ERROR odometro_invalido|tablero 000000 (km internos 0.166); aviso: Odometro: archivo invalido, se inicio en 000000; 3 lineas de bitacora del odometro|Aprobado
+CP-ODO-02|10|999999 -> 000000 (1 km) y la vuelta registrada|tablero 999999 (km internos 999999.993); 3 lineas de bitacora del odometro|Fallido
+CP-ODO-02 v2|15|999999 -> 000000 (1.5 km) y la vuelta registrada|tablero 000000 (km internos 0.488); 5 lineas de bitacora del odometro|Aprobado
+CP-ODO-03|5|000000, aviso en pantalla y ERROR odometro_invalido|tablero 000000 (km internos 0.165); aviso: Odometro: archivo invalido, se inicio en 000000; 2 lineas de bitacora del odometro|Aprobado
 SONDA|3|odometro= rechazado por el lector; el resto se aplica|velocidad aplicada 360 km/h; lector: ERROR lector_datos clave_no_permitida linea 11 clave=odometro (el kilometraje lo calcula el sistema; no se escribe desde el archivo) resultado=rechazado|Aprobado

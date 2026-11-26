@@ -4,17 +4,17 @@ Registros escritos: 700 (el anillo conserva los ultimos 600); siguiente posicion
 Cabecera valida (firma y CRC): si
 Lectura completa por acceso directo: 600 registros validos, 0 danados
 Muestras descartadas por cola llena: 0
-Eventos exportados: evento_20261126T165411_190_00000520_proteccion_motor.csv
-  evento_20261126T165411_190_00000520_proteccion_motor.csv: 100 registros; columnas: fecha,secuencia,velocidad_kmh,rpm,presion_aceite_bar,temp_agua_c,presion_turbo_bar,combustible_pct,voltaje_v,testigos,causa,motor,encendido,prueba_de_testigos
-  ultima fila: 1795733651178,519,164.9,0,0.0,119.9,0.0,50,12.5,15 16,sobretemperatura,False,True,False
+Eventos exportados: evento_20261126T175406_890_00000520_proteccion_motor.csv
+  evento_20261126T175406_890_00000520_proteccion_motor.csv: 100 registros; columnas: fecha,secuencia,velocidad_kmh,rpm,presion_aceite_bar,temp_agua_c,presion_turbo_bar,combustible_pct,voltaje_v,testigos,causa,motor,encendido,prueba_de_testigos
+  ultima fila: 1795737246883,519,165.2,0,0.0,119.9,0.0,50,12.5,15 16,sobretemperatura,False,True,False
 
-Cabecera en hexadecimal: 46 34 30 43 4e 45 47 31 01 00 20 00 58 02 00 00 bc 02 00 00 00 00 00 00 0a f5 10 1a a2 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 51 30
+Cabecera en hexadecimal: 46 34 30 43 4e 45 47 31 01 00 20 00 58 02 00 00 bc 02 00 00 00 00 00 00 56 d8 47 1a a2 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 1e c9
 
 Registro 1 desde el final: byte 3232 = 64 + (699 mod 600) x 32
-  hex: a9 02 11 1a a2 01 00 00 bb 02 00 00 ed 04 00 00 00 00 dc 02 00 00 32 7c 00 03 01 02 00 00 af 5f
-  fecha (Q, ms)                          1795733652137
+  hex: 43 de 47 1a a2 01 00 00 bb 02 00 00 ef 04 00 00 00 00 dc 02 00 00 32 7c 00 03 01 02 00 00 5d d1
+  fecha (Q, ms)                          1795737247299
   secuencia (I)                          699
-  velocidad (H, 0.1 km/h)                1261
+  velocidad (H, 0.1 km/h)                1263
   rpm (H)                                0
   aceite (H, 0.01 bar)                   0
   agua (h, 0.1 C, con signo)             732
@@ -24,5 +24,5 @@ Registro 1 desde el final: byte 3232 = 64 + (699 mod 600) x 32
   testigos (H, bits)                     768
   causa (B, 255 = sin dato)              1
   estado (B, bits)                       2
-  crc (H, CRC-16)                        24495
-  decodificado: {'fecha': 1795733652137, 'secuencia': 699, 'velocidad_kmh': 126.1, 'rpm': 0, 'presion_aceite_bar': 0.0, 'temp_agua_c': 73.2, 'presion_turbo_bar': 0.0, 'combustible_pct': 50, 'voltaje_v': 12.4, 'testigos': [15, 16], 'causa': 'sobretemperatura', 'motor': False, 'encendido': True, 'prueba_de_testigos': False}
+  crc (H, CRC-16)                        53597
+  decodificado: {'fecha': 1795737247299, 'secuencia': 699, 'velocidad_kmh': 126.3, 'rpm': 0, 'presion_aceite_bar': 0.0, 'temp_agua_c': 73.2, 'presion_turbo_bar': 0.0, 'combustible_pct': 50, 'voltaje_v': 12.4, 'testigos': [15, 16], 'causa': 'sobretemperatura', 'motor': False, 'encendido': True, 'prueba_de_testigos': False}

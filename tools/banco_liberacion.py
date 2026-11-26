@@ -44,8 +44,9 @@ def main(argv=None):
     encabezado = ["BANCO DE LIBERACION DE PRODUCCION - Ferrari F40 (1987), cluster simulado",
                   f"Fecha: {datetime.datetime.now().astimezone().isoformat(timespec='seconds')}  "
                   f"Python {platform.python_version()}  {platform.system()}",
-                  "Normas: UN R13-H anexo 3 (frenado), UN R39 (velocimetro), ciclo ECE-15; ver "
-                  "docs/realismo_y_liberacion.md. Cifras del vehiculo aproximadas.", ""]
+                  "Normas: UN R13-H anexo 3 y Directiva 71/320/CEE de 1986 (frenado), UN R39 y Directiva "
+                  "75/443/CEE (velocimetro), ciclo ECE-15 con las tolerancias de UN R84; ver "
+                  "docs/realismo_y_liberacion.md.", ""]
     if not args.evidencia:
         fallas = {nombre: True for nombre in args.falla}
         resultados = liberacion.ejecutar_banco(fallas)

@@ -118,7 +118,7 @@ class Mando:
     def cambiar(self, marcha):
         """Como una persona: suelta el acelerador, pisa el embrague, mueve la palanca y suelta el embrague."""
         self.pedales(acelerador=0.0, embrague=1.0)
-        yield 0.22
+        yield 0.27              # 0.2 s para llegar al fondo y la palanca se mueve con el embrague a fondo (DEF-17)
         try:
             self.v.cambiar(marcha)
         except ValueError as error:
@@ -236,7 +236,7 @@ def practica_normal(m):
     yield from arrancar_y_calentar(m)
     m.verificar("prueba de testigos al dar contacto", "prueba" in m.vistos and {6, 9, 10, 15, 16} <= m.vistos)
     m.verificar("el motor arranca", m.v.motor)
-    yield from conducir_hasta(m, 80, acelerador=0.7, cambio_rpm=4500)      # manejo tranquilo: cambia a 4500 rpm
+    yield from conducir_hasta(m, 80, acelerador=0.7, cambio_rpm=4000)      # manejo tranquilo: cambia a 4000 rpm
     yield from crucero(m, 80, 3)
     maxima = m.v.velocidad
     metros = yield from frenar_hasta_parar(m, 0.5)
@@ -460,7 +460,7 @@ def practica_lluvia(m):
     bloqueo = m.vio_bloqueo
     yield from conducir_hasta(m, 100)
     m.vio_bloqueo = False
-    dosificado = yield from frenar_hasta_parar(m, 0.55)
+    dosificado = yield from frenar_hasta_parar(m, 0.7)       # justo bajo el limite de adherencia en mojado
     m.verificar("frenando a fondo se bloquean las llantas (sin ABS)", bloqueo)
     m.verificar("dosificando no se bloquean", not m.vio_bloqueo)
     m.verificar("frenar sin bloquear detiene antes (por eso existe el ABS)", dosificado < a_fondo,

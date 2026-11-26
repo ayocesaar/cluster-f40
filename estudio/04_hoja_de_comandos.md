@@ -186,6 +186,7 @@ En el panel, los 15 botones de **PRACTICAS DE FALLAS** corren cada caso solo. De
 python tools/practicas.py                        # las 15 en tiempo simulado (docs/evidencias/practicas.txt)
 python tools/practicas.py --practica lluvia      # una sola
 python tools/escribir_dato.py temp_aceite=135    # elemento 17 en rojo (R14)
+python tools/consumo.py                          # consumo del modelo contra el del fabricante (Etapa 22)
 ```
 
 ## 5b. Realismo, seguridad y banco de liberación (VM)

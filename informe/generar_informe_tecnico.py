@@ -186,6 +186,11 @@ DECISIONES_AGREGADAS = (
             "tracción, como el F40 original (revista de Ferrari)."),
     ("D17", "Etapa 21. Las prácticas de fallas son corrutinas que el ciclo del panel avanza cada 50 ms "
             "(calendarización cooperativa); verifican con una copia en memoria del cuadro real."),
+    ("D18", "Etapa 22. Lo que estaba pendiente se verificó en el texto de la época o del fabricante: el banco exige el "
+            "frenado de la Directiva 71/320/CEE vigente en 1987 (M1: 80 km/h, 50.7 m, 5.8 m/s²) junto con R13-H y la "
+            "tolerancia de UN R84 en el ciclo urbano; el modelo usa las relaciones de la caja, el frenado publicado y un "
+            "consumo por potencia calibrado con el consumo del fabricante (ADAC). Lo que no se pudo verificar sigue "
+            "marcado como pendiente."),
 )
 
 PRUEBAS = (
@@ -555,9 +560,11 @@ def construir():
     codigo(doc, banco[4:4 + 1 + 9 * 3 + 1])
     doc.add_heading("Limitaciones", level=2)
     vinetas(doc, [
-        "Las cifras del vehículo (frenado, consumo, temperaturas, turbo) son aproximadas; los criterios R13-H y R39 son los "
-        "del texto verificado (ADR 31/01 y ADR 18/03); los valores de la Directiva 71/320/CEE vigentes en 1987 quedan "
-        "pendientes de verificar. El banco no mide emisiones: del ciclo ECE-15 solo usa el perfil de velocidad.",
+        "El modelo es didáctico: el frenado, el consumo y las velocidades por marcha se calibraron con datos publicados "
+        "del F40 (Etapa 22), pero las temperaturas, el sistema eléctrico y la forma de la curva de par son aproximados. "
+        "Los criterios del banco son del texto verificado (R13-H, R39, Directiva 71/320/CEE de 1986, Directiva "
+        "75/443/CEE y UN R84); queda pendiente el texto de FMVSS 208 de 1987. El banco no mide emisiones: del ciclo "
+        "ECE-15 solo usa el perfil de velocidad.",
         "Durante un error de entrada el tablero muestra el último valor válido, que puede estar desactualizado.",
         "La interfaz se probó con Tkinter real sobre una pantalla virtual (Xvfb) y en Windows; no en otras plataformas.",
         "El editor de texto que guarde sobre el mismo archivo puede producir una lectura incompleta; la validación la "

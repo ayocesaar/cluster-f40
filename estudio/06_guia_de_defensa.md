@@ -193,7 +193,7 @@ Respuesta corta: en vivo, con el panel: "Dato corrupto" o "Borrar archivo". El t
 | `main.py` | Une todo; maneja las señales SIGTERM y SIGINT para un cierre ordenado |
 | `panel/ventana.py`, `panel/fisica.py` | Panel de control: cabina, llave, puertas, taller y una física simplificada con fallas reales |
 | `panel/ecu.py` | ECU simulada: decide si el motor puede arrancar o debe detenerse y bloquea la tracción con una puerta abierta |
-| `panel/liberacion.py` | Banco de liberación: 9 pruebas de la época (R13-H, R39, ECE-15) con dictamen APTO o RECHAZADO |
+| `panel/liberacion.py` | Banco de liberación: 9 pruebas de la época (R13-H y Directiva 71/320/CEE de 1986, R39, ECE-15 con las tolerancias de UN R84) con dictamen APTO o RECHAZADO; consumo normalizado |
 | `tools/` | Simulador, escritor, P12, capturas, diagnóstico en Bash, evidencia del SO, ataque QA |
 
 ## 8. Preguntas difíciles probables
@@ -224,8 +224,9 @@ Respuesta corta: en vivo, con el panel: "Dato corrupto" o "Borrar archivo". El t
 - Probado a fondo en Linux. En Windows, el Python de Microsoft Store falla a veces al cargar Tcl/Tk.
 - En pantallas de 1024×768, parte de los controles no cabe.
 - Las categorías de los elementos 2, 3 y 5 están por confirmar con el profesor.
-- Las cifras del motor del panel son aproximadas, no oficiales.
-- El banco usa los criterios de UN R13-H y UN R39 leídos en su texto moderno; los valores de la Directiva 71/320/CEE de 1987 quedan pendientes de verificar. Las protecciones y el interbloqueo de puertas son del equipo, no del F40 original.
+- El modelo del panel es didáctico: el frenado, el consumo y las velocidades por marcha se calibraron con datos publicados (Etapa 22); las temperaturas, el sistema eléctrico y la curva de par entre sus dos puntos verificados son aproximados.
+- El banco usa UN R13-H y, desde la Etapa 22, también el criterio de la Directiva 71/320/CEE vigente en 1987 (texto consolidado de 1986). Sigue pendiente el texto de FMVSS 208 de 1987. Las protecciones y el interbloqueo de puertas son del equipo, no del F40 original.
+- La especificación pone el rojo del tacómetro en 8000 rpm (R03) y la línea roja real del F40 es 7750 rpm: se conserva la especificación y queda para decidir con el profesor.
 - Siguen pendientes la revisión cruzada, el escenario sorpresa y el acceso por Wi-Fi.
 - Las cifras eléctricas son genéricas de un sistema de 12 V y la batería se descarga 60 veces más rápido para la demostración (D14).
 
@@ -247,7 +248,7 @@ Respuesta corta: en vivo, con el panel: "Dato corrupto" o "Borrar archivo". El t
 
 **¿Qué es un dato de bits de estado?** `puertas` guarda dos puertas en un entero: bit 0 conductor y bit 1 pasajero; `puertas=3` son las dos abiertas (bloque 4.1, CP-163).
 
-**¿Qué normas usa el banco y son reales?** UN R13-H anexo 3 (frenado tipo 0: desde 100 km/h, distancia ≤ 70 m y desaceleración ≥ 6.43 m/s²; tipo I: 15 frenadas de 120 a 60 km/h cada 45 s), UN R39 (velocímetro: nunca indica menos que la velocidad real y 0 ≤ V1 − V2 ≤ 0.1 V2 + 4 km/h a 40, 80 y 120 km/h) y el ciclo urbano ECE-15 (195 s, 0.994 km). Los textos se leyeron en las ADR 31/01 y 18/03 de Australia, que adoptan esos reglamentos. Lo que no se pudo verificar (los valores de 1987 de la Directiva 71/320/CEE) está marcado como pendiente.
+**¿Qué normas usa el banco y son reales?** UN R13-H anexo 3 (frenado tipo 0: desde 100 km/h, distancia ≤ 70 m y desaceleración ≥ 6.43 m/s²; tipo I: 15 frenadas de 120 a 60 km/h cada 45 s), UN R39 (velocímetro: nunca indica menos que la velocidad real y 0 ≤ V1 − V2 ≤ 0.1 V2 + 4 km/h a 40, 80 y 120 km/h) y el ciclo urbano ECE-15 (195 s, 0.994 km). Los textos se leyeron en las ADR 31/01 y 18/03 de Australia, que adoptan esos reglamentos. En la Etapa 22 se agregaron los textos de la época: la Directiva 71/320/CEE vigente en 1987 (M1: desde 80 km/h, s ≤ 0.1 v + v²/150 = 50.7 m y 5.8 m/s²; L03 exige este criterio y el de R13-H), la Directiva 75/443/CEE (velocímetro: pide lo mismo que R39) y UN R84 (± 1 km/h y ± 0.5 s en el ciclo urbano; L06). Lo que no se pudo verificar (FMVSS 208 de 1987) está marcado como pendiente.
 
 **¿Encontró algo el banco?** Sí: DEF-16. El sensor de velocidad del panel redondeaba al décimo más cercano y podía indicar 80.0 km/h a 80.04 km/h reales, lo que R39 prohíbe. Ahora redondea hacia arriba.
 

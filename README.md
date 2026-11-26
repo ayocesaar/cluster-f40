@@ -173,6 +173,10 @@ El panel es un proceso aparte que escribe `datos/vehiculo.conf` con el mismo can
   `docs/evidencias/banco_liberacion.txt`. Desde el panel: "Banco con las fallas actuales" y "Ciclo ECE-15 en vivo".
 - Pruebas: `tests/test_realismo.py` y `tests/test_liberacion.py` (CP-163 a CP-183). Fuentes y lo que queda
   pendiente de verificar: [docs/realismo_y_liberacion.md](docs/realismo_y_liberacion.md).
+- **Etapa 22, datos verificados:** L03 exige también el frenado de la Directiva 71/320/CEE vigente en 1987 y L06 la
+  tolerancia de UN R84. El modelo usa las relaciones de la caja, el frenado publicado (60-0 mph en 36.3 m) y un consumo
+  por potencia calibrado con el del fabricante: `python3 tools/consumo.py`. Pruebas: `tests/test_verificacion.py`
+  (CP-210 a CP-214).
 
 ## Sonido del motor (Etapa 19)
 
