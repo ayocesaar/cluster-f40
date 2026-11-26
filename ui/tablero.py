@@ -10,8 +10,8 @@ Solo dibuja lo que entrega ui.presentacion.vista(estado) y envia los valores de
 los controles a EstadoCluster; no contiene reglas de negocio. Lo que las pruebas
 observan se conserva: items[n]["aguja"] y ["valor"] (1-5), items[n]["forma"]
 (6-10; ovalos 6-8 y rectangulos 9-10) e items[11] (odometro de 6 digitos).
-Los elementos adicionales de la Etapa 18 van en una franja inferior aparte (extras[12-15]):
-llave, combustible con su reserva, puerta, cinturon y proteccion del motor."""
+Los elementos adicionales de las Etapas 18 y 20 van en una franja inferior aparte (extras[12-16]):
+llave, combustible con su reserva, puerta, cinturon, proteccion del motor y carga de bateria."""
 
 import math
 import tkinter as tk
@@ -72,7 +72,8 @@ NOMBRES_TESTIGO = {6: "DIRECC.", 7: "ALTAS", 8: "EMERG.", 9: "PRES. ACEITE", 10:
 # Franja inferior con los elementos adicionales de la Etapa 18 (los diez aprobados no se mueven).
 FRANJA = (22, 500, 1100, 564)
 FILA_EXTRA = 534                     # centro vertical de los testigos de la franja
-EXTRA = {12: (648, 32, 30, "12 PUERTA"), 13: (722, 50, 30, "13 CINTURON"), 15: (808, 64, 30, "15 PROTECCION")}
+EXTRA = {12: (648, 32, 30, "12 PUERTA"), 13: (722, 50, 30, "13 CINTURON"), 15: (808, 64, 30, "15 PROTECCION"),
+         16: (890, 46, 30, "16 CARGA")}
 COMBUSTIBLE = (150, 528, 420, 542)   # barra del elemento 14: x0, y0, x1, y1
 
 # (setter de EstadoCluster, etiqueta, minimo, maximo, resolucion, conversion)
@@ -147,7 +148,7 @@ class Tablero:
         c.create_text(22, 16, text="F40", anchor="w", fill=NUMERO, font=(FUENTE, 15, "bold italic"))
         c.create_text(70, 17, text="CUADRO DE INSTRUMENTOS  ·  SIMULACION DIDACTICA", anchor="w",
                       fill=COLOR_TEXTO, font=(FUENTE, 8, "bold"))
-        c.create_text(ANCHO - 20, 17, text="FERRARI F40 (1987)  ·  R01-R12  ·  ELEMENTOS 1-15", anchor="e",
+        c.create_text(ANCHO - 20, 17, text="FERRARI F40 (1987)  ·  R01-R13  ·  ELEMENTOS 1-16", anchor="e",
                       fill=COLOR_TEXTO, font=(FUENTE, 8, "bold"))
         # Capota negra mate: una sola pieza curva, mas alta sobre el tacometro, como en el F40.
         contorno = (14, 410, 14, 100, 34, 74, 170, 64, 372, 60, 400, 34, 565, 22, 735, 30, 765, 52,
@@ -303,6 +304,12 @@ class Tablero:
             piezas.append((c.create_line(cx - 7, cy - 6, cx + 6, cy + 3, width=2), "fill"))
         elif clave == 15:       # proteccion del motor
             piezas.append((c.create_text(cx, cy, text="STOP", font=(FUENTE, 11, "bold")), "fill"))
+        elif clave == 16:       # bateria con sus bornes + y -
+            piezas.append((c.create_rectangle(cx - 12, cy - 6, cx + 12, cy + 8, width=2), "outline"))
+            piezas.append((c.create_rectangle(cx - 9, cy - 10, cx - 4, cy - 6, outline=""), "fill"))
+            piezas.append((c.create_rectangle(cx + 4, cy - 10, cx + 9, cy - 6, outline=""), "fill"))
+            piezas.append((c.create_text(cx - 6, cy + 1, text="-", font=(FUENTE, 9, "bold")), "fill"))
+            piezas.append((c.create_text(cx + 6, cy + 1, text="+", font=(FUENTE, 9, "bold")), "fill"))
         else:                   # reserva de combustible: surtidor
             piezas.append((c.create_rectangle(cx - 6, cy - 7, cx + 2, cy + 7, outline=""), "fill"))
             piezas.append((c.create_line(cx + 2, cy - 5, cx + 6, cy - 2, cx + 6, cy + 5, width=2), "fill"))
@@ -343,7 +350,7 @@ class Tablero:
             etiqueta = c.create_text(cx, cy + alto / 2 + 9, text=nombre, fill=MARCA_MENOR, font=(FUENTE, 6, "bold"))
             self.extras[numero] = {"forma": forma, "iconos": self._icono_extra(numero, cx, cy), "etiqueta": etiqueta,
                                    "ultimo": None}
-        self._txt_detalle = c.create_text(852, FILA_EXTRA, text="", anchor="w", fill=COLOR_ROJO,
+        self._txt_detalle = c.create_text(922, FILA_EXTRA, text="", anchor="w", fill=COLOR_ROJO,
                                           font=(FUENTE, 10, "bold"))
 
     # ------------------------------------------------------------------ controles
@@ -480,9 +487,10 @@ class Tablero:
     def _refrescar_extras(self):
         """Elementos 12-15: solo se redibuja lo que cambio, como en los testigos 6-10."""
         c, v = self.canvas, vista_extra(self.estado)
-        for numero in (12, 13, 15):
+        for numero in (12, 13, 15, 16):
             d, it = v[numero], self.extras[numero]
-            clave = (d["encendido"], d["color"], d["sin_dato"])
+            voltaje = d.get("voltaje")
+            clave = (d["encendido"], d["color"], d["sin_dato"], None if voltaje is None else round(voltaje, 1))
             if it["ultimo"] == clave:
                 continue
             it["ultimo"] = clave
@@ -490,6 +498,8 @@ class Tablero:
             for pieza, atributo in it["iconos"]:
                 c.itemconfigure(pieza, **{atributo: ICONO_ENCENDIDO if d["encendido"] else ICONO_APAGADO})
             c.itemconfigure(it["etiqueta"], fill=ICONO_APAGADO if d["sin_dato"] else MARCA_MENOR)
+            if numero == 16:      # el voltimetro va en la etiqueta del testigo
+                c.itemconfigure(it["etiqueta"], text="16 CARGA" if voltaje is None else f"16 CARGA {voltaje:.1f} V")
         d, it = v[14], self.extras[14]
         clave = (None if d["sin_dato"] else round(d["valor"], 1), d["color"], d["reserva"]["encendido"])
         if it["ultimo"] != clave:

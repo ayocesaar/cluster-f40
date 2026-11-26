@@ -36,10 +36,11 @@ ELEMENTOS_EXTRA = {
     13: {"nombre": "Cinturon", "categoria": CRITICA},
     14: {"nombre": "Combustible", "categoria": LECTURA, "minimo": 0, "maximo": 100},
     15: {"nombre": "Proteccion del motor", "categoria": CRITICA},
+    16: {"nombre": "Carga de bateria", "categoria": CRITICA},
 }
 TANQUE_L = 120.0     # capacidad del tanque del F40 (fichas tecnicas publicadas; ver docs/realismo_y_liberacion.md)
 TEXTO_CAUSA = {"sobretemperatura": "SOBRETEMPERATURA", "sobrepresion_turbo": "SOBREPRESION TURBO",
-               "aceite": "ACEITE", "combustible": "SIN COMBUSTIBLE"}
+               "aceite": "ACEITE", "combustible": "SIN COMBUSTIBLE", "electrica": "SISTEMA ELECTRICO"}
 
 
 def _lectura(numero, valor, color):
@@ -110,5 +111,7 @@ def vista_extra(estado):
              "sin_dato": combustible is None},
         15: dict(_testigo(causa is not None or prueba, COLOR_ROJO), causa=causa,
                  texto=TEXTO_CAUSA.get(causa, ""), sin_dato=estado.falla_motor is None),
+        16: dict(_testigo(estado.testigo_carga_encendido or prueba, COLOR_ROJO), voltaje=estado.voltaje,
+                 sin_dato=estado.voltaje is None and estado.encendido),
         "llave": {"estado": llave, "prueba": prueba},
     }

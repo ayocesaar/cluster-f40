@@ -24,6 +24,8 @@ TECNICAS = {
     "test_realismo.py": "Realismo y seguridad (elementos 12-15, ECU)",
     "test_liberacion.py": "Banco de liberacion (normas de la epoca)",
     "test_sonido.py": "Sonido del motor (sintesis y tiempo real)",
+    "test_caja_negra.py": "Caja negra (archivo binario de acceso directo)",
+    "test_electrico.py": "Sistema electrico, Weber-Marelli y sonidos de cabina",
 }
 
 # Los casos parametrizados llegan como "test_x[param]": se agrupan por funcion
@@ -84,7 +86,7 @@ for f in filas:
 for r in sorted(por_req):
     lineas.append(f"| {r} | {', '.join(por_req[r])} |")
 
-faltan = [f"R{i:02d}" for i in range(1, 13) if f"R{i:02d}" not in por_req]   # R09-R12: reglas agregadas (Etapa 18)
+faltan = [f"R{i:02d}" for i in range(1, 14) if f"R{i:02d}" not in por_req]   # R09-R13: reglas agregadas (Etapas 18 y 20)
 lineas += ["", f"Requisitos sin casos: {', '.join(faltan) or 'ninguno'}"]
 
 pathlib.Path("docs/matriz_trazabilidad.md").write_text("\n".join(lineas) + "\n", encoding="utf-8")

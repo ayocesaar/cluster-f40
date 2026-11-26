@@ -1,1 +1,1 @@
-2026-11-26T00:26:51-06:00 ERROR odometro odometro_invalido archivo=odometro.txt contenido="abc" (se espera un numero de km, por ejemplo 62.5) resultado=rechazado
+2026-11-26T16:14:18-06:00 ERROR odometro odometro_invalido archivo=odometro.txt contenido="abc" (se espera un numero de km, por ejemplo 62.5) resultado=rechazado

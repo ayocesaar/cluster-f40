@@ -130,6 +130,16 @@ FICHAS = (
      "evento": "WARN motor_detenido_por_proteccion; INFO proteccion_motor_liberada",
      "just": "El cuadro no decide si el motor puede funcionar: solo muestra la causa que envía la ECU. Una enumeración "
              "cerrada impide causas inventadas."},
+    {"n": "16", "nombre": "Carga de batería (adicional, Etapa 20)", "cat": "Testigo de seguridad", "clave": "voltaje",
+     "fuente": "datos/vehiculo.conf, clave opcional voltaje (el panel la calcula con su modelo de batería y alternador)",
+     "tipo": "Decimal (voltios)", "rango": "V; 0 a 20; sin dato hasta que llega", "ciclo": "Cada ciclo",
+     "visual": "Rectángulo rojo con una batería; el voltímetro va en la etiqueta (16 CARGA 14.2 V)",
+     "adv": "R13. Encendido con contacto y motor apagado (normal, el alternador no gira); con el motor en marcha y "
+            "menos de 13.0 V es crítico: WARN prioritario falla_de_carga.",
+     "invalido": "Fuera de 0-20 o texto: ERROR y se conserva el último válido; ausente igual que el elemento 12.",
+     "evento": "WARN falla_de_carga; INFO carga_normal",
+     "just": "La guía pone batería como ejemplo de testigo de seguridad. Un decimal con décimas basta para distinguir "
+             "12.6 V (batería) de 14.2 V (alternador cargando)."},
 )
 
 REGLAS_AGREGADAS = (
@@ -139,6 +149,8 @@ REGLAS_AGREGADAS = (
     ("R10", "Contacto y cinturon = 0: testigo 13 rojo fijo; sobre 10 km/h parpadea (500 ms) con WARN prioritario."),
     ("R11", "combustible ≤ 12 %: testigo de reserva ámbar; se apaga con ≥ 15 % (histéresis). Ciclo de 500 ms."),
     ("R12", "falla_motor ≠ ninguna con el cuadro energizado: testigo 15 rojo con la causa y WARN prioritario."),
+    ("R13", "Etapa 20. Contacto y motor apagado: testigo 16 encendido (normal); motor en marcha (≥ 800 rpm) con "
+            "voltaje < 13.0 V: testigo 16 y WARN prioritario falla_de_carga."),
 )
 
 DECISIONES_AGREGADAS = (
@@ -151,6 +163,12 @@ DECISIONES_AGREGADAS = (
             "el cuadro muestra, la ECU decide. Son medidas del equipo; el F40 de 1987 no las tenía todas."),
     ("D12", "El sensor de velocidad del panel redondea hacia arriba a la décima para no indicar nunca menos que la "
             "velocidad real (UN R39 5.3); antes redondeaba al más cercano (DEF-16)."),
+    ("D13", "Caja negra: archivo binario de tamaño fijo (anillo de 600 registros de 32 bytes) con acceso directo, "
+            "escrito por un hilo propio con fsync una vez por segundo; la interfaz nunca espera al disco."),
+    ("D14", "La batería del panel se carga y descarga 60 veces más rápido para que la falla del alternador se vea en "
+            "la demostración (igual que el calentamiento del motor, que ya estaba acelerado)."),
+    ("D15", "La falla de una unidad Weber-Marelli no enciende ningún testigo: en 1987 no había testigo de motor. Se "
+            "nota al oído, en el tacómetro y en el banco de liberación (L01)."),
 )
 
 PRUEBAS = (
@@ -239,6 +257,9 @@ AMENAZAS = (
     ("Mensajes falsos o malformados a la bocina de sonido", "Escucha solo en 127.0.0.1 y llega por un túnel SSH; "
      "cada línea JSON se valida (claves, tipos, rangos, sin NaN, máximo 512 bytes)", "Contador de mensajes rechazados",
      "El mensaje se descarta y el audio sigue con el último estado válido", "CP-189"),
+    ("Caja negra dañada (corte de luz, disco)", "fsync cada segundo; tamaño fijo; CRC por registro y en la cabecera",
+     "Registro con CRC inválido; ERROR caja_negra_invalida", "Se salta el registro; una cabecera mala se aparta y se "
+     "crea otra", "CP-193"),
 )
 
 SEGURIDAD_VEHICULO = (
@@ -254,6 +275,11 @@ SEGURIDAD_VEHICULO = (
      "Reparar; el banco la rechaza (tipo 0 y tipo I)", "CP-175, L03, L04"),
     ("Sin combustible", "El motor se apaga solo; no arranca hasta cargar", "Reserva (R11) y testigo 15",
      "Llenar el tanque", "CP-177"),
+    ("Alternador que no carga", "No hay corte inmediato; la batería se descarga; bajo 10.5 V durante 1 s la gestión "
+     "electrónica se apaga; con la batería bajo 11.6 V en reposo no arranca", "Testigo 16 y WARN falla_de_carga (R13)",
+     "Reparar y cargar la batería", "CP-197, CP-198, L01"),
+    ("Una unidad Weber-Marelli sin encendido (el F40 tiene una por banco)", "Sin corte: el motor sigue con 4 cilindros, "
+     "medio empuje y un turbo", "Ninguno (como en 1987): se oye cojo y el tacómetro oscila", "Reparar", "CP-199, L01"),
 )
 
 
@@ -269,6 +295,7 @@ def construir():
     casos, fecha = cargar_junit()
     cov = json.loads(leer(EVID / "coverage.json"))
     metricas = leer(EVID / "metricas.txt").splitlines()
+    caja_negra = leer(EVID / "caja_negra" / "reporte.txt").splitlines()
     banco = leer(EVID / "banco_liberacion.txt").splitlines()
     config = leer(RAIZ / "config" / "cluster.ini").splitlines()
     datos = leer(RAIZ / "datos" / "vehiculo.conf").splitlines()
@@ -321,7 +348,9 @@ def construir():
         "Tkinter estilo F40, bitácoras, pruebas P01–P12 y métricas.",
         "Ampliación (Etapa 18): cuatro elementos adicionales de seguridad y consumo (12-15), llave de contacto, ECU "
         "simulada con interbloqueos y protecciones, y un banco de liberación de producción con pruebas normalizadas de "
-        "la época (frenado UN R13-H, velocímetro UN R39 y ciclo urbano ECE-15).",
+        "la época (frenado UN R13-H, velocímetro UN R39 y ciclo urbano ECE-15). Etapas 19 y 20: sonido del "
+        "motor sintetizado, sistema eléctrico con testigo de carga (16), falla de una unidad Weber-Marelli y "
+        "una caja negra binaria de acceso directo.",
         "Fuera del alcance: hardware, ECU y sensores reales; calibraciones del F40; plataformas distintas de Linux y Windows.",
         "La interfaz sigue la distribución del tablero del F40: velocímetro y tacómetro grandes al centro, medidores chicos "
         "a los lados y los testigos críticos arriba, entre las esferas."])
@@ -433,6 +462,17 @@ def construir():
         "completa o la nueva completa."])
     doc.add_paragraph("Métricas reales de la ejecución prolongada (docs/evidencias/metricas.txt):")
     codigo(doc, metricas)
+    doc.add_heading("Caja negra: historial acotado con acceso directo (Etapa 20)", level=2)
+    doc.add_paragraph("datos/caja_negra.bin guarda los últimos 60 s a 10 muestras por segundo en un anillo de 600 registros "
+                      "de 32 bytes con una cabecera de 64 (19 264 bytes fijos: el historial nunca crece). El registro k "
+                      "está en el byte 64 + (k mod 600) × 32 y se escribe con pwrite en ese desplazamiento: acceso "
+                      "directo, a diferencia de las bitácoras (secuenciales, solo se agrega al final). Formato binario "
+                      "con tamaño, signo y escala por campo (por ejemplo, la temperatura es int16 en décimas para admitir "
+                      "valores bajo cero) y CRC-16 por registro. Política de escritura: la interfaz deja la muestra en "
+                      "una cola acotada y un hilo escritor la graba con fsync una vez por segundo: se arriesga a lo más el "
+                      "último segundo a cambio de no frenar la interfaz. Ante un testigo crítico exporta los 10 s previos a "
+                      "CSV. Detalle en docs/caja_negra.md; evidencia real (docs/evidencias/caja_negra/reporte.txt):")
+    codigo(doc, caja_negra[:12])
 
     # 8. Seguridad
     doc.add_heading("8. Seguridad, amenazas y controles", level=1)
@@ -482,7 +522,7 @@ def construir():
                       "tablero: frenado tipo 0 y tipo I (UN R13-H anexo 3), exactitud del velocímetro (UN R39 5.3 y anexo 3), "
                       "ciclo urbano ECE-15 de 195 s con el odómetro, prueba de testigos (R13-H 5.2.21.4) y tres criterios del "
                       "equipo (enfriamiento, turbo y puertas). Resultado real (docs/evidencias/banco_liberacion.txt):")
-    codigo(doc, [l for l in banco if l.startswith(("MATRIZ", "  ", "Resultado"))][-8:])
+    codigo(doc, [l for l in banco if l.startswith(("MATRIZ", "  ", "Resultado"))][-10:])
     doc.add_paragraph("Detalle de la unidad sin fallas:")
     codigo(doc, banco[4:4 + 1 + 9 * 3 + 1])
     doc.add_heading("Limitaciones", level=2)

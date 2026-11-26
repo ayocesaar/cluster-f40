@@ -2,26 +2,29 @@ Name                            Stmts   Miss Branch BrPart  Cover   Missing
 ---------------------------------------------------------------------------
 aceptacion/__init__.py              0      0      0      0   100%
 aceptacion/escenarios.py          139      0     44      0   100%
-logic/estado.py                   312      0     98      3    99%   181->183, 186->188, 200->205
+logic/estado.py                   330      0    102      4    99%   186->188, 191->193, 205->210, 213->216
 logic/odometro.py                  27      0      8      0   100%
 logic/reloj.py                     18      0      4      0   100%
-main.py                           103      3     18      2    96%   95, 116-117, 132->134
+main.py                           120      6     24      3    94%   81-83, 89->exit, 116, 139-140, 155->157
 panel/__init__.py                   0      0      0      0   100%
-panel/comandos.py                 110     25     30      8    75%   31, 37-38, 42, 49, 60-61, 73, 84, 144, 147-155, 160-163, 174-175
-panel/ecu.py                       73      3     34      3    94%   55, 57, 74
-panel/fisica.py                   146      2     26      2    98%   98, 113
-panel/liberacion.py               269      2     78      1    99%   118-119, 228->239
-panel/sonido.py                   372     18     94      6    94%   259, 261, 407-411, 453-454, 459-460, 479, 525, 536-538, 554-555
-panel/ventana.py                  688    123    186     24    79%   130-131, 334, 378, 381, 386-413, 416-418, 423->426, 428-430, 440-442, 456-457, 504-514, 534-544, 555-556, 582, 591-596, 603, 610-611, 624-628, 634, 646-652, 655-664, 669-670, 675-681, 704-706, 726-727, 737-741, 748->746, 780, 782, 784, 792->exit, 839, 843, 844->846, 853, 866, 875
+panel/comandos.py                 110     37     30      8    64%   31, 37-38, 41, 50-64, 75-76, 84, 144, 147-155, 160-163, 174-175
+panel/ecu.py                       84      3     40      3    95%   64, 66, 88
+panel/fisica.py                   187      2     34      2    98%   122, 137
+panel/liberacion.py               272      2     80      1    99%   118-119, 234->245
+panel/sonido.py                   420     18    110      6    95%   317, 319, 469-473, 515-516, 521-522, 541, 587, 598-600, 616-617
+panel/ventana.py                  697    123    194     24    79%   131-132, 336, 380, 383, 388-415, 418-420, 425->428, 430-432, 442-444, 462-463, 516-526, 546-556, 567-568, 594, 603-608, 615, 622-623, 636-640, 646, 658-664, 667-676, 681-682, 687-693, 716-718, 738-739, 751-755, 762->760, 797, 799, 801, 809->exit, 856, 860, 861->863, 870, 883, 892
 sistema/__init__.py                 0      0      0      0   100%
 sistema/bitacora.py                62      0      8      2    97%   47->49, 56->58
-sistema/config.py                  72      0     16      0   100%
-sistema/lector.py                 269      6     92      8    96%   170->172, 172->exit, 181->183, 229, 245->exit, 252, 261->265, 284->exit, 327-328, 382-383
-sistema/monitor.py                 80      0     54      2    99%   109->111, 115->exit
+sistema/caja_negra.py             203      6     48      7    95%   143, 146-147, 166->exit, 207->201, 212->exit, 226->exit, 279-280, 283, 297->299
+sistema/config.py                  77      0     16      0   100%
+sistema/lector.py                 269      6     92      8    96%   171->173, 173->exit, 182->184, 230, 246->exit, 253, 262->266, 285->exit, 328-329, 383-384
+sistema/monitor.py                 84      0     58      1    99%   120->exit
 sistema/odometro_archivo.py        81      2     18      0    98%   99-100
 tests/conftest.py                  17      0      0      0   100%
 tests/test_aceptacion.py           81      2      0      0    98%   20-21
+tests/test_caja_negra.py          193      3     20      2    98%   85->87, 148->exit, 166, 187-188
 tests/test_complementarias.py      53      0      6      0   100%
+tests/test_electrico.py           166      2     22      1    98%   34->31, 175-176
 tests/test_invalidas.py            50      0      0      0   100%
 tests/test_liberacion.py           41      0      0      0   100%
 tests/test_limites.py              98      0      0      0   100%
@@ -33,17 +36,18 @@ tests/test_presentacion.py         49      0      0      0   100%
 tests/test_realismo.py            391      4     40      3    98%   265-266, 308->313, 321->327, 348->354, 416-417
 tests/test_requisitos.py           17      0      4      0   100%
 tests/test_robustez.py            215      2     12      1    99%   50-51, 118->exit
-tests/test_sistema.py             382      4     38      0    99%   174-175, 416-417
+tests/test_sistema.py             382      2     38      0    99%   416-417
 tests/test_sonido.py              150      3     16      1    98%   166, 172-173
 tests/test_tablero.py              50      2      0      0    96%   15-16
 tests/test_transiciones.py        101      0      6      0   100%
 tools/banco_liberacion.py          46      0      6      0   100%
 tools/bocina.py                    77     26     16      3    65%   33->35, 47->71, 50-54, 60-61, 81-102
+tools/caja_negra.py               132     11     38      4    90%   58-59, 75-76, 90-91, 155, 162-164, 175, 176->179
 tools/ejecucion_prolongada.py      98     73      8      0    24%   42-46, 53-57, 71, 75-188
 tools/escribir_dato.py             51      0     10      0   100%
 tools/simulador.py                 42      0      6      0   100%
 ui/__init__.py                      0      0      0      0   100%
 ui/presentacion.py                 36      0      4      0   100%
-ui/tablero.py                     368      1     88      2    99%   255->262, 508
+ui/tablero.py                     377      1     92      2    99%   256->263, 518
 ---------------------------------------------------------------------------
-TOTAL                            5737    307   1126     75    94%
+TOTAL                            6596    342   1312     90    94%

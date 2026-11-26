@@ -39,8 +39,8 @@ La ficha obligatoria de cada elemento está completa en el **informe técnico, s
 | 4.1 Representación de datos | ✅ | Informe técnico §5; `sistema/lector.py` (`convertir`, `formatear`); CP-109; bits de estado (`puertas`) y enumeración (`falla_motor`), CP-163 |
 | 4.2 Procesos y calendarización | ✅ | Informe técnico §6; hilo lector + `after()`; prioridad del monitor de seguridad |
 | 4.3 Comunicación y sincronización | ✅ | Escritura atómica + buzón `queue.Queue(maxsize=1)`; prueba concurrente CP-98 |
-| 4.4 Sistema de archivos | ✅ | Carpetas separadas, rutas relativas, permisos 640/750; CP-101 a CP-103, CP-106 |
-| 4.5 Memoria y almacenamiento | ✅ | Informe técnico §7; métricas reales de memoria en `docs/evidencias/metricas.txt` |
+| 4.4 Sistema de archivos | ✅ | Carpetas separadas, rutas relativas, permisos 640/750; CP-101 a CP-103, CP-106; acceso directo en la caja negra (CP-192) |
+| 4.5 Memoria y almacenamiento | ✅ | Informe técnico §7; métricas reales de memoria en `docs/evidencias/metricas.txt`; historial acotado de la caja negra (600 registros fijos, fsync cada segundo; CP-192, CP-195) |
 | 4.6 Seguridad | ✅ | Informe técnico §8: seis amenazas con controles; CP-107 |
 | 4.7 Errores y bitácoras | ✅ | `sistema/bitacora.py`; ejemplos en `docs/evidencias/bitacoras/`; CP-105, CP-110 |
 

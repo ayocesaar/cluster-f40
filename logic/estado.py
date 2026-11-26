@@ -26,6 +26,9 @@ llegan en claves opcionales y quedan "sin dato" si el productor no las envia):
   R11 - Elemento 14, combustible: porcentaje del tanque, ciclo de 500 ms y reserva con
         histeresis (enciende con <= 12 %, se apaga con >= 15 %).
   R12 - Elemento 15, proteccion del motor: rojo mientras la ECU informe una causa.
+  R13 - Elemento 16, carga de bateria (Etapa 20): rojo con contacto y motor apagado (normal, como
+        en un auto real) y con el motor en marcha si el voltaje baja de 13.0 V: el alternador no
+        carga (advertencia critica).
 
 Nota de diseno (resuelve una ambiguedad de la guia original, documentada
 tambien en el informe): al apagar el motor (R01, encendido=0) se apaga
@@ -45,9 +48,10 @@ PRUEBA_TESTIGOS_MS = 2000.0      # todos los testigos encienden al dar contacto
 VELOCIDAD_EN_MOVIMIENTO = 3.0    # km/h: desde aqui la puerta abierta es una advertencia critica (R09)
 VELOCIDAD_CINTURON = 10.0        # km/h: desde aqui el testigo del cinturon parpadea (R10)
 RESERVA_ENCIENDE, RESERVA_APAGA = 12.0, 15.0   # % del tanque (R11)
+VOLTAJE_DE_CARGA = 13.0          # V: con el motor en marcha y menos que esto, el alternador no carga (R13)
 
 DIRECCIONALES_VALIDAS = ("OFF", "IZQ", "DER")
-CAUSAS_MOTOR = ("ninguna", "sobretemperatura", "sobrepresion_turbo", "aceite", "combustible")
+CAUSAS_MOTOR = ("ninguna", "sobretemperatura", "sobrepresion_turbo", "aceite", "combustible", "electrica")
 
 
 def _validar_numero(valor, nombre, minimo, maximo, *, tipo="float"):
@@ -116,6 +120,7 @@ class EstadoCluster:
         self._cinturon = None
         self._obj_combustible = None
         self._falla_motor = None
+        self._voltaje = None
         self.combustible = None
         self.reserva_combustible = False
         self._t_combustible = ahora
@@ -203,6 +208,31 @@ class EstadoCluster:
             if valor not in CAUSAS_MOTOR:
                 raise ValueError(f"falla_motor desconocida: {valor!r}")
         self._falla_motor = valor
+
+    def set_voltaje(self, valor):
+        if valor is not None:
+            _validar_numero(valor, "voltaje", 0, 20)
+            valor = float(valor)
+        self._voltaje = valor
+
+    @property
+    def voltaje(self):
+        """Voltaje del sistema electrico mostrado (None sin dato o con el cuadro sin energia)."""
+        return self._voltaje if self.encendido else None
+
+    @property
+    def testigo_carga_encendido(self):
+        """Elemento 16 (R13): con contacto y motor apagado se enciende (el alternador no gira); con
+        el motor en marcha solo si el voltaje no llega a 13.0 V."""
+        if self.voltaje is None:
+            return False
+        return not self._motor or self.voltaje < VOLTAJE_DE_CARGA
+
+    @property
+    def falla_de_carga(self):
+        """El motor ya gira (800 rpm o mas) y el alternador no carga: advertencia critica. Mientras
+        el motor arranca el testigo se ve encendido, pero eso es normal y no se registra."""
+        return bool(self._motor and self.rpm >= 800 and self.voltaje is not None and self.voltaje < VOLTAJE_DE_CARGA)
 
     @property
     def contacto(self):

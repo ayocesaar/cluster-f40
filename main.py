@@ -14,6 +14,7 @@ from logic.estado import EstadoCluster
 from logic.reloj import RelojReal
 from sistema import config as configuracion
 from sistema import odometro_archivo
+from sistema.caja_negra import CajaNegra, Registrador
 from sistema.bitacora import Bitacora
 from sistema.lector import Consumidor, HiloLector, Lector
 from sistema.monitor import MonitorEventos
@@ -55,7 +56,8 @@ class Aplicacion:
         self._km_guardado = round(km, 3)
         self._id_guardado = raiz.after(self.cfg.guardar_cada_s * 1000, self._guardar_periodico)
         self.monitor = MonitorEventos(self.bitacora)
-        self.tablero.despues_del_tick = self.monitor.revisar
+        self.caja_negra = self._abrir_caja_negra()
+        self.tablero.despues_del_tick = self._despues_del_tick
         raiz.report_callback_exception = self._error_interfaz
         raiz.protocol("WM_DELETE_WINDOW", self.cerrar)
 
@@ -67,6 +69,25 @@ class Aplicacion:
             self.tablero.antes_del_tick = Consumidor(buzon, self.tablero, lector=self.lector)
             self.tablero.modo_externo(self.cfg.relativa(self.cfg.archivo_datos))
             self.hilo.start()
+
+    def _abrir_caja_negra(self):
+        """Caja negra (Etapa 20). Solo la ventana que tiene el candado de instancia la escribe, igual
+        que el odometro: dos ventanas no deben escribir el mismo archivo. Si no se puede abrir, el
+        tablero sigue sin ella."""
+        if not self._candado.adquirido:
+            return None
+        try:
+            caja = CajaNegra(self.cfg.archivo_caja_negra, self.cfg.segundos * self.cfg.frecuencia_hz, self.bitacora)
+        except OSError as error:
+            self.bitacora.error("caja_negra", "caja_negra_no_disponible", f"{type(error).__name__}: {error}")
+            return None
+        return Registrador(caja, self.cfg.dir_logs / "caja_negra", hz=self.cfg.frecuencia_hz,
+                           eventos_max=self.cfg.eventos_max, bitacora=self.bitacora)
+
+    def _despues_del_tick(self, estado):
+        self.monitor.revisar(estado)
+        if self.caja_negra is not None:
+            self.caja_negra.muestrear(estado)
 
     def _error_interfaz(self, tipo, valor, _traza):
         """Un error dentro de la interfaz se registra y la aplicacion sigue."""
@@ -98,6 +119,8 @@ class Aplicacion:
         self.raiz.after_cancel(self._id_guardado)
         if self.hilo is not None:
             self.hilo.detener()
+        if self.caja_negra is not None:
+            self.caja_negra.cerrar()
         self.guardar_odometro()
         self._candado.liberar()
         c = self.bitacora.contadores

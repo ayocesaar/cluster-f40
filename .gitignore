@@ -8,5 +8,8 @@ logs/
 # kilometraje generado al ejecutar
 datos/odometro.txt
 datos/odometro.txt.bak
+# caja negra generada al ejecutar (los ejemplos versionados estan en docs/evidencias/caja_negra)
+datos/caja_negra.bin
+datos/caja_negra.bin.invalido
 # candados de instancia unica y de escritura
 datos/*.lock

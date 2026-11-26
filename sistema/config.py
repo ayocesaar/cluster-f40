@@ -32,6 +32,10 @@ ENTEROS = (
     ("bitacora", "max_bytes", 1024, 10_485_760, 262_144),
     ("bitacora", "respaldos", 1, 10, 3),
     ("odometro", "guardar_cada_s", 1, 3600, 5),
+    # Caja negra (Etapa 20): segundos que conserva el anillo, muestras por segundo y eventos CSV guardados.
+    ("caja_negra", "segundos", 10, 600, 60),
+    ("caja_negra", "frecuencia_hz", 1, 20, 10),
+    ("caja_negra", "eventos_max", 1, 200, 20),
 )
 
 
@@ -46,6 +50,10 @@ class Configuracion:
     max_bytes: int = 262_144
     respaldos: int = 3
     guardar_cada_s: int = 5
+    archivo_caja_negra: pathlib.Path = None
+    segundos: int = 60
+    frecuencia_hz: int = 10
+    eventos_max: int = 20
     rangos: dict = field(default_factory=lambda: dict(RANGOS_ESPECIFICACION))
     errores: list = field(default_factory=list)
 
@@ -87,7 +95,10 @@ def cargar(ruta=None, raiz=RAIZ):
     logs = _ruta_segura(raiz, ini.get("rutas", "logs", fallback="logs"), "logs", "logs", errores)
     odometro = _ruta_segura(raiz, ini.get("rutas", "odometro", fallback="datos/odometro.txt"),
                             "datos/odometro.txt", "odometro", errores)
-    cfg = Configuracion(raiz=raiz, archivo_datos=datos, dir_logs=logs, archivo_odometro=odometro, errores=errores)
+    caja_negra = _ruta_segura(raiz, ini.get("rutas", "caja_negra", fallback="datos/caja_negra.bin"),
+                              "datos/caja_negra.bin", "caja_negra", errores)
+    cfg = Configuracion(raiz=raiz, archivo_datos=datos, dir_logs=logs, archivo_odometro=odometro,
+                        archivo_caja_negra=caja_negra, errores=errores)
 
     for seccion, clave, minimo, maximo, defecto in ENTEROS:
         texto = ini.get(seccion, clave, fallback=None)

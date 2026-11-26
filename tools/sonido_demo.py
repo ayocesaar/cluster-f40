@@ -25,7 +25,7 @@ DT = BLOQUE / FS
 GUION = (
     (0.0, "contacto"), (1.8, "cinturon"), (2.3, "arrancar"), (4.5, "acelerar"), (5.1, "soltar"),
     (6.0, "acelerar"), (6.6, "soltar"), (7.6, "primera"), (11.6, "segunda"), (14.6, "soltar"),
-    (16.6, "frenar"), (21.1, "apagar"), (22.4, "fin"),
+    (16.6, "frenar"), (19.4, "direccional"), (21.1, "apagar"), (22.4, "fin"),
 )
 
 
@@ -49,7 +49,9 @@ def conducir(salida):
                 v.cambiar("1" if accion == "primera" else "2")
                 v.acelerador = 1.0
             elif accion == "frenar":
-                v.acelerador, v.freno = 0.0, 0.6
+                v.acelerador, v.freno = 0.0, 1.0                  # a fondo: chirrian las llantas
+            elif accion == "direccional":
+                v.direccional = "IZQ"
             elif accion == "apagar":
                 v.motor, v.contacto, v.freno = False, False, 0.0
             elif accion == "fin":
@@ -101,6 +103,19 @@ def mediciones():
     for _ in range(int(0.5 * FS / BLOQUE)):
         sint.generar(EstadoSonoro(motor=True, rpm=1000, contacto=True), BLOQUE)
     lineas.append(f"Motor de arranque: {sint.explosiones} explosiones en los primeros 0.5 s (arranca a los 0.55 s)")
+    cojo, sint = _estable(EstadoSonoro(motor=True, rpm=1000, contacto=True, banco=True), 1.5)
+    lineas.append(f"Un banco sin encendido (Weber-Marelli) a 1000 rpm: una explosion cada "
+                  f"{periodo_dominante_ms(cojo[FS // 2:]):.1f} ms ({sint.saltadas} explosiones omitidas: una de cada dos)")
+    clics, sint = _estable(EstadoSonoro(contacto=True, intermitente=True), 2.0, arrancado=False)
+    env = envolvente(clics, FS // 200)
+    umbral = 0.5 * max(env)
+    picos = [i * 5 for i in range(len(env)) if env[i] > umbral and (i == 0 or env[i - 1] <= umbral)]
+    lineas.append(f"Relevador de direccionales: {len(picos)} clics en 2 s, en {picos} ms")
+    sin, _ = _estable(EstadoSonoro(motor=True, rpm=2000, contacto=True), 1.0)
+    con, _ = _estable(EstadoSonoro(motor=True, rpm=2000, contacto=True, chirrido=1.0), 1.0)
+    banda = range(1072, 1130, 7)
+    lineas.append(f"Chirrido de llantas (1100 Hz): {sum(potencia(con[FS // 4:], f) for f in banda) / sum(potencia(sin[FS // 4:], f) for f in banda):.0f} "
+                  "veces la potencia sin chirrido")
     inicio = time.perf_counter()
     _estable(EstadoSonoro(motor=True, rpm=6000, acel=1.0, turbo=1.0, contacto=True), 2.0)
     costo = (time.perf_counter() - inicio) / 2.0

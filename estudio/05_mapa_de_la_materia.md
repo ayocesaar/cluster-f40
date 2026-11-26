@@ -80,6 +80,16 @@ Las salidas reales están en `docs/evidencias/so/`. Se generan con `xvfb-run -a 
 | 1.2 Codificación | PCM de 16 bits con signo, little endian, 22 050 muestras por segundo, mono; archivo WAV | `docs/evidencias/sonido/` |
 | 6 Seguridad | La bocina escucha solo en 127.0.0.1, valida cada mensaje y cuenta los rechazados | CP-189 |
 
+## Etapa 20: caja negra y sistema eléctrico en la materia
+
+| Tema | Qué se agregó | Evidencia |
+|---|---|---|
+| 4.3 Acceso a archivos | Acceso **directo**: el registro k de la caja negra está en el byte 64 + (k mod 600) × 32 y se lee y escribe con pread/pwrite en ese desplazamiento (las bitácoras son secuenciales) | CP-192; `docs/evidencias/caja_negra/reporte.txt` |
+| 5.1 y 5.5 Almacenamiento | Historial acotado: anillo de tamaño fijo (19 264 bytes) que nunca crece; política de escritura con fsync cada segundo (durabilidad contra rendimiento) | CP-192, CP-195 |
+| 1.2 Codificación | Registro binario de 32 bytes: enteros con y sin signo, escalas (décimas, centésimas), 255 como "sin dato", little endian y CRC-16 | CP-191; `tools/caja_negra.py --hex 1` |
+| 3.4 Productor y consumidor | La interfaz deja cada muestra en una cola acotada y un hilo escritor la graba; si la cola se llena, la muestra se descarta y se cuenta (la interfaz nunca espera al disco) | CP-195 |
+| 6 Seguridad e integridad | CRC por registro y cabecera; una cabecera dañada se aparta y se crea otra (recuperación) | CP-193 |
+
 ## Lo que no se añadió y por qué
 
 - **Asignación de memoria (5.2), acceso a disco (5.4) y asignación de espacio (5.5) como algoritmos:** serían simuladores independientes; no mejoran el clúster ni se evalúan con él.

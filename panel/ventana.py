@@ -103,6 +103,7 @@ class Panel:
         self.reloj = reloj
         self.sonido = sonido_motor.crear(sonido, salida_sonido)
         self.silencio = False
+        self.giro_arranque = (0.0, 0.0)      # (hasta, fuerza) del motor de arranque sin prender
         cfg = configuracion.cargar()
         self.ruta = pathlib.Path(ruta_datos) if ruta_datos else cfg.archivo_datos
         self.dir_logs = pathlib.Path(dir_logs) if dir_logs else cfg.dir_logs
@@ -132,7 +133,7 @@ class Panel:
 
         raiz.title("Panel de control - Cluster F40 (simulado)")
         raiz.configure(bg=FONDO)
-        raiz.geometry("1420x830")
+        raiz.geometry("1490x830")
         raiz.minsize(1240, 760)
         self._construir()
         raiz.bind_all("<KeyPress>", self._tecla_abajo)
@@ -226,6 +227,10 @@ class Panel:
         for texto, accion in (("Reparar fallas", "reparar"), ("Rellenar aceite", "aceite"),
                               ("Llenar tanque", "tanque"), ("Reserva 10 L", "reserva")):
             _boton(fila, texto, lambda a=accion: self.taller(a)).pack(side="left", padx=2)
+        fila = tk.Frame(seguridad, bg=SECCION)
+        fila.pack(fill="x", pady=(0, 4))
+        for texto, accion in (("Cargar bateria", "bateria"), ("Bateria debil 6 %", "bateria_debil")):
+            _boton(fila, texto, lambda a=accion: self.taller(a)).pack(side="left", padx=2)
 
         teclas = _seccion(padre, "TECLAS")
         teclas.pack(fill="x")
@@ -279,7 +284,9 @@ class Panel:
                              ("radiador", "Radiador: se calienta y la ECU lo detiene"),
                              ("sobrepresion_turbo", "Turbo: > 1.5 bar y corte del motor"),
                              ("frenos", "Frenos: testigo 10 y frena al 30 %"),
-                             ("velocimetro", "Velocimetro: indica 5 % menos (R39)")):
+                             ("velocimetro", "Velocimetro: indica 5 % menos (R39)"),
+                             ("alternador", "Alternador: no carga (testigo 16)"),
+                             ("ecu_banco", "Weber-Marelli de un banco: 4 cilindros")):
             var = tk.BooleanVar()
             self.var_fallas[clave] = var
             tk.Checkbutton(fallas, text=texto, variable=var, command=self._fallas, bg=SECCION, fg=TEXTO,
@@ -299,23 +306,18 @@ class Panel:
 
         lecturas = _seccion(padre, "LECTURAS ENVIADAS AL TABLERO")
         lecturas.pack(fill="x", pady=6)
-        self.lbl_lecturas = {}
-        for clave in CLAVES:
-            fila = tk.Frame(lecturas, bg=SECCION)
-            fila.pack(fill="x", padx=4)
-            tk.Label(fila, text=f"{clave}", bg=SECCION, fg=TENUE, font=(FUENTE, 9), width=15, anchor="w").pack(
-                side="left")
-            lbl = tk.Label(fila, text="-", bg=SECCION, fg=TEXTO, font=(FUENTE, 10, "bold"), anchor="w")
-            lbl.pack(side="left")
-            self.lbl_lecturas[clave] = lbl
-        self.lbl_extra = {}
-        for clave in (*CLAVES_EXTRA, "nivel_aceite", "temp_frenos"):
-            fila = tk.Frame(lecturas, bg=SECCION)
-            fila.pack(fill="x", padx=4)
-            tk.Label(fila, text=clave, bg=SECCION, fg=TENUE, font=(FUENTE, 9), width=15, anchor="w").pack(side="left")
-            lbl = tk.Label(fila, text="-", bg=SECCION, fg=TEXTO, font=(FUENTE, 10, "bold"), anchor="w")
-            lbl.pack(side="left")
-            self.lbl_extra[clave] = lbl
+        # Dos columnas: las diez claves a la izquierda y las opcionales y del taller a la derecha.
+        rejilla = tk.Frame(lecturas, bg=SECCION)
+        rejilla.pack(fill="x", padx=4)
+        self.lbl_lecturas, self.lbl_extra = {}, {}
+        for columna, claves, destino in ((0, CLAVES, self.lbl_lecturas),
+                                         (2, (*CLAVES_EXTRA, "bateria", "nivel_aceite", "temp_frenos"), self.lbl_extra)):
+            for fila, clave in enumerate(claves):
+                tk.Label(rejilla, text=clave, bg=SECCION, fg=TENUE, font=(FUENTE, 8), anchor="w").grid(
+                    row=fila, column=columna, sticky="w")
+                lbl = tk.Label(rejilla, text="-", bg=SECCION, fg=TEXTO, font=(FUENTE, 9, "bold"), anchor="w", width=10)
+                lbl.grid(row=fila, column=columna + 1, sticky="w", padx=(2, 6))
+                destino[clave] = lbl
         self.lbl_escritura = tk.Label(lecturas, text="", bg=SECCION, fg=TENUE, font=(FUENTE, 8), anchor="w",
                                       justify="left")
         self.lbl_escritura.pack(fill="x", padx=4, pady=(2, 4))
@@ -350,8 +352,8 @@ class Panel:
                  fg=TENUE, font=(FUENTE, 8, "bold"), anchor="w").pack(fill="x", padx=4, pady=(3, 0))
         fila = tk.Frame(atajos, bg=SECCION)
         fila.pack(fill="x", padx=4, pady=(0, 6))
-        _boton(fila, "Banco con las fallas actuales", self.banco_actual, color="#1f3d27").pack(side="left", padx=2)
-        _boton(fila, "Ciclo ECE-15 en vivo (195 s)", self.ciclo_ece15).pack(side="left", padx=2)
+        _boton(fila, "Banco (fallas actuales)", self.banco_actual, color="#1f3d27").pack(side="left", padx=2)
+        _boton(fila, "ECE-15 en vivo (195 s)", self.ciclo_ece15).pack(side="left", padx=2)
 
         salida = _seccion(padre, "CONSOLA")
         salida.pack(fill="both", expand=True, pady=6)
@@ -443,6 +445,10 @@ class Panel:
         v.contacto = True
         motivo = self.ecu.motivo_sin_arranque(v)
         if motivo:
+            # El motor de arranque gira (lento con la bateria descargada, normal sin combustible); con un
+            # interbloqueo de la ECU (aceite, temperatura, proteccion enclavada) ni siquiera gira.
+            fuerza = {"electrica": 0.35, "combustible": 1.0}.get(self.ecu.proteccion, 0.0)
+            self.giro_arranque = (self.reloj() + 1.5, fuerza)
             self.registrar(f"No arranca: {motivo}", "mal")
             return False
         v.motor = True
@@ -486,6 +492,12 @@ class Panel:
         elif accion == "reserva":
             v.combustible_l = 10.0
             texto = "combustible en reserva (10 L, 8 %)"
+        elif accion == "bateria":
+            v.bateria = 1.0
+            texto = "bateria cargada (12.7 V en reposo)"
+        elif accion == "bateria_debil":
+            v.bateria = 0.06
+            texto = f"bateria al 6 % ({v.voltaje_reposo:.1f} V en reposo)"
         else:
             raise ValueError(f"accion de taller desconocida: {accion}")
         self.registrar(f"Taller: {texto}", "ok")
@@ -727,7 +739,9 @@ class Panel:
             self.modo, self.recorrido, self.ultimo_escrito = "fisica", None, None
         self._avanzar_escenario(ahora)
         # Productor del sonido: deja el estado mas reciente en el buzon del hilo de audio (no bloquea).
-        self.sonido.publicar(sonido_motor.estado_de(self.vehiculo, 0.0 if self.silencio else 0.8))
+        hasta, fuerza = self.giro_arranque
+        self.sonido.publicar(sonido_motor.estado_de(self.vehiculo, 0.0 if self.silencio else 0.8,
+                                                    crank=fuerza if ahora < hasta and not self.vehiculo.motor else 0.0))
         if ahora >= self._proxima_escritura:
             self.escribir()
             self._proxima_escritura = ahora + self.ESCRITURA_S
@@ -759,16 +773,19 @@ class Panel:
                                  text=f"LLAVE [K]\n{llave}")
         extra = self.valores_extra() or v.lecturas_extra(self.ecu.proteccion)
         for clave, lbl in self.lbl_extra.items():
-            if clave == "nivel_aceite":
+            if clave == "bateria":
+                texto, color = f"{v.bateria * 100:.0f} %", ROJO if v.bateria < 0.2 else TEXTO
+            elif clave == "nivel_aceite":
                 texto, color = f"{v.nivel_aceite:.0f} %", ROJO if v.nivel_aceite < 50 else TEXTO
             elif clave == "temp_frenos":
-                texto = f"{v.temp_frenos:.0f} C  (eficiencia {v.eficiencia_frenos * 100:.0f} %)"
+                texto = f"{v.temp_frenos:.0f} C {v.eficiencia_frenos * 100:.0f}%"
                 color = ROJO if v.eficiencia_frenos < 0.9 else TEXTO
             else:
                 valor = extra[clave]
                 texto = formatear(clave, valor)
                 malo = (clave == "falla_motor" and valor != "ninguna" or clave == "puertas" and valor
-                        or clave == "cinturon" and not valor and v.contacto or clave == "combustible" and valor <= 12)
+                        or clave == "cinturon" and not valor and v.contacto or clave == "combustible" and valor <= 12
+                        or clave == "voltaje" and v.motor and valor < 13.0)
                 color = AMBAR if malo else TEXTO
             lbl.configure(text=texto, fg=color)
 

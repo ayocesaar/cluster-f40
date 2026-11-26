@@ -23,7 +23,7 @@ class MonitorEventos:
                         "motor": False, "emergencia": False,
                         # Etapa 18: elementos adicionales; None = el productor no envia la clave.
                         "proteccion": None, "puerta_mov": False, "cinturon_mov": False, "contacto": None,
-                        "pruebas": 0, "puerta": None, "cinturon": None, "reserva": False}
+                        "pruebas": 0, "puerta": None, "cinturon": None, "reserva": False, "carga": False}
         self._km_previo = None  # el valor inicial ya lo registra odometro_cargado
 
     def _cambio(self, clave, valor):
@@ -83,6 +83,11 @@ class MonitorEventos:
         if self._cambio("puerta_mov", estado.puerta_abierta_en_movimiento) and estado.puerta_abierta_en_movimiento:
             b.warn(COMPONENTE_SEGURIDAD, "puerta_abierta_en_movimiento",
                    f"puertas={estado.puertas} velocidad={estado.velocidad:g} km/h (R09)")
+        if self._cambio("carga", estado.falla_de_carga):
+            if estado.falla_de_carga:
+                b.warn(COMPONENTE_SEGURIDAD, "falla_de_carga", f"voltaje={estado.voltaje:g} V con el motor en marcha (R13)")
+            else:
+                b.info(COMPONENTE_SEGURIDAD, "carga_normal", "(R13)")
         en_movimiento = estado.cinturon_desabrochado_en_movimiento
         if self._cambio("cinturon_mov", en_movimiento) and en_movimiento:
             b.warn(COMPONENTE_SEGURIDAD, "cinturon_desabrochado_en_movimiento",

@@ -54,9 +54,10 @@ CLAVES_EXTRA = {
     "cinturon": ("set_cinturon", "booleano"),        # 1 = cinturon del conductor abrochado
     "combustible": ("set_combustible", "decimal"),   # porcentaje del tanque (120 L en el F40)
     "falla_motor": ("set_falla_motor", "causa"),     # causa de la proteccion del motor (la envia la ECU)
+    "voltaje": ("set_voltaje", "decimal"),           # V del sistema electrico (Etapa 20)
 }
-RANGOS_EXTRA = {"puertas": (0, 3), "combustible": (0.0, 100.0)}
-CAUSAS_MOTOR = ("ninguna", "sobretemperatura", "sobrepresion_turbo", "aceite", "combustible")
+RANGOS_EXTRA = {"puertas": (0, 3), "combustible": (0.0, 100.0), "voltaje": (0.0, 20.0)}
+CAUSAS_MOTOR = ("ninguna", "sobretemperatura", "sobrepresion_turbo", "aceite", "combustible", "electrica")
 BITS_PUERTAS = ((1, "conductor"), (2, "pasajero"))
 
 # Estado seguro: es el valor que toma una clave que nunca llego valida.

@@ -19,6 +19,11 @@ El sonido es **aproximado**: no es una grabación del F40 ni se calibró contra 
 | Limitador | Desde 8100 rpm a fondo, la combustión se corta en ventanas de 45 ms | rpm y acelerador |
 | Petardeos | Al soltar el acelerador en altas, alguna explosión fuerte al azar | acelerador y rpm |
 | Arranque | 0.55 s de motor de arranque (zumbido y compresiones) antes de que prenda | encendido |
+| Banco sin encendido (Etapa 20) | Falla de una unidad Weber-Marelli: falta una de cada dos explosiones (suena cojo, ritmo de 30 ms en ralentí) | falla del panel |
+| Motor de arranque débil (Etapa 20) | Con la batería descargada el motor de arranque gira a 35 % de su velocidad y no prende | batería |
+| Relevador (Etapa 20) | Clic cada 500 ms con las direccionales o las intermitentes | direccional y emergencia |
+| Llantas (Etapa 20) | Chirrido de 1100 Hz al frenar a fondo o al arrancar patinando en primera | freno, acelerador y marcha |
+| Ventilador (Etapa 20) | Zumbido de 45 Hz y aire cuando el agua pasa de 98 °C (se apaga a 92 °C) | temperatura |
 | Alarma del cinturón | Campana de 1046 Hz cada segundo durante 6 s al dar contacto sin abrochar (FMVSS 208 S7.3 pide de 4 a 8 s); se calla al abrochar | contacto y cinturón |
 
 Formato: PCM de 16 bits con signo, 22 050 muestras por segundo, mono. Se genera en bloques de 30 ms.

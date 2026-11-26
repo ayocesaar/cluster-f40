@@ -13,7 +13,11 @@ docs/realismo_y_liberacion.md; el F40 de 1987 no tenia todas estas protecciones)
   turbo sobre 1.5 bar durante 1 s (R05) o con menos de 0.5 bar de aceite durante 3 s.
 - La proteccion queda enclavada hasta que la causa se repara (TALLER del panel) y la
   condicion fisica vuelve a la normalidad (por ejemplo, el agua bajo 100 C).
-- Interbloqueo de puertas: con una puerta abierta el acelerador no tiene efecto."""
+- Interbloqueo de puertas: con una puerta abierta el acelerador no tiene efecto.
+- Etapa 20: con la bateria bajo 11.6 V en reposo no arranca; con el motor en marcha y menos de
+  10.5 V durante 1 s la gestion electronica se apaga (causa electrica). La falla de una unidad
+  Weber-Marelli no detiene el motor ni enciende un testigo: en 1987 no habia testigo de motor;
+  se nota al oido, en el tacometro y en el banco de liberacion."""
 
 TEMP_CORTE_C = 120.0
 TEMP_REARME_C = 100.0
@@ -23,13 +27,17 @@ ACEITE_MINIMO_BAR = 0.5
 ACEITE_MINIMO_S = 3.0
 NIVEL_ACEITE_ARRANQUE = 50.0
 COMBUSTIBLE_MINIMO_L = 0.5
+VOLTAJE_ARRANQUE = 11.6          # V en reposo: con menos, el motor de arranque no alcanza a girar el motor
+VOLTAJE_CORTE = 10.5             # V: con menos durante 1 s la gestion electronica se apaga
+VOLTAJE_CORTE_S = 1.0
 
-CAUSAS = ("ninguna", "sobretemperatura", "sobrepresion_turbo", "aceite", "combustible")
+CAUSAS = ("ninguna", "sobretemperatura", "sobrepresion_turbo", "aceite", "combustible", "electrica")
 DESCRIPCION = {
     "sobretemperatura": f"sobretemperatura del agua (>= {TEMP_CORTE_C:g} C)",
     "sobrepresion_turbo": f"sobrepresion del turbo (> {TURBO_CORTE_BAR:g} bar durante {TURBO_CORTE_S:g} s)",
     "aceite": "falta de aceite (fuga, nivel bajo o presion insuficiente)",
     "combustible": "sin combustible",
+    "electrica": f"voltaje insuficiente (la gestion Weber-Marelli se apaga bajo {VOLTAJE_CORTE:g} V)",
 }
 
 
@@ -38,6 +46,7 @@ class Ecu:
         self.proteccion = "ninguna"
         self._t_turbo = 0.0
         self._t_aceite = 0.0
+        self._t_voltaje = 0.0
         self._aviso_traccion = False
 
     # ------------------------------------------------------------ arranque
@@ -55,6 +64,9 @@ class Ecu:
             causa, texto = "combustible", "tanque vacio"
         elif v.temp_agua >= TEMP_CORTE_C:
             causa, texto = "sobretemperatura", f"agua a {v.temp_agua:.0f} C"
+        elif v.voltaje_reposo < VOLTAJE_ARRANQUE:
+            causa, texto = "electrica", (f"bateria descargada ({v.voltaje_reposo:.1f} V en reposo): el motor de "
+                                         "arranque gira lento y no prende")
         if causa is None:
             return None
         self.proteccion = causa
@@ -71,6 +83,8 @@ class Ecu:
             return not v.fallas.fuga_aceite and v.nivel_aceite >= NIVEL_ACEITE_ARRANQUE
         if causa == "combustible":
             return v.combustible_l > COMBUSTIBLE_MINIMO_L
+        if causa == "electrica":
+            return v.voltaje_reposo >= VOLTAJE_ARRANQUE
         return True
 
     # ------------------------------------------------------------ vigilancia
@@ -85,7 +99,7 @@ class Ecu:
             self._aviso_traccion = False
 
         if not v.motor:
-            self._t_turbo = self._t_aceite = 0.0
+            self._t_turbo = self._t_aceite = self._t_voltaje = 0.0
             if self.proteccion == "ninguna" and v.contacto and v.combustible_l <= 0.0:
                 self.proteccion = "combustible"
                 avisos.append("El motor se apago: sin combustible (R12)")
@@ -96,12 +110,15 @@ class Ecu:
 
         self._t_turbo = self._t_turbo + dt if v.presion_turbo > TURBO_CORTE_BAR else 0.0
         self._t_aceite = self._t_aceite + dt if v.presion_aceite < ACEITE_MINIMO_BAR else 0.0
+        self._t_voltaje = self._t_voltaje + dt if v.voltaje < VOLTAJE_CORTE else 0.0
         if v.temp_agua >= TEMP_CORTE_C:
             avisos.append(self._detener(v, "sobretemperatura"))
         elif self._t_turbo >= TURBO_CORTE_S:
             avisos.append(self._detener(v, "sobrepresion_turbo"))
         elif self._t_aceite >= ACEITE_MINIMO_S:
             avisos.append(self._detener(v, "aceite"))
+        elif self._t_voltaje >= VOLTAJE_CORTE_S:
+            avisos.append(self._detener(v, "electrica"))
         return avisos
 
     def _detener(self, v, causa):

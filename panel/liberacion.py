@@ -182,17 +182,23 @@ def _paso(v, ecu, avisos):
 def prueba_arranque(fallas):
     v, ecu = _vehiculo(fallas, motor=False), Ecu()
     v.contacto = True
-    criterio = "Arranca; tras 30 s de ralenti: 950-1050 rpm, aceite >= 1.2 bar (testigo 9 apagado, R02)"
+    criterio = ("Arranca; en los ultimos 5 s de 30 s de ralenti: 950-1050 rpm estables, aceite >= 1.2 bar "
+                "(testigo 9 apagado, R02) y carga >= 13.5 V (R13)")
     motivo = ecu.motivo_sin_arranque(v)
     if motivo:
         return Resultado("L01", "Arranque, ralenti y presion de aceite", "Fin de linea (criterio del equipo)",
                          criterio, f"no arranca: {motivo}", False)
     v.motor = True
-    avisos = []
-    for _ in range(int(30 / DT)):
+    avisos, rpms, voltajes = [], [], []
+    for n in range(int(30 / DT)):
         _paso(v, ecu, avisos)
-    ok = v.motor and 950 <= v.rpm <= 1050 and v.presion_aceite >= 1.2
-    medido = f"{v.rpm:.0f} rpm, aceite {v.presion_aceite:.2f} bar" + (f"; {avisos[-1]}" if avisos else "")
+        if n * DT >= 25:
+            rpms.append(v.rpm)
+            voltajes.append(v.voltaje)
+    ok = (v.motor and 950 <= min(rpms) and max(rpms) <= 1050 and v.presion_aceite >= 1.2
+          and min(voltajes) >= 13.5)
+    medido = (f"{min(rpms):.0f}-{max(rpms):.0f} rpm, aceite {v.presion_aceite:.2f} bar, carga {min(voltajes):.1f} V"
+              + (f"; {avisos[-1]}" if avisos else ""))
     return Resultado("L01", "Arranque, ralenti y presion de aceite", "Fin de linea (criterio del equipo)",
                      criterio, medido, ok)
 
@@ -206,12 +212,12 @@ def prueba_testigos(fallas):
         base, extra = cuadro.aplicar(v.lecturas(), v.lecturas_extra("ninguna"))
         if n == 5:
             vistos_en_prueba = {k for k in range(6, 11) if base[k]["encendido"]}
-            vistos_en_prueba |= {k for k in (12, 13, 15) if extra[k]["encendido"]}
+            vistos_en_prueba |= {k for k in (12, 13, 15, 16) if extra[k]["encendido"]}
             vistos_en_prueba |= {14} if extra[14]["reserva"]["encendido"] else set()
         if n >= 22:                          # medio segundo: alcanza a ver un testigo que parpadea
             encendidos_despues |= {k for k in (9, 10) if base[k]["encendido"]}
             encendidos_despues |= {k for k in (13, 15) if extra[k]["encendido"]}
-    todos = {6, 7, 8, 9, 10, 12, 13, 14, 15}
+    todos = {6, 7, 8, 9, 10, 12, 13, 14, 15, 16}
     ok = vistos_en_prueba == todos and not encendidos_despues
     medido = (f"encendidos en la prueba: {len(vistos_en_prueba)}/{len(todos)}; despues de 2 s: "
               + (", ".join(f"testigo {k}" for k in sorted(encendidos_despues)) or "ninguno"))
@@ -383,7 +389,7 @@ def prueba_puertas(fallas):
 
 PRUEBAS = (prueba_arranque, prueba_testigos, prueba_tipo0, prueba_tipo1, prueba_velocimetro, prueba_ece15,
            prueba_enfriamiento, prueba_turbo, prueba_puertas)
-FALLAS = ("fuga_aceite", "radiador", "sobrepresion_turbo", "frenos", "velocimetro")
+FALLAS = ("fuga_aceite", "radiador", "sobrepresion_turbo", "frenos", "velocimetro", "alternador", "ecu_banco")
 
 
 def ejecutar_banco(fallas=None):

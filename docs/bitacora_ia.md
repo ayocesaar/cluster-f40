@@ -333,3 +333,27 @@
   anteriores: sin cambios (huella sha256).
 - Qué generó la IA: el sintetizador, la bocina, las pruebas y la documentación; el sonido es aproximado
   y no se calibró contra un F40.
+
+## Etapa 20 — Caja negra, sistema eléctrico, Weber-Marelli y sonidos de cabina
+- Fecha: 2026-11-26
+- Pedido del equipo: investigar qué más agregar para dar realismo y presentar un plan; el equipo aprobó
+  lo recomendado (cuatro puntos).
+- Investigación: se verificó en varias fuentes que el F40 usa dos turbos IHI a 1.1 bar, gestión
+  Weber-Marelli IAW con encendido e inyección separados por banco y 577 Nm a 4000 rpm; quedaron
+  pendientes las relaciones de marcha (una fuente), el peso (fuentes de 1100 a 1235 kg), las rpm del
+  limitador y la lista exacta de testigos (el manual técnico no se pudo consultar).
+- Caja negra (sistema/caja_negra.py, tools/caja_negra.py): anillo binario de 600 registros de 32 bytes
+  con cabecera de 64, acceso directo con pread/pwrite, CRC-16, hilo escritor con fsync cada segundo,
+  eventos CSV de los 10 s previos a un testigo crítico y recuperación de una cabecera dañada.
+- Sistema eléctrico: clave opcional voltaje, elemento 16 y regla R13; batería, alternador y cargas en
+  el panel (descarga acelerada 60 veces, D14); la ECU no arranca con la batería débil y se apaga bajo
+  10.5 V (causa eléctrica).
+- Weber-Marelli: falla de una unidad por banco (medio empuje, un turbo, ralentí irregular, sonido cojo),
+  sin testigo como en 1987 (D15); el banco la rechaza en L01, que ahora también revisa el voltaje de carga.
+- Sonidos de cabina: relevador de las direccionales, chirrido de llantas, ventilador del radiador y
+  motor de arranque lento.
+- Correcciones durante el desarrollo: muestras y eventos perdidos cuando la prueba no dejaba correr al
+  hilo escritor (los eventos ahora van en una lista que no se descarta), tolerancia de 1 µs al programar
+  la siguiente muestra, y una falsa falla de carga al arrancar (solo cuenta con 800 rpm o más).
+- Pruebas nuevas: CP-191 a CP-202 (tests/test_caja_negra.py y tests/test_electrico.py). Pruebas
+  anteriores: sin cambios (huella sha256).

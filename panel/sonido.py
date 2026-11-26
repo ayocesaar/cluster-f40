@@ -9,6 +9,10 @@ como un motor real. Encima van el ruido de admision con la carga, el viento con 
 el silbido del turbo con la presion, la descarga del turbo al soltar el acelerador, el corte del
 limitador (sin combustion a ratos), petardeos al soltar en altas, el motor de arranque y la
 alarma del cinturon (4 a 8 s al dar contacto sin abrochar, como pide FMVSS 208 S7.3).
+Etapa 20: un banco sin encendido (falla de una unidad Weber-Marelli) suena cojo porque falta una
+de cada dos explosiones; el motor de arranque gira lento con la bateria descargada; el relevador
+de las direccionales hace tic-tac cada 500 ms; las llantas chirrian al frenar a fondo o al
+arrancar patinando; y se oye el ventilador del radiador.
 El sonido es aproximado: no es una grabacion del F40 ni se calibro contra uno.
 
 Tiempo real blando: un hilo genera bloques de 30 ms y los entrega a la salida de audio, que
@@ -61,19 +65,40 @@ class EstadoSonoro:
     contacto: bool = False
     cinturon: bool = True
     vol: float = 0.8
+    # Etapa 20
+    crank: float = 0.0         # motor de arranque girando sin prender (0 a 1: velocidad de giro)
+    banco: bool = False        # un banco sin encendido: suena cojo
+    intermitente: bool = False  # direccional o emergencia: relevador tic-tac
+    chirrido: float = 0.0      # llantas, 0 a 1
+    ventilador: bool = False
 
 
-LIMITES = {"rpm": (0.0, 9000.0), "acel": (0.0, 1.0), "turbo": (0.0, 2.0), "vel": (0.0, 360.0), "vol": (0.0, 1.0)}
-BOOLEANOS = ("motor", "contacto", "cinturon")
+LIMITES = {"rpm": (0.0, 9000.0), "acel": (0.0, 1.0), "turbo": (0.0, 2.0), "vel": (0.0, 360.0), "vol": (0.0, 1.0),
+           "crank": (0.0, 1.0), "chirrido": (0.0, 1.0)}
+BOOLEANOS = ("motor", "contacto", "cinturon", "banco", "intermitente", "ventilador")
 
 
-def estado_de(vehiculo, volumen=0.8):
+def chirrido_de(vehiculo):
+    """Intensidad del chirrido de llantas: frenada a fondo o arranque patinando en primera."""
+    if vehiculo.freno > 0.8 and vehiculo.velocidad > 20:
+        return round(min(1.0, (vehiculo.freno - 0.8) / 0.2) * min(1.0, vehiculo.velocidad / 60), 3)
+    if (vehiculo.motor and vehiculo.acoplado and vehiculo.marcha == "1" and vehiculo.acelerador > 0.9
+            and vehiculo.velocidad < 35 and not vehiculo.traccion_bloqueada):
+        return 0.7
+    return 0.0
+
+
+def estado_de(vehiculo, volumen=0.8, crank=0.0):
     """Estado sonoro del modelo fisico del panel (con la traccion bloqueada el pedal no carga el motor)."""
     acel = 0.0 if vehiculo.traccion_bloqueada else max(0.0, min(1.0, vehiculo.acelerador))
+    energizado = bool(vehiculo.contacto or vehiculo.motor)
     return EstadoSonoro(motor=bool(vehiculo.motor), rpm=max(0.0, min(9000.0, float(vehiculo.rpm))), acel=acel,
                         turbo=max(0.0, min(2.0, float(vehiculo.presion_turbo))),
-                        vel=max(0.0, min(360.0, float(vehiculo.velocidad))), contacto=bool(vehiculo.contacto or vehiculo.motor),
-                        cinturon=bool(vehiculo.cinturon), vol=volumen)
+                        vel=max(0.0, min(360.0, float(vehiculo.velocidad))), contacto=energizado,
+                        cinturon=bool(vehiculo.cinturon), vol=volumen, crank=max(0.0, min(1.0, crank)),
+                        banco=bool(vehiculo.motor and vehiculo.fallas.ecu_banco),
+                        intermitente=energizado and (vehiculo.direccional != "OFF" or vehiculo.emergencia),
+                        chirrido=chirrido_de(vehiculo), ventilador=bool(vehiculo.ventilador))
 
 
 # ------------------------------------------------------------------ protocolo del socket
@@ -120,6 +145,8 @@ class SintetizadorMotor:
                      for i in range(int(0.9 * fs))]
         self.rpm = self.acel = self.turbo = 0.0
         self.fase = self.fase_turbo = self.fase_arranque = 0.0
+        self.fase_chirrido = self.fase_vibrato = self.fase_ventilador = 0.0
+        self.clic = 0.0
         self.cilindro = 0
         self.y = [0.0] * 6
         self.bajo = self.grave = self.envolvente = self.descarga = self.llamarada = 0.0
@@ -129,6 +156,8 @@ class SintetizadorMotor:
         self.explosiones = 0          # contadores para las pruebas y el reporte
         self.cortes = 0
         self.petardeos = 0
+        self.saltadas = 0             # explosiones que faltan por el banco sin encendido
+        self.clics = 0
 
     def _resonador(self, frecuencia, ancho):
         w = 2 * math.pi * min(frecuencia, 0.45 * self.fs) / self.fs
@@ -184,6 +213,14 @@ class SintetizadorMotor:
         dec_llamarada = math.exp(-1 / (0.15 * fs))
         vol = e.vol
         motor = e.motor
+        forzado = (not motor) and e.crank > 0.0       # motor de arranque girando sin prender
+        crank = e.crank
+        banco = e.banco
+        medio_segundo = fs // 2
+        intermitente = e.intermitente
+        chirrido = 0.12 * e.chirrido
+        ventilador = 0.03 if e.ventilador else 0.0
+        dec_clic = math.exp(-1 / (0.0015 * fs))
         rnd = self.azar.random
         seno, ding, largo_ding = self.seno, self.ding, len(self.ding)
         y1a, y1b, y2a, y2b, y3a, y3b = self.y
@@ -192,18 +229,23 @@ class SintetizadorMotor:
         descarga, llamarada = self.descarga, self.llamarada
         arranque, fase_arr, fase_t = self.arranque, self.fase_arranque, self.fase_turbo
         campana, campana_pos = self.campana, self.campana_pos
-        explosiones = cortes = petardeos = 0
+        fase_ch, fase_vib, fase_ven, clic = self.fase_chirrido, self.fase_vibrato, self.fase_ventilador, self.clic
+        explosiones = cortes = petardeos = saltadas = clics = 0
         for i in range(n):
             rpm += paso_rpm
             x = extra = 0.0
             quema = 1.0
-            if arranque > 0:                                     # motor de arranque: zumbido y compresiones
-                arranque -= 1
-                if arranque == 0:
-                    llamarada = 0.35                             # al prender sube un poco y se asienta
-                fase_arr += 190.0 / fs
+            if arranque > 0 or forzado:                          # motor de arranque: zumbido y compresiones
+                giro = 1.0
+                if arranque > 0:
+                    arranque -= 1
+                    if arranque == 0:
+                        llamarada = 0.35                         # al prender sube un poco y se asienta
+                else:
+                    giro = crank                                 # bateria debil: gira lento
+                fase_arr += 190.0 * giro / fs
                 extra = 0.09 * (seno[int(fase_arr * 1024) & 1023] + 0.5 * seno[int(fase_arr * 2048) & 1023])
-                fase += 250.0 * k_fase
+                fase += 250.0 * giro * k_fase
                 quema = 0.0
                 if fase >= 1.0:
                     fase -= 1.0
@@ -217,6 +259,9 @@ class SintetizadorMotor:
                         x = 0.02 * rpm / 8000                    # gira sin combustion
                     elif corte and (t // periodo_corte) & 1:
                         cortes += 1
+                    elif banco and cil & 1:                      # el banco sin encendido no explota
+                        saltadas += 1
+                        x = 0.03
                     else:
                         x = amp * (1.0 + DESBALANCE[cil] + 0.12 * (rnd() - 0.5)) * (1.0 + llamarada)
                         explosiones += 1
@@ -247,6 +292,19 @@ class SintetizadorMotor:
             if descarga > 0.0005:
                 s += descarga * agudo
                 descarga *= dec_descarga
+            if intermitente and t % medio_segundo == 0:         # relevador: tic al encender, tac al apagar
+                clic = 0.35 if (t // medio_segundo) & 1 == 0 else 0.22
+                clics += 1
+            if clic > 0.001:
+                s += clic * agudo
+                clic *= dec_clic
+            if chirrido:
+                fase_vib += 7.0 / fs
+                fase_ch += (1100.0 + 10.0 * seno[int(fase_vib * 1024) & 1023]) / fs
+                s += chirrido * (seno[int(fase_ch * 1024) & 1023] + 0.4 * agudo)
+            if ventilador:
+                fase_ven += 45.0 / fs
+                s += ventilador * seno[int(fase_ven * 1024) & 1023] + 1.5 * ventilador * grave
             if campana > 0:
                 posicion = campana_pos % fs
                 if posicion < largo_ding:
@@ -268,6 +326,10 @@ class SintetizadorMotor:
         self.descarga, self.llamarada = descarga, llamarada
         self.arranque, self.fase_arranque, self.fase_turbo = arranque, fase_arr % 1.0, fase_t % 1.0
         self.campana, self.campana_pos = campana, campana_pos
+        self.fase_chirrido, self.fase_vibrato, self.fase_ventilador = fase_ch % 1.0, fase_vib % 1.0, fase_ven % 1.0
+        self.clic = clic
+        self.saltadas += saltadas
+        self.clics += clics
         self.explosiones += explosiones
         self.cortes += cortes
         self.petardeos += petardeos

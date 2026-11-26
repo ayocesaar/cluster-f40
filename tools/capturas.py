@@ -88,14 +88,14 @@ def _externo(tablero, **valores):
 
 def prueba_de_testigos(tablero, reloj):
     _externo(tablero, set_contacto=True, set_puertas=0, set_cinturon=True, set_combustible=62.0,
-             set_falla_motor="ninguna")
+             set_falla_motor="ninguna", set_voltaje=12.5)
     reloj.avanzar(300)
     tablero.ciclo()
 
 
 def proteccion_por_sobretemperatura(tablero, reloj):
     _externo(tablero, set_contacto=True, set_puertas=0, set_cinturon=False, set_combustible=9.0,
-             set_falla_motor="sobretemperatura")
+             set_falla_motor="sobretemperatura", set_voltaje=12.4)
     _ajustar(tablero, set_velocidad=40, set_temp_agua=121)
     reloj.avanzar(3000)            # termino la prueba de testigos; fase encendida del parpadeo
     tablero.ciclo()
@@ -103,7 +103,7 @@ def proteccion_por_sobretemperatura(tablero, reloj):
 
 def puerta_abierta_detenido(tablero, reloj):
     _externo(tablero, set_contacto=True, set_puertas=1, set_cinturon=True, set_combustible=62.0,
-             set_falla_motor="ninguna")
+             set_falla_motor="ninguna", set_voltaje=14.2)
     _ajustar(tablero, set_motor=True, set_rpm=1000, set_presion_aceite=1.5, set_temp_agua=88)
     reloj.avanzar(2600)
     tablero.ciclo()
@@ -146,7 +146,7 @@ def _resumen(v):
 def _resumen_extra(estado):
     e = vista_extra(estado)
     partes = [f"llave={e['llave']['estado']}"]
-    partes += [f"{n}={NOMBRES_COLOR[e[n]['color']]}" for n in (12, 13, 15)]
+    partes += [f"{n}={NOMBRES_COLOR[e[n]['color']]}" for n in (12, 13, 15, 16)]
     partes.append("14=sin dato" if e[14]["sin_dato"] else f"14={e[14]['valor']:g} % reserva="
                   f"{'si' if e[14]['reserva']['encendido'] else 'no'}")
     return ", ".join(partes)

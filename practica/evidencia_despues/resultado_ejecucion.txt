@@ -1,22 +1,22 @@
-Casos de la practica del odometro - version despues (codigo: 105dc6c)
-fecha: 2026-11-26T00:25:10-0600
+Casos de la practica del odometro - version despues (codigo: 46629af)
+fecha: 2026-11-26T16:12:36-0600
 
 == CP-ODO-01 (CP-ODO-01_normal_30s) ==
 segundos ejecutados: 30
 velocidad aplicada: 120 km/h
 esperado: 000062 -> 000063 (1 km) e INFO odometro_actualizado
 textos del tablero con 6 digitos: ['000062']
-km internos: 62.996046
+km internos: 62.997335
 aviso en pantalla: (ninguno)
-odometro.txt al cerrar: 62.996046
+odometro.txt al cerrar: 62.997335
 lineas de bitacora que mencionan el odometro: 7
-  2026-11-26T00:25:10-06:00 INFO  odometro odometro_cargado km=62.000 resultado=aceptado
-  2026-11-26T00:25:15-06:00 INFO  odometro odometro_guardado km=62.164 resultado=aceptado
-  2026-11-26T00:25:20-06:00 INFO  odometro odometro_guardado km=62.333 resultado=aceptado
-  2026-11-26T00:25:25-06:00 INFO  odometro odometro_guardado km=62.499 resultado=aceptado
-  2026-11-26T00:25:30-06:00 INFO  odometro odometro_guardado km=62.667 resultado=aceptado
-  2026-11-26T00:25:35-06:00 INFO  odometro odometro_guardado km=62.833 resultado=aceptado
-  2026-11-26T00:25:40-06:00 INFO  odometro odometro_guardado km=62.996 resultado=aceptado
+  2026-11-26T16:12:36-06:00 INFO  odometro odometro_cargado km=62.000 resultado=aceptado
+  2026-11-26T16:12:42-06:00 INFO  odometro odometro_guardado km=62.163 resultado=aceptado
+  2026-11-26T16:12:47-06:00 INFO  odometro odometro_guardado km=62.333 resultado=aceptado
+  2026-11-26T16:12:52-06:00 INFO  odometro odometro_guardado km=62.499 resultado=aceptado
+  2026-11-26T16:12:57-06:00 INFO  odometro odometro_guardado km=62.667 resultado=aceptado
+  2026-11-26T16:13:02-06:00 INFO  odometro odometro_guardado km=62.835 resultado=aceptado
+  2026-11-26T16:13:07-06:00 INFO  odometro odometro_guardado km=62.997 resultado=aceptado
 estado: Fallido
 
 == CP-ODO-01 v2 (CP-ODO-01_v2_normal_45s) ==
@@ -24,21 +24,21 @@ segundos ejecutados: 45
 velocidad aplicada: 120 km/h
 esperado: 000062 -> 000063 (1.5 km) e INFO odometro_actualizado
 textos del tablero con 6 digitos: ['000063']
-km internos: 63.495951
+km internos: 63.496433
 aviso en pantalla: (ninguno)
-odometro.txt al cerrar: 63.495951
+odometro.txt al cerrar: 63.496433
 lineas de bitacora que mencionan el odometro: 11
-  2026-11-26T00:25:40-06:00 INFO  odometro odometro_cargado km=62.000 resultado=aceptado
-  2026-11-26T00:25:45-06:00 INFO  odometro odometro_guardado km=62.165 resultado=aceptado
-  2026-11-26T00:25:50-06:00 INFO  odometro odometro_guardado km=62.332 resultado=aceptado
-  2026-11-26T00:25:55-06:00 INFO  odometro odometro_guardado km=62.498 resultado=aceptado
-  2026-11-26T00:26:00-06:00 INFO  odometro odometro_guardado km=62.666 resultado=aceptado
-  2026-11-26T00:26:05-06:00 INFO  odometro odometro_guardado km=62.835 resultado=aceptado
-  2026-11-26T00:26:10-06:00 INFO  odometro odometro_actualizado km=000063 resultado=aceptado
-  2026-11-26T00:26:10-06:00 INFO  odometro odometro_guardado km=63.002 resultado=aceptado
-  2026-11-26T00:26:15-06:00 INFO  odometro odometro_guardado km=63.169 resultado=aceptado
-  2026-11-26T00:26:20-06:00 INFO  odometro odometro_guardado km=63.336 resultado=aceptado
-  2026-11-26T00:26:25-06:00 INFO  odometro odometro_guardado km=63.496 resultado=aceptado
+  2026-11-26T16:13:07-06:00 INFO  odometro odometro_cargado km=62.000 resultado=aceptado
+  2026-11-26T16:13:12-06:00 INFO  odometro odometro_guardado km=62.164 resultado=aceptado
+  2026-11-26T16:13:17-06:00 INFO  odometro odometro_guardado km=62.333 resultado=aceptado
+  2026-11-26T16:13:22-06:00 INFO  odometro odometro_guardado km=62.499 resultado=aceptado
+  2026-11-26T16:13:27-06:00 INFO  odometro odometro_guardado km=62.669 resultado=aceptado
+  2026-11-26T16:13:32-06:00 INFO  odometro odometro_guardado km=62.836 resultado=aceptado
+  2026-11-26T16:13:37-06:00 INFO  odometro odometro_actualizado km=000063 resultado=aceptado
+  2026-11-26T16:13:37-06:00 INFO  odometro odometro_guardado km=63.004 resultado=aceptado
+  2026-11-26T16:13:42-06:00 INFO  odometro odometro_guardado km=63.172 resultado=aceptado
+  2026-11-26T16:13:47-06:00 INFO  odometro odometro_guardado km=63.340 resultado=aceptado
+  2026-11-26T16:13:52-06:00 INFO  odometro odometro_guardado km=63.496 resultado=aceptado
 estado: Aprobado
 
 == CP-ODO-02 (CP-ODO-02_limite_10s) ==
@@ -46,13 +46,13 @@ segundos ejecutados: 10
 velocidad aplicada: 360 km/h
 esperado: 999999 -> 000000 (1 km) y la vuelta registrada
 textos del tablero con 6 digitos: ['999999']
-km internos: 999999.993386
+km internos: 999999.989672
 aviso en pantalla: (ninguno)
-odometro.txt al cerrar: 999999.993386
+odometro.txt al cerrar: 999999.989672
 lineas de bitacora que mencionan el odometro: 3
-  2026-11-26T00:26:25-06:00 INFO  odometro odometro_cargado km=999999.000 resultado=aceptado
-  2026-11-26T00:26:30-06:00 INFO  odometro odometro_guardado km=999999.490 resultado=aceptado
-  2026-11-26T00:26:35-06:00 INFO  odometro odometro_guardado km=999999.993 resultado=aceptado
+  2026-11-26T16:13:52-06:00 INFO  odometro odometro_cargado km=999999.000 resultado=aceptado
+  2026-11-26T16:13:57-06:00 INFO  odometro odometro_guardado km=999999.491 resultado=aceptado
+  2026-11-26T16:14:02-06:00 INFO  odometro odometro_guardado km=999999.990 resultado=aceptado
 estado: Fallido
 
 == CP-ODO-02 v2 (CP-ODO-02_v2_limite_15s) ==
@@ -60,15 +60,15 @@ segundos ejecutados: 15
 velocidad aplicada: 360 km/h
 esperado: 999999 -> 000000 (1.5 km) y la vuelta registrada
 textos del tablero con 6 digitos: ['000000']
-km internos: 0.488248
+km internos: 0.489481
 aviso en pantalla: (ninguno)
-odometro.txt al cerrar: 0.488248
+odometro.txt al cerrar: 0.489481
 lineas de bitacora que mencionan el odometro: 5
-  2026-11-26T00:26:35-06:00 INFO  odometro odometro_cargado km=999999.000 resultado=aceptado
-  2026-11-26T00:26:41-06:00 INFO  odometro odometro_guardado km=999999.489 resultado=aceptado
-  2026-11-26T00:26:46-06:00 INFO  odometro odometro_guardado km=999999.994 resultado=aceptado
-  2026-11-26T00:26:46-06:00 INFO  odometro odometro_actualizado km=000000 vuelta_a_cero vueltas=1 resultado=aceptado
-  2026-11-26T00:26:51-06:00 INFO  odometro odometro_guardado km=0.488 resultado=aceptado
+  2026-11-26T16:14:02-06:00 INFO  odometro odometro_cargado km=999999.000 resultado=aceptado
+  2026-11-26T16:14:07-06:00 INFO  odometro odometro_guardado km=999999.495 resultado=aceptado
+  2026-11-26T16:14:12-06:00 INFO  odometro odometro_guardado km=999999.997 resultado=aceptado
+  2026-11-26T16:14:12-06:00 INFO  odometro odometro_actualizado km=000000 vuelta_a_cero vueltas=1 resultado=aceptado
+  2026-11-26T16:14:18-06:00 INFO  odometro odometro_guardado km=0.489 resultado=aceptado
 estado: Aprobado
 
 == CP-ODO-03 (CP-ODO-03_archivo_corrupto) ==
@@ -76,12 +76,13 @@ segundos ejecutados: 5
 velocidad aplicada: 120 km/h
 esperado: 000000, aviso en pantalla y ERROR odometro_invalido
 textos del tablero con 6 digitos: ['000000']
-km internos: 0.163131
+km internos: 0.166076
 aviso en pantalla: Odometro: archivo invalido, se inicio en 000000
-odometro.txt al cerrar: 0.163131
-lineas de bitacora que mencionan el odometro: 2
-  2026-11-26T00:26:56-06:00 INFO  odometro odometro_guardado km=0.163 resultado=aceptado
-  2026-11-26T00:26:51-06:00 ERROR odometro odometro_invalido archivo=odometro.txt contenido="abc" (se espera un numero de km, por ejemplo 62.5) resultado=rechazado
+odometro.txt al cerrar: 0.166076
+lineas de bitacora que mencionan el odometro: 3
+  2026-11-26T16:14:23-06:00 INFO  odometro odometro_guardado km=0.164 resultado=aceptado
+  2026-11-26T16:14:23-06:00 INFO  odometro odometro_guardado km=0.166 resultado=aceptado
+  2026-11-26T16:14:18-06:00 ERROR odometro odometro_invalido archivo=odometro.txt contenido="abc" (se espera un numero de km, por ejemplo 62.5) resultado=rechazado
 estado: Aprobado
 
 == SONDA (SONDA_odometro_en_vehiculo_conf) ==
@@ -89,11 +90,11 @@ segundos ejecutados: 3
 velocidad aplicada: 360 km/h
 esperado: odometro= rechazado por el lector; el resto se aplica
 textos del tablero con 6 digitos: ['000000']
-km internos: 0.294827
+km internos: 0.289274
 aviso en pantalla: (ninguno)
-odometro.txt al cerrar: 0.294827
+odometro.txt al cerrar: 0.289274
 lineas de bitacora que mencionan el odometro: 3
-  2026-11-26T00:26:56-06:00 INFO  odometro odometro_nuevo sin archivo previo: se inicia en 000000
-  2026-11-26T00:26:59-06:00 INFO  odometro odometro_guardado km=0.295 resultado=aceptado
-  2026-11-26T00:26:56-06:00 ERROR lector_datos clave_no_permitida linea 11 clave=odometro (el kilometraje lo calcula el sistema; no se escribe desde el archivo) resultado=rechazado
+  2026-11-26T16:14:23-06:00 INFO  odometro odometro_nuevo sin archivo previo: se inicia en 000000
+  2026-11-26T16:14:26-06:00 INFO  odometro odometro_guardado km=0.289 resultado=aceptado
+  2026-11-26T16:14:23-06:00 ERROR lector_datos clave_no_permitida linea 11 clave=odometro (el kilometraje lo calcula el sistema; no se escribe desde el archivo) resultado=rechazado
 estado: Aprobado

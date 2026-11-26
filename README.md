@@ -1,7 +1,7 @@
 # Clúster F40 simulado
 
 Simulador del clúster de instrumentos del **Ferrari F40 (1987)**, con una interfaz inspirada en el cuadro del F40 (capota negra, esferas negras con numerales de época, odómetro de tambor), para el proyecto
-final de Sistemas Operativos (UAG), Equipo 3. Los quince elementos (diez de la especificación original, el odómetro y cuatro adicionales de seguridad y consumo) se controlan con **datos externos** (un archivo que
+final de Sistemas Operativos (UAG), Equipo 3. Los dieciséis elementos (diez de la especificación original, el odómetro y cinco adicionales de seguridad y consumo) se controlan con **datos externos** (un archivo que
 el tablero relee sin reiniciar); los eventos y los errores se registran en **bitácoras separadas**. Los rangos y
 umbrales son parámetros didácticos, no calibraciones oficiales del F40.
 
@@ -79,7 +79,8 @@ cluster-f40/
 | 12 | Puerta abierta (adicional) | Testigo informativo | `puertas` (bits: 1 conductor, 2 pasajero; 0–3) |
 | 13 | Cinturón (adicional) | Testigo de seguridad | `cinturon` (1 = abrochado) |
 | 14 | Combustible (adicional) | Información en línea | `combustible` (0–100 % de 120 L) |
-| 15 | Protección del motor (adicional) | Testigo de seguridad | `falla_motor` (ninguna, sobretemperatura, sobrepresion_turbo, aceite, combustible) |
+| 15 | Protección del motor (adicional) | Testigo de seguridad | `falla_motor` (ninguna, sobretemperatura, sobrepresion_turbo, aceite, combustible, electrica) |
+| 16 | Carga de batería (adicional) | Testigo de seguridad | `voltaje` (0–20 V) |
 
 El motor se enciende con `motor=1`. Las claves de los elementos 12–15 y `contacto` (llave) son **opcionales**: un
 archivo con solo las diez claves originales funciona igual que antes (decisión D8). Ver
@@ -185,6 +186,20 @@ El sonido sigue las rpm, la carga, el turbo (silbido y descarga), el limitador, 
 - `U` silencia. Demostración sin VM: `docs/evidencias/sonido/motor_demo.wav` (la genera `tools/sonido_demo.py`).
 - Detalle, latencia y seguridad: [docs/sonido_motor.md](docs/sonido_motor.md). Pruebas: `tests/test_sonido.py`
   (CP-184 a CP-190).
+
+## Caja negra, sistema eléctrico y Weber-Marelli (Etapa 20)
+
+- **Caja negra** (`sistema/caja_negra.py`): `datos/caja_negra.bin` guarda los últimos 60 s a 10 Hz en un anillo
+  binario de tamaño fijo (19 264 bytes) con **acceso directo** (registro k en el byte 64 + (k mod 600) × 32) y CRC por
+  registro. Ante un testigo crítico exporta los 10 s previos a `logs/caja_negra/`. Leerla:
+  `python3 tools/caja_negra.py --hex 1`. Formato completo: [docs/caja_negra.md](docs/caja_negra.md).
+- **Batería y alternador:** testigo 16 con voltímetro. Con la falla del alternador la batería se descarga (60 veces
+  más rápido, para la demostración) y bajo 10.5 V la gestión electrónica se apaga; con la batería débil el motor de
+  arranque gira lento y no prende. TALLER: "Cargar batería" y "Batería débil 6 %".
+- **Falla de una unidad Weber-Marelli:** el F40 tiene una por banco de cilindros; con una fallando el motor sigue con
+  4 cilindros (medio empuje, un turbo, ralentí irregular) y suena cojo. Sin testigo, como en 1987.
+- **Sonidos de cabina:** relevador de las direccionales, chirrido de llantas y ventilador del radiador.
+- Pruebas: `tests/test_caja_negra.py` y `tests/test_electrico.py` (CP-191 a CP-202).
 
 ## Observación del sistema (guía, sección 6)
 

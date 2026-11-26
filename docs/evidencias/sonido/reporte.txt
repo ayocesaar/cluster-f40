@@ -1,7 +1,7 @@
 Sonido del motor sintetizado por codigo (panel/sonido.py): demostracion y mediciones reales
 Archivo: motor_demo.wav, 22.4 s, 22050 Hz, 16 bits, mono, 988680 bytes de audio
-Guion: 0 s contacto, 1.8 s cinturon, 2.3 s arrancar, 4.5 s acelerar, 5.1 s soltar, 6 s acelerar, 6.6 s soltar, 7.6 s primera, 11.6 s segunda, 14.6 s soltar, 16.6 s frenar, 21.1 s apagar, 22.4 s fin
-En el guion: 5388 explosiones, 418 cortadas por el limitador, 17 petardeos al soltar
+Guion: 0 s contacto, 1.8 s cinturon, 2.3 s arrancar, 4.5 s acelerar, 5.1 s soltar, 6 s acelerar, 6.6 s soltar, 7.6 s primera, 11.6 s segunda, 14.6 s soltar, 16.6 s frenar, 19.4 s direccional, 21.1 s apagar, 22.4 s fin
+En el guion: 5062 explosiones, 418 cortadas por el limitador, 17 petardeos al soltar
 
 Mediciones del audio generado:
   Ralenti 1000 rpm: una explosion cada 15.0 ms (esperado 60000 / 1000 / 4 = 15.0 ms: 4 explosiones por vuelta, V8 de cuatro tiempos)
@@ -11,6 +11,9 @@ Mediciones del audio generado:
   Silbido del turbo (4583 Hz) con 1.1 bar: 345 veces la potencia sin presion
   Alarma del cinturon: suena de 0.00 s a 5.50 s (FMVSS 208 S7.3 pide de 4 a 8 s)
   Motor de arranque: 0 explosiones en los primeros 0.5 s (arranca a los 0.55 s)
-  Costo de sintesis: 52 ms de CPU por segundo de audio (5 % de un nucleo)
+  Un banco sin encendido (Weber-Marelli) a 1000 rpm: una explosion cada 30.0 ms (49 explosiones omitidas: una de cada dos)
+  Relevador de direccionales: 4 clics en 2 s, en [0, 500, 1000, 1500] ms
+  Chirrido de llantas (1100 Hz): 6815 veces la potencia sin chirrido
+  Costo de sintesis: 124 ms de CPU por segundo de audio (12 % de un nucleo)
 
 Sonido aproximado: no es una grabacion del F40 ni se calibro contra uno; no usa audio de terceros.

@@ -62,7 +62,7 @@ lector (`formatear` → `convertir`) y llega a `EstadoCluster` en ciclos de 100 
 
 | Prueba | Norma o criterio | Criterio de aprobación |
 |---|---|---|
-| L01 Arranque, ralentí y aceite | Fin de línea (criterio del equipo) | Arranca; 950–1050 rpm y aceite ≥ 1.2 bar tras 30 s |
+| L01 Arranque, ralentí, aceite y carga | Fin de línea (criterio del equipo) | Arranca; en los últimos 5 s de 30 s: 950–1050 rpm estables, aceite ≥ 1.2 bar y carga ≥ 13.5 V (Etapa 20) |
 | L02 Prueba de testigos | UN R13-H 5.2.21.4 | Todos encienden 2 s; 9, 10, 13 y 15 se apagan si no hay falla |
 | L03 Frenado tipo 0 | UN R13-H anexo 3, 2.1.1 A | Desde 100 km/h, motor desembragado: s ≤ 0.1 v + 0.0060 v² (70 m) y dm ≥ 6.43 m/s² |
 | L04 Frenado tipo I (fading) | UN R13-H anexo 3, 1.5 | 15 frenadas de 120 a 60 km/h cada 45 s a 3 m/s²; en caliente dm ≥ 75 % de 6.43 y ≥ 60 % del valor en frío |
@@ -101,6 +101,7 @@ podía indicar menos que la velocidad real, lo que R39 prohíbe (DEF-16, corregi
 | Perfil ECE-15: fases, 195 s, máximo 50 km/h, 994.03 m | Wikipedia, New European Driving Cycle; DieselNet, ciclo ECE-15 | Verificado; la integral del perfil da 994.03 m (CP-180) |
 | Tanque del F40: 120 L; motor 2.9 L V8 biturbo, 478 hp a 7000 rpm | Fichas de cararac.com y auto-data.net | Verificado en dos fichas |
 | El F40 tenía medidores de temperatura de aceite, presión de aceite y combustible y una luz de advertencia | Catálogos de refacciones (eurospares, diagrama 119; ricambiamerica) | Verificado |
+| Gestión Weber-Marelli IAW con encendido e inyección separados por banco de cilindros; dos turbos IHI a 1.1 bar; 577 Nm a 4000 rpm | Wikipedia (Ferrari F40), supercars.net, ultimatespecs, cararac | Verificado en varias fuentes (Etapa 20) |
 | Cinturón: luz de al menos 60 s y señal audible de 4 a 8 s al dar contacto | FMVSS 208 S7.3 (texto vigente; interpretaciones de NHTSA) | Verificado el texto vigente |
 
 ## 6. Pendiente de verificar (no se presenta como dato)
@@ -112,6 +113,9 @@ podía indicar menos que la velocidad real, lo que R39 prohíbe (DEF-16, corregi
 - Presión de turbo nominal, línea roja, distancia de frenado y consumo reales del F40: el modelo usa cifras aproximadas.
 - Si el F40 de 1987 tenía testigo de puerta o de cinturón: los elementos 12 y 13 se presentan como adicionales.
 - El interbloqueo de puertas y las protecciones de la ECU son medidas del equipo, no del auto original.
+- Etapa 20: las cifras eléctricas (batería de 40 Ah, alternador de 70 A, cargas, 10.5 V de corte) son genéricas de un
+  sistema de 12 V, no del F40; la lista exacta de testigos del cuadro original (el manual técnico no se pudo consultar),
+  las rpm del limitador y las relaciones de marcha (una sola fuente) quedan pendientes de verificar.
 
 ## 7. Cómo demostrarlo en la exposición (3 minutos)
 

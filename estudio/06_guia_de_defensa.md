@@ -265,3 +265,17 @@ Respuesta corta: en vivo, con el panel: "Dato corrupto" o "Borrar archivo". El t
 **¿Qué pasa si alguien manda basura a la bocina?** Escucha solo en 127.0.0.1, valida cada línea (claves, tipos, rangos, sin NaN, máximo 512 bytes), descarta y cuenta lo inválido, y si el panel deja de hablar 1 s se calla (CP-189).
 
 **Demostración (1 min):** con la bocina abierta, `M` (motor de arranque y ralentí), `W` en neutral (acelerones y petardeos al soltar), primera a fondo hasta el limitador (cortes), segunda con el turbo y soltar (descarga). Sin VM: reproducir `docs/evidencias/sonido/motor_demo.wav`.
+
+## 12. Caja negra, sistema eléctrico y Weber-Marelli (Etapa 20)
+
+**¿Usan acceso directo o secuencial? (guía 4.4)** Los dos, y cada uno donde conviene. Las bitácoras son secuenciales: solo se agrega al final, y se leen de principio a fin. La caja negra (`datos/caja_negra.bin`) es de acceso directo: cada registro mide 32 bytes, así que el registro *k* está en el byte 64 + (k mod 600) × 32 y se escribe con `pwrite` en ese desplazamiento. Para leer los últimos 10 s no se recorre el archivo: se calcula dónde están.
+
+**¿Existe historial y cómo limita su crecimiento? (guía 4.5)** Sí: los últimos 60 s a 10 muestras por segundo, en un anillo de 600 registros. El archivo nace con su tamaño final (19 264 bytes) y nunca crece: el registro 600 sobrescribe al 0.
+
+**¿Por qué ese formato y esa política de escritura?** Binario y de tamaño fijo para poder calcular la posición de cada registro. Cada campo tiene el tamaño justo: la velocidad en décimas cabe en 16 bits, la temperatura es int16 con signo para admitir valores bajo cero y 255 significa "sin dato". La interfaz solo deja la muestra en una cola acotada; un hilo escritor la graba y hace `fsync` una vez por segundo. Si se va la luz se pierde a lo más el último segundo, a cambio de no frenar la interfaz con 10 sincronizaciones por segundo. Cada registro lleva un CRC-16: uno dañado se detecta y se salta.
+
+**Demostración (1 min):** provocar el sobrecalentamiento ("Radiador") hasta que la ECU corte el motor; aparece `logs/caja_negra/evento_..._proteccion_motor.csv` con los 10 s anteriores (se ve la temperatura subir). Después, `python tools/caja_negra.py --hex 1` muestra un registro byte por byte con cada campo.
+
+**¿Qué agrega el sistema eléctrico?** El testigo 16 (la guía pone "batería" como ejemplo de testigo de seguridad) con voltímetro. Con la llave puesta y el motor apagado el testigo se enciende, como en cualquier auto: el alternador no gira. Si el motor gira y no hay 13 V, es una falla de carga: WARN prioritario. La batería se descarga 60 veces más rápido para que se vea en la demostración (decisión D14). Bajo 10.5 V la gestión electrónica se apaga, y con la batería débil el motor de arranque gira lento (se oye) y no prende.
+
+**¿Qué es la falla Weber-Marelli?** Un dato real del F40: su gestión Weber-Marelli tiene encendido e inyección separados por banco de cilindros. Si falla uno, el motor sigue con 4 cilindros: medio empuje, un solo turbo, ralentí irregular y sonido cojo (falta una de cada dos explosiones). No enciende ningún testigo porque en 1987 no había testigo de motor (D15); la detecta el banco de liberación en la prueba de arranque (L01).

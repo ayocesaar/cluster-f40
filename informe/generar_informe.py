@@ -59,6 +59,8 @@ TECNICAS = {
     "test_realismo": "Realismo y seguridad (elementos 12-15, ECU)",
     "test_liberacion": "Banco de liberacion (normas de la epoca)",
     "test_sonido": "Sonido del motor (sintesis y tiempo real)",
+    "test_caja_negra": "Caja negra (archivo binario de acceso directo)",
+    "test_electrico": "Sistema electrico, Weber-Marelli y sonidos de cabina",
 }
 
 PRODUCCION = ("logic/estado.py", "logic/reloj.py", "ui/presentacion.py", "ui/tablero.py",

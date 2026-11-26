@@ -202,11 +202,23 @@
 | CP-188 | Sonido del motor (sintesis y tiempo real) | - | el hilo de audio produce al ritmo del reloj (bloques de 30 ms, nunca mas de 150 ms adelantado, sin espera activa), toma el estado mas reciente del buzon y se detiene cerrando la salida. | `test_sonido.py::test_cp188_hilo_de_tiempo_real` | PASS |
 | CP-189 | Sonido del motor (sintesis y tiempo real) | - | los mensajes del socket se validan (rango, tipo, claves, largo, NaN) antes de usarse; la bocina escucha solo en 127.0.0.1, aplica los validos, cuenta los rechazados y graba el audio; el panel remoto no se bloquea sin bocina. | `test_sonido.py::test_cp189_protocolo_y_bocina_por_socket` | PASS |
 | CP-190 | Sonido del motor (sintesis y tiempo real) | - | el panel publica el estado del motor al hilo de audio (arranque y rpm), la tecla U silencia, los modos invalidos quedan apagados y sin tarjeta de sonido el panel sigue sin sonido explicando el motivo. | `test_sonido.py::test_cp190_panel_con_sonido_y_modos` | PASS |
+| CP-191 | Caja negra (archivo binario de acceso directo) | - | cada registro mide 32 bytes y la cabecera 64; un registro se codifica y decodifica con la resolucion declarada (decimas de km/h y de C, centesimas de bar, decimas de V); sin dato es 255 y la temperatura lleva signo. | `test_caja_negra.py::test_cp191_formato_binario_de_tamano_fijo` | PASS |
+| CP-192 | Caja negra (archivo binario de acceso directo) | - | el archivo nace de su tamano final (64 + 600 x 32 bytes) y no crece; al pasar de 600 registros el anillo sobrescribe los mas viejos; el registro k esta en el byte 64 + (k mod 600) x 32 y los ultimos se leen en orden. | `test_caja_negra.py::test_cp192_anillo_con_acceso_directo` | PASS |
+| CP-193 | Caja negra (archivo binario de acceso directo) | - | al reabrir sigue donde quedo; un registro alterado se detecta por su CRC y se omite; una cabecera corrupta se aparta (.invalido) y se crea otra con ERROR caja_negra_invalida; otra capacidad reinicia con WARN. | `test_caja_negra.py::test_cp193_persistencia_crc_y_recuperacion` | PASS |
+| CP-194 | Caja negra (archivo binario de acceso directo) | - | al encenderse un testigo critico la caja negra exporta a CSV los 10 s anteriores con la causa, registra INFO caja_negra_evento y conserva solo los eventos mas recientes. | `test_caja_negra.py::test_cp194_evento_exporta_los_10_s_previos` | PASS |
+| CP-195 | Caja negra (archivo binario de acceso directo) | - | si el disco se atrasa la interfaz no espera (la muestra se descarta y se cuenta); al cerrar se vacia la cola; con la aplicacion real, falla_frenos=1 deja un CSV de evento y el binario conserva su tamano fijo. | `test_caja_negra.py::test_cp195_hilo_escritor_no_bloquea_y_aplicacion_real` | PASS |
+| CP-196 | Caja negra (archivo binario de acceso directo) | - | tools/caja_negra.py lee sin modificar (resumen, CSV y un registro byte por byte con sus campos) y --demo deja la evidencia: 70 s simulados, el anillo lleno, ningun registro danado y el evento del sobrecalentamiento. | `test_caja_negra.py::test_cp196_herramienta_de_la_caja_negra` | PASS |
+| CP-197 | Sistema electrico, Weber-Marelli y sonidos de cabina | R13 | la clave voltaje es un decimal de 0 a 20 V; el testigo 16 se enciende con contacto y motor apagado (normal) y con el motor en marcha bajo 13.0 V, con WARN prioritario falla_de_carga (R13); con 14.2 V se apaga; sin dato queda apagado. | `test_electrico.py::test_cp197_testigo_de_carga_y_voltaje` | PASS |
+| CP-198 | Sistema electrico, Weber-Marelli y sonidos de cabina | - | con el alternador sano el regulador da 14.2 V y la bateria se mantiene; con falla del alternador la bateria se descarga (mas rapido con luces altas), el voltaje baja y bajo 10.5 V durante 1 s la ECU apaga el motor (causa electrica); con la bateria debil no arranca hasta cargarla. | `test_electrico.py::test_cp198_bateria_alternador_y_ecu` | PASS |
+| CP-199 | Sistema electrico, Weber-Marelli y sonidos de cabina | - | con una unidad Weber-Marelli sin encendido el motor sigue andando con 4 cilindros: la mitad del empuje, un solo turbo, el ralenti oscila mas de 150 rpm de pico a pico y el sonido pierde una de cada dos explosiones (ritmo de 30 ms a 1000 rpm). | `test_electrico.py::test_cp199_falla_de_una_unidad_weber_marelli` | PASS |
+| CP-200 | Sistema electrico, Weber-Marelli y sonidos de cabina | - | el arranque de fin de linea (L01) rechaza el alternador que no carga (menos de 13.5 V) y la unidad Weber-Marelli fallida (ralenti inestable); la unidad sana sigue APTA y la prueba de testigos incluye el 16. | `test_electrico.py::test_cp200_banco_detecta_las_fallas_electricas` | PASS |
+| CP-201 | Sistema electrico, Weber-Marelli y sonidos de cabina | - | el relevador de las direccionales hace un clic cada 500 ms; las llantas chirrian (1100 Hz) al frenar a fondo; se oye el ventilador (45 Hz); con la bateria debil el motor de arranque gira mas lento; los campos nuevos viajan por el socket validados. | `test_electrico.py::test_cp201_sonidos_de_cabina` | PASS |
+| CP-202 | Sistema electrico, Weber-Marelli y sonidos de cabina | - | el panel tiene las fallas del alternador y de la unidad Weber-Marelli, el taller carga o descarga la bateria, con la bateria debil el arranque falla con el motor de arranque girando lento, y el voltaje llega al archivo de datos. | `test_electrico.py::test_cp202_panel_bateria_y_fallas_nuevas` | PASS |
 
 ## Resumen
 
-- Casos de prueba: 200
-- Pasaron: 200
+- Casos de prueba: 212
+- Pasaron: 212
 - Fallo esperado por defecto abierto (XFAIL): 0
 - Fallaron / otros: 0
 
@@ -226,7 +238,7 @@
 | R10 | CP-168 |
 | R11 | CP-169, CP-177 |
 | R12 | CP-170, CP-172, CP-173, CP-174, CP-177 |
-| R13 | CP-166, CP-179 |
+| R13 | CP-166, CP-179, CP-197 |
 | R39 | CP-179, CP-182 |
 
 Requisitos sin casos: ninguno

@@ -13,7 +13,13 @@ frena al 30 % (un circuito hidraulico perdido) y los frenos calientes pierden ef
 (fading); la fuga de aceite vacia el deposito y, bajo 30 %, la presion se desploma; el
 consumo vacia el tanque de 120 L y sin combustible el motor se apaga; la temperatura sube
 con la carga. Las decisiones de proteccion (no arrancar, cortar el motor, bloquear la
-traccion con una puerta abierta) no estan aqui: las toma panel/ecu.py."""
+traccion con una puerta abierta) no estan aqui: las toma panel/ecu.py.
+
+Etapa 20: sistema electrico (bateria de 40 Ah, alternador regulado a 14.2 V y cargas de
+encendido, luces y ventilador; la descarga va 60 veces mas rapido para que se vea en la
+demostracion), ventilador del radiador con histeresis (98/92 C) y la falla de una de las dos
+unidades Weber-Marelli del F40 (una por banco de cilindros): el motor sigue con 4 cilindros,
+con la mitad del empuje, un solo turbo y el ralenti irregular."""
 
 import math
 from dataclasses import dataclass, field
@@ -45,6 +51,18 @@ FADING_DESDE_C, FADING_HASTA_C, FADING_MINIMO = 350.0, 750.0, 0.60   # eficienci
 FUGA_ACEITE_PCT_S = 0.5      # % del deposito por segundo con el motor en marcha (aprox.)
 NIVEL_ACEITE_CRITICO = 30.0  # % bajo el cual la bomba toma aire y la presion cae
 ERROR_VELOCIMETRO_FALLA = 0.05   # el sensor descalibrado indica 5 % menos que la velocidad real
+# Sistema electrico (cifras genericas de un sistema de 12 V, aprox.; no son del F40).
+CAPACIDAD_BATERIA_AH = 40.0
+ACELERACION_ELECTRICA = 60.0     # la bateria se carga y descarga 60 veces mas rapido (demostracion)
+CARGA_BASE_A = 12.0              # encendido, las dos unidades Weber-Marelli y las bombas de combustible
+CARGA_LUCES_A = 10.0
+CARGA_VENTILADOR_A = 15.0
+ALTERNADOR_MAXIMO_A = 70.0
+VOLTAJE_REGULADO = 14.2
+RESISTENCIA_INTERNA = 0.02       # ohm
+VENTILADOR_ENCIENDE, VENTILADOR_APAGA = 98.0, 92.0   # C
+ENFRIAMIENTO_VENTILADOR = 6.0    # C menos de temperatura objetivo con el ventilador encendido
+RALENTI_IRREGULAR = 130.0        # rpm de vaiven con un banco sin encendido
 MARCHAS = ("R", "N", "1", "2", "3", "4", "5")
 RANGOS = {"velocidad": (0.0, 360.0), "rpm": (0, 9000), "presion_aceite": (0.0, 10.0),
           "temp_agua": (40.0, 130.0), "presion_turbo": (0.0, 2.0)}
@@ -66,6 +84,8 @@ class Fallas:
     sobrepresion_turbo: bool = False   # R05: el turbo pasa de 1.5 bar
     frenos: bool = False               # R08: testigo de falla de frenos y frenado al 30 %
     velocimetro: bool = False          # sensor de velocidad descalibrado: indica 5 % menos (UN R39)
+    alternador: bool = False           # R13: no carga; la bateria se descarga
+    ecu_banco: bool = False            # una unidad Weber-Marelli sin encendido: el motor anda con 4 cilindros
 
 
 @dataclass
@@ -91,6 +111,10 @@ class Vehiculo:
     nivel_aceite: float = 100.0  # % del deposito de aceite
     temp_frenos: float = AMBIENTE_C
     traccion_bloqueada: bool = False   # lo fija la ECU (interbloqueo de puertas)
+    # Etapa 20
+    bateria: float = 1.0        # carga de la bateria, 0 a 1
+    ventilador: bool = False
+    tiempo_s: float = 0.0
 
     # ----------------------------------------------------------------- mandos
     def cambiar(self, marcha):
@@ -111,6 +135,8 @@ class Vehiculo:
         """Avanza dt segundos (se recomienda 0.05)."""
         if dt <= 0:
             return
+        self.tiempo_s += dt
+        mitad = 0.5 if self.fallas.ecu_banco else 1.0          # un banco sin encendido: medio motor
         # Con la traccion bloqueada por la ECU (puerta abierta) el acelerador no tiene efecto.
         acelerador = 0.0 if self.traccion_bloqueada else _limitar(self.acelerador, 0.0, 1.0)
         freno = _limitar(self.freno, 0.0, 1.0)
@@ -121,11 +147,13 @@ class Vehiculo:
         elif self.acoplado:
             relacion = CORTE / VELOCIDAD_AL_CORTE[self.marcha]       # rpm por km/h
             corte = self.rpm >= LIMITADOR - 1                        # el limitador corta la inyeccion
-            empuje = 0.0 if corte else acelerador * EMPUJE[self.marcha]
+            empuje = 0.0 if corte else acelerador * EMPUJE[self.marcha] * mitad
             if acelerador == 0:
                 empuje -= FRENO_MOTOR
         else:
             objetivo = RALENTI + acelerador * (LIMITADOR - RALENTI)  # revoluciones en vacio
+            if self.fallas.ecu_banco:                                # ralenti irregular
+                objetivo += RALENTI_IRREGULAR * math.sin(2 * math.pi * 1.3 * self.tiempo_s) * (1 - acelerador)
             paso = (6000 if objetivo > self.rpm else 3000) * dt
             self.rpm += _limitar(objetivo - self.rpm, -paso, paso)
             empuje = 0.0
@@ -142,7 +170,7 @@ class Vehiculo:
 
         # Turbo: sigue al acelerador con retraso y solo da presion por encima de 2500 rpm.
         carga = acelerador * _limitar((self.rpm - 2500) / 2500, 0.0, 1.0) if self.motor else 0.0
-        maximo = TURBO_MAXIMO * (1.65 if self.fallas.sobrepresion_turbo else 1.0)
+        maximo = TURBO_MAXIMO * (1.65 if self.fallas.sobrepresion_turbo else 1.0) * (0.55 if mitad < 1 else 1.0)
         objetivo_turbo = maximo * carga
         self.presion_turbo += (objetivo_turbo - self.presion_turbo) * min(1.0, dt / TURBO_RETRASO_S)
 
@@ -150,10 +178,21 @@ class Vehiculo:
         carga_motor = acelerador * _limitar(self.rpm / 7000.0, 0.0, 1.0) if self.motor else 0.0
         if self.motor:
             objetivo_t = (TEMPERATURA_SOBRECALENTADO if self.fallas.radiador
-                          else TEMPERATURA_NORMAL + CARGA_TERMICA * carga_motor)
+                          else TEMPERATURA_NORMAL + CARGA_TERMICA * carga_motor
+                          - (ENFRIAMIENTO_VENTILADOR if self.ventilador else 0.0))
         else:
             objetivo_t = 40.0
         self.temp_agua += (objetivo_t - self.temp_agua) * min(1.0, dt / CALENTAMIENTO_S)
+
+        # Ventilador del radiador con histeresis.
+        if self.motor and self.temp_agua >= VENTILADOR_ENCIENDE:
+            self.ventilador = True
+        elif not self.motor or self.temp_agua <= VENTILADOR_APAGA:
+            self.ventilador = False
+        # Bateria: el alternador carga lo que sobra de las cargas; si no carga, la bateria las paga.
+        cargas, generacion = self._corrientes()
+        cambio = (generacion - cargas) * dt * ACELERACION_ELECTRICA / 3600.0 / CAPACIDAD_BATERIA_AH
+        self.bateria = _limitar(self.bateria + cambio, 0.0, 1.0)
 
         # Combustible: sin combustible el motor se apaga solo.
         if self.motor:
@@ -165,6 +204,27 @@ class Vehiculo:
         if self.fallas.fuga_aceite:
             ritmo = FUGA_ACEITE_PCT_S if self.motor else FUGA_ACEITE_PCT_S / 10
             self.nivel_aceite = max(0.0, self.nivel_aceite - ritmo * dt)
+
+    def _corrientes(self):
+        """(cargas, generacion) en amperes."""
+        cargas = ((CARGA_BASE_A if self.contacto or self.motor else 0.0) + CARGA_LUCES_A * self.luces_altas
+                  + CARGA_VENTILADOR_A * self.ventilador)
+        gira = self.motor and not self.fallas.alternador and self.rpm > 300
+        return cargas, (min(ALTERNADOR_MAXIMO_A, 25.0 + 0.012 * self.rpm) if gira else 0.0)
+
+    @property
+    def voltaje_reposo(self):
+        """Voltaje de la bateria sin carga: 12.7 V llena; bajo 10 % se desploma."""
+        b = _limitar(self.bateria, 0.0, 1.0)
+        return 11.6 + 1.1 * b if b >= 0.1 else 9.0 + 26.0 * b
+
+    @property
+    def voltaje(self):
+        """Con el alternador al dia, el regulador fija 14.2 V; si no, la bateria cae por su resistencia interna."""
+        cargas, generacion = self._corrientes()
+        if generacion > 0 and generacion >= cargas:
+            return VOLTAJE_REGULADO
+        return max(0.0, self.voltaje_reposo - (cargas - generacion) * RESISTENCIA_INTERNA)
 
     def _temperatura_frenos(self, frenado_kmh_s, antes_kmh, dt):
         """Los frenos convierten la energia del auto en calor y se enfrian con el aire (mas rapido al avanzar)."""
@@ -225,4 +285,5 @@ class Vehiculo:
             "cinturon": bool(self.cinturon),
             "combustible": round(_limitar(100.0 * self.combustible_l / TANQUE_L, 0.0, 100.0), 1),
             "falla_motor": falla_motor,
+            "voltaje": round(_limitar(self.voltaje, 0.0, 20.0), 1),
         }

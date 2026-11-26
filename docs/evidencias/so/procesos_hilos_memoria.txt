@@ -1,38 +1,40 @@
 == Procesos e hilos del cluster (temas 3.1, 3.2 y 3.4) ==
 Comando: ps, pstree, /proc/PID/status
-Fecha: 2026-11-26 00:24:55  Kernel: 5.15.0-204-generic
+Fecha: 2026-11-26 16:12:21  Kernel: 5.15.0-204-generic
 
-Shell (PID 3549) -> fork+exec de dos procesos: simulador (productor, PID 3576) y cluster (consumidor, PID 3577)
+Shell (PID 2978) -> fork+exec de dos procesos: simulador (productor, PID 3005) y cluster (consumidor, PID 3006)
 
     PID    PPID STAT  NI PRI NLWP   RSS    VSZ CMD
-   3576    3549 S      0  19    1 13464  21016 python /home/ayocesaar/cluster-f40/tools/simulador.py --archivo /tmp/evidencia_so.CoCI1m/datos/vehiculo.conf --periodo-ms 100 --duracion-s 20
-   3577    3549 Sl     0  19    3 28200 120104 python /home/ayocesaar/cluster-f40/main.py --proyecto /tmp/evidencia_so.CoCI1m
+   3005    2978 S      0  19    1 13588  21016 python /home/ayocesaar/cluster-f40/tools/simulador.py --archivo /tmp/evidencia_so.dKk1Ad/datos/vehiculo.conf --periodo-ms 100 --duracion-s 20
+   3006    2978 Sl     0  19    4 28448 193936 python /home/ayocesaar/cluster-f40/main.py --proyecto /tmp/evidencia_so.dKk1Ad
 
 -- Hilos del cluster (ps -L): principal (Tkinter), lector (HiloLector) y uno interno de la biblioteca Tcl/Tk --
     PID     LWP STAT %CPU COMMAND
-   3577    3577 Sl    4.0 python
-   3577    3579 Sl    0.5 python
-   3577    3580 Sl    0.0 python
+   3006    3006 Sl   11.8 python
+   3006    3008 Sl    0.2 python
+   3006    3009 Sl    1.0 python
+   3006    3010 Sl    0.2 python
 
 -- Arbol de procesos --
-bash(3549)-+-pstree(3585)
-           |-python(3576)
-           |-python(3577)-+-{python}(3579)
-           |              `-{python}(3580)
-           `-sed(3586)
+bash(2978)-+-pstree(3015)
+           |-python(3005)
+           |-python(3006)-+-{python}(3008)
+           |              |-{python}(3009)
+           |              `-{python}(3010)
+           `-sed(3016)
 
--- Memoria virtual y residente (tema 5.3): /proc/3577/status --
+-- Memoria virtual y residente (tema 5.3): /proc/3006/status --
 Name:	python
 State:	S (sleeping)
-VmPeak:	  177444 kB
-VmSize:	  120104 kB
-VmRSS:	   28200 kB
+VmPeak:	  251276 kB
+VmSize:	  193936 kB
+VmRSS:	   28448 kB
 VmSwap:	       0 kB
-Threads:	3
-voluntary_ctxt_switches:	1272
-nonvoluntary_ctxt_switches:	230
+Threads:	4
+voluntary_ctxt_switches:	1135
+nonvoluntary_ctxt_switches:	448
 
 -- Archivos abiertos por el cluster (descriptores, tema 4.3) --
-4 -> /tmp/evidencia_so.CoCI1m/logs/eventos.log
-5 -> /tmp/evidencia_so.CoCI1m/logs/errores.log
-6 -> /tmp/evidencia_so.CoCI1m/datos/odometro.txt.lock
+4 -> /tmp/evidencia_so.dKk1Ad/logs/eventos.log
+5 -> /tmp/evidencia_so.dKk1Ad/logs/errores.log
+6 -> /tmp/evidencia_so.dKk1Ad/datos/odometro.txt.lock

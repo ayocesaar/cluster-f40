@@ -167,6 +167,17 @@ wc -l logs/eventos.log logs/errores.log                               # líneas 
 grep WARN logs/eventos.log                                            # advertencias prioritarias
 ```
 
+## 5a. Caja negra (VM)
+
+```
+python tools/caja_negra.py                       # cabecera y últimos registros (solo lectura)
+python tools/caja_negra.py --hex 1               # el último registro byte por byte con sus campos
+python tools/caja_negra.py --ultimos 100 --csv /tmp/ultimos.csv
+ls -l datos/caja_negra.bin logs/caja_negra/      # 19264 bytes fijos; eventos CSV (640)
+xxd -l 64 datos/caja_negra.bin                   # la cabecera en hexadecimal
+python tools/escribir_dato.py voltaje=12.3       # con el motor en marcha: WARN falla_de_carga (R13)
+```
+
 ## 5b. Realismo, seguridad y banco de liberación (VM)
 
 ```
