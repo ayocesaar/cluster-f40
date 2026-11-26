@@ -214,11 +214,18 @@
 | CP-200 | Sistema electrico, Weber-Marelli y sonidos de cabina | - | el arranque de fin de linea (L01) rechaza el alternador que no carga (menos de 13.5 V) y la unidad Weber-Marelli fallida (ralenti inestable); la unidad sana sigue APTA y la prueba de testigos incluye el 16. | `test_electrico.py::test_cp200_banco_detecta_las_fallas_electricas` | PASS |
 | CP-201 | Sistema electrico, Weber-Marelli y sonidos de cabina | - | el relevador de las direccionales hace un clic cada 500 ms; las llantas chirrian (1100 Hz) al frenar a fondo; se oye el ventilador (45 Hz); con la bateria debil el motor de arranque gira mas lento; los campos nuevos viajan por el socket validados. | `test_electrico.py::test_cp201_sonidos_de_cabina` | PASS |
 | CP-202 | Sistema electrico, Weber-Marelli y sonidos de cabina | - | el panel tiene las fallas del alternador y de la unidad Weber-Marelli, el taller carga o descarga la bateria, con la bateria debil el arranque falla con el motor de arranque girando lento, y el voltaje llega al archivo de datos. | `test_electrico.py::test_cp202_panel_bateria_y_fallas_nuevas` | PASS |
+| CP-203 | Practicas de fallas, par motor, adherencia y aceite | - | cada una de las 15 practicas de fallas corre sola de principio a fin y todas sus verificaciones contra la copia del cuadro real aprueban (testigos, WARN, causas de proteccion y mediciones). | `test_practicas.py::test_cp203_cada_practica_de_fallas_aprueba` | PASS |
+| CP-204 | Practicas de fallas, par motor, adherencia y aceite | - | en la practica de manejo el robot pisa el embrague antes de cada cambio, mueve los pedales con la rapidez del panel (no salta) y pasa por 1a, 2a y 3a. | `test_practicas.py::test_cp204_el_robot_maneja_como_una_persona` | PASS |
+| CP-205 | Practicas de fallas, par motor, adherencia y aceite | - | en el panel una practica corre en vivo: los pedales dibujados, la palanca y las casillas (puerta, fallas) muestran lo que hace el robot; termina APROBADA; Detener la corta; la pista mojada se activa desde el panel. | `test_practicas.py::test_cp205_panel_muestra_la_palanca_y_los_pedales_del_robot` | PASS |
+| CP-206 | Practicas de fallas, par motor, adherencia y aceite | - | la curva de par pasa por los datos verificados (577 Nm a 4000 rpm y unos 480 Nm a 7000 rpm, 478 CV) con el turbo soplando; sin presion el motor empuja como atmosferico; en seco no se bloquean las llantas, en mojado si (sin ABS) y patinan al acelerar; la maxima queda cerca de los 324 km/h publicados. | `test_practicas.py::test_cp206_par_motor_adherencia_y_velocidad_maxima` | PASS |
+| CP-207 | Practicas de fallas, par motor, adherencia y aceite | R14 | el aceite sigue al agua mas lento y se calienta con la carga; la clave temp_aceite (0-160 C) llega al elemento 17, que se pone en rojo sobre 130 C y vuelve a normal con 125 C o menos (R14) con WARN e INFO. | `test_practicas.py::test_cp207_temperatura_de_aceite` | PASS |
+| CP-208 | Practicas de fallas, par motor, adherencia y aceite | - | las agujas se mueven con inercia de instrumento analogico (un refresco recorre solo parte del camino y en unos 15 llegan), pero el color y la cifra cambian de inmediato; la barra del elemento 17 dibuja la temperatura de aceite. | `test_practicas.py::test_cp208_agujas_con_inercia_y_barra_de_aceite` | PASS |
+| CP-209 | Practicas de fallas, par motor, adherencia y aceite | - | tools/practicas.py corre una o todas las practicas, escribe el reporte con cada verificacion y termina con 0 cuando todas aprueban. | `test_practicas.py::test_cp209_herramienta_de_practicas_deja_evidencia` | PASS |
 
 ## Resumen
 
-- Casos de prueba: 212
-- Pasaron: 212
+- Casos de prueba: 219
+- Pasaron: 219
 - Fallo esperado por defecto abierto (XFAIL): 0
 - Fallaron / otros: 0
 
@@ -239,6 +246,7 @@
 | R11 | CP-169, CP-177 |
 | R12 | CP-170, CP-172, CP-173, CP-174, CP-177 |
 | R13 | CP-166, CP-179, CP-197 |
+| R14 | CP-207 |
 | R39 | CP-179, CP-182 |
 
 Requisitos sin casos: ninguno

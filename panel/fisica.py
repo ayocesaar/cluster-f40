@@ -19,7 +19,15 @@ Etapa 20: sistema electrico (bateria de 40 Ah, alternador regulado a 14.2 V y ca
 encendido, luces y ventilador; la descarga va 60 veces mas rapido para que se vea en la
 demostracion), ventilador del radiador con histeresis (98/92 C) y la falla de una de las dos
 unidades Weber-Marelli del F40 (una por banco de cilindros): el motor sigue con 4 cilindros,
-con la mitad del empuje, un solo turbo y el ralenti irregular."""
+con la mitad del empuje, un solo turbo y el ralenti irregular.
+
+Etapa 21: el empuje sigue una curva de par aproximada que pasa por los dos datos verificados del
+F40 (577 Nm a 4000 rpm y 478 CV a 7000 rpm, unos 480 Nm) y depende de la presion del turbo: bajo
+2500 rpm, o mientras el turbo carga, el motor empuja como uno atmosferico (se siente el retraso del
+turbo). Las llantas tienen un limite de adherencia y el F40 no tenia ABS ni control de traccion
+(revista de Ferrari): si se pide mas, las traseras patinan al acelerar o las cuatro se bloquean al
+frenar, y en pista mojada el limite baja a 55 %. El aceite tiene su propia temperatura: sigue a la
+del agua, mas lento, y sube con la carga."""
 
 import math
 from dataclasses import dataclass, field
@@ -29,8 +37,12 @@ CORTE = 7750                 # rpm de referencia para las velocidades por marcha
 LIMITADOR = 8200             # permite ver el tacometro en rojo (R03: >= 8000)
 # Velocidad aproximada al llegar a CORTE en cada marcha (pendiente de verificar).
 VELOCIDAD_AL_CORTE = {"1": 90.0, "2": 135.0, "3": 190.0, "4": 255.0, "5": 324.0, "R": 50.0}
-# Empuje maximo por marcha en km/h por segundo (aprox.; da un 0-100 de unos 4 s).
-EMPUJE = {"1": 30.0, "2": 22.0, "3": 15.0, "4": 10.0, "5": 6.5, "R": 12.0}
+# Empuje por marcha en km/h por segundo con el par maximo (Etapa 21: se multiplica por el factor de
+# par). Calibrado para que el 0-100 de unos 4.2 s y la maxima unos 326 km/h; datos publicados del
+# F40: 4.1 s (la cifra mas citada; hay pruebas de 3.5 a 5.0 s) y 324 km/h.
+EMPUJE = {"1": 48.0, "2": 35.2, "3": 24.0, "4": 16.0, "5": 10.4, "R": 19.2}
+RESISTENCIA_BASE = 0.8           # km/h por segundo: rodadura y transmision (aprox.)
+RESISTENCIA_AIRE = 0.000065      # por (km/h)^2: calibrada con la maxima publicada de 324 km/h
 FRENADO = 45.0               # km/h por segundo con el freno a fondo
 FRENO_MOTOR = 2.0            # km/h por segundo en marcha sin acelerar
 TURBO_MAXIMO = 1.1           # bar de sobrepresion normal (aprox.)
@@ -63,6 +75,18 @@ RESISTENCIA_INTERNA = 0.02       # ohm
 VENTILADOR_ENCIENDE, VENTILADOR_APAGA = 98.0, 92.0   # C
 ENFRIAMIENTO_VENTILADOR = 6.0    # C menos de temperatura objetivo con el ventilador encendido
 RALENTI_IRREGULAR = 130.0        # rpm de vaiven con un banco sin encendido
+# Etapa 21: par y adherencia (aprox.; los dos puntos de la curva marcados son datos verificados).
+PAR_MAXIMO_NM = 577.0            # verificado: a 4000 rpm
+PAR_CURVA = ((0, 180.0), (1000, 230.0), (2500, 330.0), (3000, 450.0), (4000, 577.0), (5000, 565.0),
+             (6000, 530.0), (7000, 480.0), (8200, 400.0))      # 7000 rpm: 478 CV = unos 480 Nm (verificado)
+PAR_ATMOSFERICO = ((0, 180.0), (1000, 230.0), (2500, 270.0), (4000, 290.0), (7000, 260.0), (8200, 230.0))
+TRACCION_MAXIMA = 37.0           # km/h por segundo que aguantan las llantas traseras en seco
+FRENADO_ADHERENCIA = 48.0        # km/h por segundo que aguantan las cuatro llantas en seco
+ADHERENCIA_MOJADO = 0.55
+DESLIZAMIENTO = 0.8              # una llanta que patina o va bloqueada agarra 20 % menos
+ACEITE_SOBRE_AGUA = 8.0          # C: el aceite trabaja algo mas caliente que el agua
+ACEITE_CARGA = 22.0              # C adicionales a plena carga
+ACEITE_CONSTANTE_S = 45.0        # el aceite se calienta mas lento que el agua (CALENTAMIENTO_S)
 MARCHAS = ("R", "N", "1", "2", "3", "4", "5")
 RANGOS = {"velocidad": (0.0, 360.0), "rpm": (0, 9000), "presion_aceite": (0.0, 10.0),
           "temp_agua": (40.0, 130.0), "presion_turbo": (0.0, 2.0)}
@@ -70,6 +94,18 @@ RANGOS = {"velocidad": (0.0, 360.0), "rpm": (0, 9000), "presion_aceite": (0.0, 1
 
 def _limitar(valor, minimo, maximo):
     return max(minimo, min(maximo, valor))
+
+
+def _interpolar(puntos, x):
+    for (x0, y0), (x1, y1) in zip(puntos, puntos[1:]):
+        if x <= x1:
+            return y0 + (y1 - y0) * _limitar((x - x0) / (x1 - x0), 0.0, 1.0)
+    return puntos[-1][1]
+
+
+def resistencia_al_avance(velocidad):
+    """Desaceleracion por rodadura y aire en km/h por segundo."""
+    return RESISTENCIA_BASE + RESISTENCIA_AIRE * velocidad ** 2
 
 
 def velocidad_maxima(marcha):
@@ -115,6 +151,11 @@ class Vehiculo:
     bateria: float = 1.0        # carga de la bateria, 0 a 1
     ventilador: bool = False
     tiempo_s: float = 0.0
+    # Etapa 21
+    mojado: bool = False        # pista mojada: 55 % de adherencia
+    patinando: bool = False     # las traseras patinan al acelerar (sin control de traccion)
+    bloqueado: bool = False     # las llantas se bloquean al frenar (sin ABS)
+    temp_aceite: float = 40.0
 
     # ----------------------------------------------------------------- mandos
     def cambiar(self, marcha):
@@ -144,13 +185,19 @@ class Vehiculo:
         if not self.motor:
             self.rpm = max(0.0, self.rpm - 4000 * dt)
             empuje = 0.0
+            self.patinando = False
         elif self.acoplado:
             relacion = CORTE / VELOCIDAD_AL_CORTE[self.marcha]       # rpm por km/h
             corte = self.rpm >= LIMITADOR - 1                        # el limitador corta la inyeccion
-            empuje = 0.0 if corte else acelerador * EMPUJE[self.marcha] * mitad
+            empuje = 0.0 if corte else acelerador * EMPUJE[self.marcha] * mitad * self.factor_par
+            limite = TRACCION_MAXIMA * self.adherencia
+            self.patinando = empuje > limite                         # sin control de traccion
+            if self.patinando:
+                empuje = limite * DESLIZAMIENTO
             if acelerador == 0:
                 empuje -= FRENO_MOTOR
         else:
+            self.patinando = False
             objetivo = RALENTI + acelerador * (LIMITADOR - RALENTI)  # revoluciones en vacio
             if self.fallas.ecu_banco:                                # ralenti irregular
                 objetivo += RALENTI_IRREGULAR * math.sin(2 * math.pi * 1.3 * self.tiempo_s) * (1 - acelerador)
@@ -158,8 +205,12 @@ class Vehiculo:
             self.rpm += _limitar(objetivo - self.rpm, -paso, paso)
             empuje = 0.0
 
-        resistencia = 0.8 + 0.00005 * self.velocidad ** 2
+        resistencia = resistencia_al_avance(self.velocidad)
         frenado = FRENADO * freno * self.eficiencia_frenos
+        limite_freno = FRENADO_ADHERENCIA * self.adherencia
+        self.bloqueado = frenado > limite_freno and self.velocidad > 1.0       # sin ABS
+        if self.bloqueado:
+            frenado = limite_freno * DESLIZAMIENTO
         decel = resistencia + frenado
         antes = self.velocidad
         self.velocidad = max(0.0, self.velocidad + (empuje - decel) * dt)
@@ -184,6 +235,14 @@ class Vehiculo:
             objetivo_t = 40.0
         self.temp_agua += (objetivo_t - self.temp_agua) * min(1.0, dt / CALENTAMIENTO_S)
 
+        # Aceite: sigue al agua mas lento y se calienta con la carga; con poco aceite, mas.
+        if self.motor:
+            objetivo_aceite = (self.temp_agua + ACEITE_SOBRE_AGUA + ACEITE_CARGA * carga_motor
+                               + (15.0 if self.nivel_aceite < NIVEL_ACEITE_CRITICO else 0.0))
+        else:
+            objetivo_aceite = 40.0
+        self.temp_aceite += (objetivo_aceite - self.temp_aceite) * min(1.0, dt / ACEITE_CONSTANTE_S)
+
         # Ventilador del radiador con histeresis.
         if self.motor and self.temp_agua >= VENTILADOR_ENCIENDE:
             self.ventilador = True
@@ -204,6 +263,26 @@ class Vehiculo:
         if self.fallas.fuga_aceite:
             ritmo = FUGA_ACEITE_PCT_S if self.motor else FUGA_ACEITE_PCT_S / 10
             self.nivel_aceite = max(0.0, self.nivel_aceite - ritmo * dt)
+
+    @property
+    def adherencia(self):
+        return ADHERENCIA_MOJADO if self.mojado else 1.0
+
+    @property
+    def factor_par(self):
+        """Par disponible / par maximo: atmosferico mas lo que aporta el turbo segun su presion."""
+        rpm = self.rpm
+        atmosferico = _interpolar(PAR_ATMOSFERICO, rpm)
+        con_turbo = _interpolar(PAR_CURVA, rpm)
+        soplido = _limitar(self.presion_turbo / TURBO_MAXIMO, 0.0, 1.0)
+        return (atmosferico + (con_turbo - atmosferico) * soplido) / PAR_MAXIMO_NM
+
+    def empuje_maximo(self):
+        """km/h por segundo que daria el acelerador a fondo ahora (lo usa el robot conductor)."""
+        if not self.motor or self.marcha in ("N",):
+            return 0.0
+        mitad = 0.5 if self.fallas.ecu_banco else 1.0
+        return min(EMPUJE[self.marcha] * mitad * self.factor_par, TRACCION_MAXIMA * self.adherencia)
 
     def _corrientes(self):
         """(cargas, generacion) en amperes."""
@@ -286,4 +365,5 @@ class Vehiculo:
             "combustible": round(_limitar(100.0 * self.combustible_l / TANQUE_L, 0.0, 100.0), 1),
             "falla_motor": falla_motor,
             "voltaje": round(_limitar(self.voltaje, 0.0, 20.0), 1),
+            "temp_aceite": round(_limitar(self.temp_aceite, 0.0, 160.0), 1),
         }

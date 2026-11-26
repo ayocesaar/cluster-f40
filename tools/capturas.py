@@ -88,14 +88,15 @@ def _externo(tablero, **valores):
 
 def prueba_de_testigos(tablero, reloj):
     _externo(tablero, set_contacto=True, set_puertas=0, set_cinturon=True, set_combustible=62.0,
-             set_falla_motor="ninguna", set_voltaje=12.5)
+             set_falla_motor="ninguna", set_voltaje=12.5, set_temp_aceite=60.0)
     reloj.avanzar(300)
     tablero.ciclo()
 
 
 def proteccion_por_sobretemperatura(tablero, reloj):
     _externo(tablero, set_contacto=True, set_puertas=0, set_cinturon=False, set_combustible=9.0,
-             set_falla_motor="sobretemperatura", set_voltaje=12.4)
+             set_falla_motor="sobretemperatura", set_voltaje=12.4,
+             set_temp_aceite=134.0)
     _ajustar(tablero, set_velocidad=40, set_temp_agua=121)
     reloj.avanzar(3000)            # termino la prueba de testigos; fase encendida del parpadeo
     tablero.ciclo()
@@ -103,7 +104,7 @@ def proteccion_por_sobretemperatura(tablero, reloj):
 
 def puerta_abierta_detenido(tablero, reloj):
     _externo(tablero, set_contacto=True, set_puertas=1, set_cinturon=True, set_combustible=62.0,
-             set_falla_motor="ninguna", set_voltaje=14.2)
+             set_falla_motor="ninguna", set_voltaje=14.2, set_temp_aceite=96.0)
     _ajustar(tablero, set_motor=True, set_rpm=1000, set_presion_aceite=1.5, set_temp_agua=88)
     reloj.avanzar(2600)
     tablero.ciclo()
@@ -178,7 +179,8 @@ def main():
         try:
             preparar(tablero, reloj)
             tablero.detener()
-            tablero.refrescar()
+            for _ in range(30):         # las agujas tienen inercia: se deja que lleguen a su valor
+                tablero.refrescar()
             (ancho, alto), colores = capturar(raiz, DESTINO / archivo)
             resumen = (_resumen(vista(estado)) + f", 11 odometro={estado.odometro.texto}, "
                        + _resumen_extra(estado))

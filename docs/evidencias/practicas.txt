@@ -1,0 +1,90 @@
+Practicas de fallas automaticas (panel/practicas.py), en tiempo simulado con pasos de 50 ms
+
+APROBADA    Manejo normal (17.2 s simulados): Prueba de testigos, arranque, 1a a 3a hasta 80 km/h y frenada
+    OK  prueba de testigos al dar contacto
+    OK  el motor arranca
+    OK  manejo en 1a, 2a y 3a hasta 80 km/h: 82 km/h en 1-2-3; frenada de 37 m
+    OK  sin advertencias criticas
+    el tablero registro WARN: ninguno
+    causas de proteccion vistas: ninguna
+APROBADA    Fuga de aceite (7.9 s simulados): Testigo 9, no arranca, taller y vuelve a arrancar
+    OK  testigo 9 encendido y WARN prioritario
+    OK  con fuga no arranca: aceite
+    OK  el tablero muestra STOP · ACEITE
+    OK  reparado, arranca
+    el tablero registro WARN: motor_detenido_por_proteccion, testigo_9_encendido
+    causas de proteccion vistas: aceite
+APROBADA    Sobrecalentamiento (50.0 s simulados): Radiador danado: la ECU corta a 120 C y no arranca hasta enfriar
+    OK  la ECU detiene el motor por sobretemperatura: agua a 120 C
+    OK  aguja del agua en rojo y WARN (R04)
+    OK  caliente no arranca
+    OK  reparado y frio, arranca: agua a 100 C
+    el tablero registro WARN: motor_detenido_por_proteccion, temperatura_rojo
+    causas de proteccion vistas: sobretemperatura
+APROBADA    Turbo (16.8 s simulados): Sobrepresion sobre 1.5 bar: corte del motor enclavado hasta reparar
+    OK  contorno del turbo en ambar (R05) y corte por sobrepresion
+    OK  con la proteccion enclavada no arranca
+    OK  reparado, arranca
+    el tablero registro WARN: motor_detenido_por_proteccion, tacometro_rojo, turbo_ambar
+    causas de proteccion vistas: sobrepresion_turbo
+APROBADA    Frenos (24.3 s simulados): Frenada desde 100 km/h sana y con un circuito perdido (testigo 10)
+    OK  testigo 10 parpadeando (R08)
+    OK  con la falla frena mucho peor: 31 m sano contra 113 m
+    el tablero registro WARN: testigo_10_encendido
+    causas de proteccion vistas: ninguna
+APROBADA    Puertas (9.8 s simulados): Interbloqueo con la puerta abierta y WARN en movimiento
+    OK  con la puerta abierta no avanza aunque se acelere: 0.0 km/h; testigo 12 encendido
+    OK  puerta abierta en movimiento: WARN prioritario (R09)
+    el tablero registro WARN: puerta_abierta_en_movimiento
+    causas de proteccion vistas: ninguna
+APROBADA    Cinturon (11.3 s simulados): Testigo 13, alarma y WARN sobre 10 km/h
+    OK  testigo 13 con contacto y sin cinturon
+    OK  WARN de cinturon sin abrochar en movimiento (R10)
+    OK  al abrochar se apaga
+    el tablero registro WARN: cinturon_desabrochado_en_movimiento, tacometro_rojo
+    causas de proteccion vistas: ninguna
+APROBADA    Combustible (13.5 s simulados): Reserva, se apaga sin combustible y no arranca hasta cargar
+    OK  reserva de combustible y WARN (R11)
+    OK  sin combustible el motor se apaga y no arranca
+    OK  con el tanque lleno arranca
+    el tablero registro WARN: combustible_reserva, motor_detenido_por_proteccion
+    causas de proteccion vistas: combustible
+APROBADA    Alternador (24.8 s simulados): No carga: testigo 16 y la gestion electronica se apaga bajo 10.5 V
+    OK  testigo 16 y WARN falla_de_carga (R13)
+    OK  bajo 10.5 V la ECU apaga el motor: 10.2 V
+    OK  reparado y con la bateria cargada, arranca
+    el tablero registro WARN: falla_de_carga, motor_detenido_por_proteccion
+    causas de proteccion vistas: electrica
+APROBADA    Bateria debil (4.8 s simulados): El motor de arranque gira lento y no prende
+    OK  con la bateria debil no arranca: 10.3 V en reposo
+    OK  el motor de arranque gira lento
+    OK  con la bateria cargada arranca
+    el tablero registro WARN: motor_detenido_por_proteccion
+    causas de proteccion vistas: electrica
+APROBADA    Weber-Marelli (28.1 s simulados): Un banco sin encendido: ralenti irregular y medio motor
+    OK  ralenti irregular (sin testigo, como en 1987): 870 a 1130 rpm
+    OK  con 4 cilindros acelera mucho mas lento: 40-80 km/h en 2a: 2.1 s sano contra 4.8 s
+    el tablero registro WARN: ninguno
+    causas de proteccion vistas: ninguna
+APROBADA    Limitador (13.0 s simulados): 1a a fondo hasta 8200 rpm: tacometro en rojo y cortes
+    OK  tacometro en rojo (R03) y el limitador no deja pasar de 8200 rpm: maximo 8200 rpm
+    el tablero registro WARN: tacometro_rojo
+    causas de proteccion vistas: ninguna
+APROBADA    Lluvia sin ABS (27.0 s simulados): Patinamiento y llantas bloqueadas; frenar dosificado detiene antes
+    OK  a fondo en 1a las llantas traseras patinan (sin control de traccion)
+    OK  frenando a fondo se bloquean las llantas (sin ABS)
+    OK  dosificando no se bloquean
+    OK  frenar sin bloquear detiene antes (por eso existe el ABS): bloqueadas 59 m contra dosificado 52 m
+    el tablero registro WARN: ninguno
+    causas de proteccion vistas: ninguna
+APROBADA    0-100 km/h (13.2 s simulados): Salida con el turbo cargado, cambios a 7600 rpm y tiempo medido
+    OK  0-100 km/h dentro del rango publicado (3.5 a 5.0 s; la cifra mas citada es 4.1 s): 4.70 s; las llantas patinaron al salir
+    el tablero registro WARN: ninguno
+    causas de proteccion vistas: ninguna
+APROBADA    Velocimetro (14.5 s simulados): A 80 km/h: sano indica de mas (R39); descalibrado indica de menos
+    OK  sano: el tablero nunca indica menos que la velocidad real (UN R39): +0.0 km/h
+    OK  descalibrado: indica menos (ilegal segun UN R39): -4.2 km/h
+    el tablero registro WARN: ninguno
+    causas de proteccion vistas: ninguna
+
+Resultado: 15/15 practicas aprobadas (2.2 s de calculo)

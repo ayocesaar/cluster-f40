@@ -61,6 +61,7 @@ TECNICAS = {
     "test_sonido": "Sonido del motor (sintesis y tiempo real)",
     "test_caja_negra": "Caja negra (archivo binario de acceso directo)",
     "test_electrico": "Sistema electrico, Weber-Marelli y sonidos de cabina",
+    "test_practicas": "Practicas de fallas, par motor, adherencia y aceite",
 }
 
 PRODUCCION = ("logic/estado.py", "logic/reloj.py", "ui/presentacion.py", "ui/tablero.py",

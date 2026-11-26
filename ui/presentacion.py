@@ -37,6 +37,7 @@ ELEMENTOS_EXTRA = {
     14: {"nombre": "Combustible", "categoria": LECTURA, "minimo": 0, "maximo": 100},
     15: {"nombre": "Proteccion del motor", "categoria": CRITICA},
     16: {"nombre": "Carga de bateria", "categoria": CRITICA},
+    17: {"nombre": "Temp. aceite", "categoria": LECTURA, "minimo": 40, "maximo": 160},
 }
 TANQUE_L = 120.0     # capacidad del tanque del F40 (fichas tecnicas publicadas; ver docs/realismo_y_liberacion.md)
 TEXTO_CAUSA = {"sobretemperatura": "SOBRETEMPERATURA", "sobrepresion_turbo": "SOBREPRESION TURBO",
@@ -113,5 +114,8 @@ def vista_extra(estado):
                  texto=TEXTO_CAUSA.get(causa, ""), sin_dato=estado.falla_motor is None),
         16: dict(_testigo(estado.testigo_carga_encendido or prueba, COLOR_ROJO), voltaje=estado.voltaje,
                  sin_dato=estado.voltaje is None and estado.encendido),
+        17: {"valor": estado.temp_aceite, "sin_dato": estado.temp_aceite is None,
+             "fraccion": 0.0 if estado.temp_aceite is None else max(0.0, min(1.0, (estado.temp_aceite - 40) / 120)),
+             "color": COLOR_ROJO if estado.color_aceite_temp == "rojo" else COLOR_NORMAL},
         "llave": {"estado": llave, "prueba": prueba},
     }

@@ -24,7 +24,7 @@ from dataclasses import dataclass
 from logic.estado import EstadoCluster
 from logic.reloj import RelojSimulado
 from panel.ecu import Ecu
-from panel.fisica import (COMBUSTIBLE_INICIAL_L, EMPUJE, FRENADO, FRENO_MOTOR, Fallas, Vehiculo,
+from panel.fisica import (COMBUSTIBLE_INICIAL_L, FRENADO, FRENO_MOTOR, Fallas, Vehiculo, resistencia_al_avance,
                           velocidad_maxima)
 from sistema.config import RANGOS_ESPECIFICACION
 from sistema.lector import CLAVES, CLAVES_EXTRA, convertir, formatear
@@ -120,10 +120,10 @@ class Conductor:
         v.embrague = 0.0
         pendiente = (self.objetivo(t + self.anticipacion_s) - objetivo) / self.anticipacion_s
         deseada = pendiente + self.ganancia * (objetivo - v.velocidad)        # km/h por segundo
-        necesario = deseada + 0.8 + 0.00005 * v.velocidad ** 2
+        necesario = deseada + resistencia_al_avance(v.velocidad)
         acelerador = freno = 0.0
         if v.acoplado and necesario > 0:
-            acelerador = necesario / EMPUJE[v.marcha]
+            acelerador = necesario / max(1.0, v.empuje_maximo())      # el par cambia con rpm y turbo
         else:
             ayuda = FRENO_MOTOR if v.acoplado else 0.0
             if -necesario > ayuda:
@@ -263,13 +263,13 @@ def prueba_tipo1(fallas):
         while t < TIPO1_CICLO_S:
             if t < 1e-9 or v.freno > 0 and v.velocidad > v2:        # frenada de v1 a v2 a 3 m/s^2
                 v.acelerador = 0.0
-                falta = TIPO1_DECEL * 3.6 - (0.8 + 0.00005 * v.velocidad ** 2) - FRENO_MOTOR
+                falta = TIPO1_DECEL * 3.6 - resistencia_al_avance(v.velocidad) - FRENO_MOTOR
                 v.freno = max(0.01, min(1.0, falta / (FRENADO * max(0.05, v.eficiencia_frenos))))
             elif ciclo == TIPO1_CICLOS:                            # tras la ultima frenada: prueba en caliente
                 break
             else:                                                  # volver a v1 y sostenerla
                 v.freno = 0.0
-                v.acelerador = 1.0 if v.velocidad < v1 else (0.8 + 0.00005 * v1 ** 2) / EMPUJE["5"]
+                v.acelerador = 1.0 if v.velocidad < v1 else resistencia_al_avance(v1) / max(1.0, v.empuje_maximo())
             v.avanzar(DT)
             t += DT
     caliente = v.temp_frenos

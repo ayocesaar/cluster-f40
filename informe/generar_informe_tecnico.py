@@ -140,6 +140,17 @@ FICHAS = (
      "evento": "WARN falla_de_carga; INFO carga_normal",
      "just": "La guía pone batería como ejemplo de testigo de seguridad. Un decimal con décimas basta para distinguir "
              "12.6 V (batería) de 14.2 V (alternador cargando)."},
+    {"n": "17", "nombre": "Temperatura de aceite (adicional, Etapa 21)", "cat": "Información en línea",
+     "clave": "temp_aceite",
+     "fuente": "datos/vehiculo.conf, clave opcional temp_aceite (el panel la calcula: sigue al agua, más lento, y sube "
+               "con la carga)",
+     "tipo": "Decimal", "rango": "°C; 0 a 160; sin dato hasta que llega", "ciclo": "500 ms (cambia despacio)",
+     "visual": "Barra bajo el turbo con la zona roja desde 130 °C; la cifra va en la etiqueta",
+     "adv": "R14. Rojo sobre 130 °C, normal con 125 °C o menos (histéresis); WARN temperatura_aceite_rojo.",
+     "invalido": "Fuera de 0-160 o texto: ERROR y se conserva el último válido; ausente igual que el elemento 12.",
+     "evento": "WARN temperatura_aceite_rojo; INFO temperatura_aceite_normal",
+     "just": "El F40 tiene este medidor (catálogo de refacciones). El aceite tarda más que el agua en calentarse: "
+             "por eso es un elemento aparte y no se deduce de la temperatura del agua."},
 )
 
 REGLAS_AGREGADAS = (
@@ -151,6 +162,7 @@ REGLAS_AGREGADAS = (
     ("R12", "falla_motor ≠ ninguna con el cuadro energizado: testigo 15 rojo con la causa y WARN prioritario."),
     ("R13", "Etapa 20. Contacto y motor apagado: testigo 16 encendido (normal); motor en marcha (≥ 800 rpm) con "
             "voltaje < 13.0 V: testigo 16 y WARN prioritario falla_de_carga."),
+    ("R14", "Etapa 21. temp_aceite > 130 °C: elemento 17 en rojo y WARN; ≤ 125 °C: normal (histéresis)."),
 )
 
 DECISIONES_AGREGADAS = (
@@ -169,6 +181,11 @@ DECISIONES_AGREGADAS = (
             "la demostración (igual que el calentamiento del motor, que ya estaba acelerado)."),
     ("D15", "La falla de una unidad Weber-Marelli no enciende ningún testigo: en 1987 no había testigo de motor. Se "
             "nota al oído, en el tacómetro y en el banco de liberación (L01)."),
+    ("D16", "Etapa 21. El empuje sigue una curva de par que pasa por los datos verificados (577 Nm a 4000 rpm y "
+            "478 CV a 7000 rpm) y se calibró con el 0-100 y la velocidad máxima publicados; sin ABS ni control de "
+            "tracción, como el F40 original (revista de Ferrari)."),
+    ("D17", "Etapa 21. Las prácticas de fallas son corrutinas que el ciclo del panel avanza cada 50 ms "
+            "(calendarización cooperativa); verifican con una copia en memoria del cuadro real."),
 )
 
 PRUEBAS = (
@@ -350,7 +367,9 @@ def construir():
         "simulada con interbloqueos y protecciones, y un banco de liberación de producción con pruebas normalizadas de "
         "la época (frenado UN R13-H, velocímetro UN R39 y ciclo urbano ECE-15). Etapas 19 y 20: sonido del "
         "motor sintetizado, sistema eléctrico con testigo de carga (16), falla de una unidad Weber-Marelli y "
-        "una caja negra binaria de acceso directo.",
+        "una caja negra binaria de acceso directo. Etapa 21: curva de par con datos verificados, adherencia sin "
+        "ABS ni control de tracción, temperatura de aceite (17), agujas con inercia y 15 prácticas de fallas "
+        "automáticas.",
         "Fuera del alcance: hardware, ECU y sensores reales; calibraciones del F40; plataformas distintas de Linux y Windows.",
         "La interfaz sigue la distribución del tablero del F40: velocímetro y tacómetro grandes al centro, medidores chicos "
         "a los lados y los testigos críticos arriba, entre las esferas."])
@@ -445,6 +464,15 @@ def construir():
                       "entrega a waveOut, que bloquea cuando su cola está llena; el hilo nunca va más de 120 ms adelante del "
                       "reloj, así la latencia queda acotada. El estado llega por un buzón de tamaño 1, el mismo patrón del "
                       "lector del tablero. Pruebas CP-184 a CP-190; mediciones del audio en docs/evidencias/sonido/reporte.txt.")
+    doc.add_heading("Prácticas de fallas: corrutinas en el ciclo del panel (Etapa 21)", level=2)
+    doc.add_paragraph("Los 15 botones de prácticas corren casos completos sin manejar a mano (fuga de aceite, "
+                      "sobrecalentamiento, frenos, alternador, lluvia sin ABS, 0-100 km/h...). Cada práctica es un "
+                      "generador de Python que cede el control al ciclo del panel cada 50 ms o mientras espera una "
+                      "condición: calendarización cooperativa, sin hilos nuevos ni espera activa, y la interfaz no se "
+                      "bloquea. El robot mueve los pedales con la misma rapidez que el panel y pisa el embrague en cada "
+                      "cambio, así la palanca y los pedales dibujados muestran lo que hace. Las verificaciones usan una "
+                      "copia en memoria del cuadro real (mismo formato del archivo, validación, modelo y monitor). "
+                      "Evidencia: docs/evidencias/practicas.txt; CP-203 a CP-205.")
     for pregunta, *partes in JUSTIFICACIONES:
         doc.add_heading(pregunta, level=2)
         ficha(doc, list(zip(("Necesidad", "Alternativas", "Criterios", "Decisión", "Consecuencia", "Evidencia"), partes)))

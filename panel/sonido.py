@@ -79,7 +79,12 @@ BOOLEANOS = ("motor", "contacto", "cinturon", "banco", "intermitente", "ventilad
 
 
 def chirrido_de(vehiculo):
-    """Intensidad del chirrido de llantas: frenada a fondo o arranque patinando en primera."""
+    """Intensidad del chirrido de llantas: bloqueadas (sin ABS), patinando (sin control de traccion),
+    frenada a fondo o arranque fuerte en primera."""
+    if getattr(vehiculo, "bloqueado", False):
+        return 1.0
+    if getattr(vehiculo, "patinando", False):
+        return 0.8
     if vehiculo.freno > 0.8 and vehiculo.velocidad > 20:
         return round(min(1.0, (vehiculo.freno - 0.8) / 0.2) * min(1.0, vehiculo.velocidad / 60), 3)
     if (vehiculo.motor and vehiculo.acoplado and vehiculo.marcha == "1" and vehiculo.acelerador > 0.9

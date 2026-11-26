@@ -75,6 +75,8 @@ FILA_EXTRA = 534                     # centro vertical de los testigos de la fra
 EXTRA = {12: (648, 32, 30, "12 PUERTA"), 13: (722, 50, 30, "13 CINTURON"), 15: (808, 64, 30, "15 PROTECCION"),
          16: (890, 46, 30, "16 CARGA")}
 COMBUSTIBLE = (150, 528, 420, 542)   # barra del elemento 14: x0, y0, x1, y1
+ACEITE = (190, 392, 360, 402)        # barra del elemento 17 bajo el turbo (Etapa 21)
+INERCIA = 0.35                       # agujas: fraccion del camino que recorren en cada refresco (50 ms)
 
 # (setter de EstadoCluster, etiqueta, minimo, maximo, resolucion, conversion)
 DESLIZADORES = (
@@ -129,6 +131,9 @@ class Tablero:
         self._dibujar_testigos()
         self._dibujar_estado()
         self._dibujar_extras()
+        self._dibujar_aceite()
+        self.inercia = INERCIA
+        self._mostrada = {n: 0.0 for n in range(1, 6)}
         self._crear_controles()
         self.mensaje = tk.Label(raiz, text="", fg=COLOR_AMBAR, bg=FONDO, font=(FUENTE, 10, "bold"))
         self.mensaje.grid(row=2, column=0, columnspan=2, sticky="w", padx=10, pady=(0, 6))
@@ -148,7 +153,7 @@ class Tablero:
         c.create_text(22, 16, text="F40", anchor="w", fill=NUMERO, font=(FUENTE, 15, "bold italic"))
         c.create_text(70, 17, text="CUADRO DE INSTRUMENTOS  ·  SIMULACION DIDACTICA", anchor="w",
                       fill=COLOR_TEXTO, font=(FUENTE, 8, "bold"))
-        c.create_text(ANCHO - 20, 17, text="FERRARI F40 (1987)  ·  R01-R13  ·  ELEMENTOS 1-16", anchor="e",
+        c.create_text(ANCHO - 20, 17, text="FERRARI F40 (1987)  ·  R01-R14  ·  ELEMENTOS 1-17", anchor="e",
                       fill=COLOR_TEXTO, font=(FUENTE, 8, "bold"))
         # Capota negra mate: una sola pieza curva, mas alta sobre el tacometro, como en el F40.
         contorno = (14, 410, 14, 100, 34, 74, 170, 64, 372, 60, 400, 34, 565, 22, 735, 30, 765, 52,
@@ -396,6 +401,21 @@ class Tablero:
         self.variables["set_direccional"] = var
         self._manejadores["set_direccional"] = manejador
 
+    def _dibujar_aceite(self):
+        """Elemento 17: temperatura de aceite en barra, bajo el turbo, con la zona roja desde 130 C."""
+        c = self.canvas
+        x0, y0, x1, y1 = ACEITE
+        escala = lambda t: x0 + (x1 - x0) * (t - 40) / 120  # noqa: E731
+        c.create_rectangle(x0, y0, x1, y1, fill="#161616", outline=BISEL_LUZ, width=1)
+        c.create_rectangle(escala(130), y1 + 2, x1, y1 + 4, fill=ZONA_ROJA, outline="")
+        for t in (40, 100, 160):
+            c.create_line(escala(t), y1 + 2, escala(t), y1 + 6, fill=NUMERO)
+            c.create_text(escala(t), y1 + 12, text=str(t), fill=MARCA_MENOR, font=(FUENTE, 6, "bold"))
+        barra = c.create_rectangle(x0 + 1, y0 + 1, x0 + 1, y1 - 1, fill=COLOR_NORMAL, outline="")
+        etiqueta = c.create_text((x0 + x1) / 2, y0 - 8, text="17 TEMP. ACEITE", fill=MARCA_MENOR,
+                                 font=(FUENTE, 7, "bold"))
+        self.extras[17] = {"barra": barra, "etiqueta": etiqueta, "ultimo": None}
+
     def avisar(self, texto):
         """Muestra un aviso del sistema que permanece hasta que se reemplace."""
         self.aviso.configure(text=texto)
@@ -450,11 +470,18 @@ class Tablero:
         for numero in range(1, 6):
             d, it = v[numero], self.items[numero]
             self.canvas.itemconfigure(it["valor"], text=FORMATOS[numero].format(d["valor"]), fill=d["color"])
-            clave = (round(d["fraccion"], 4), d["color"])
+            # Inercia de instrumento analogico: la aguja recorre una parte del camino en cada refresco
+            # (la cifra si se muestra exacta). El color cambia de inmediato.
+            objetivo = d["fraccion"]
+            mostrada = self._mostrada[numero] + (objetivo - self._mostrada[numero]) * self.inercia
+            if abs(objetivo - mostrada) < 0.002:
+                mostrada = objetivo
+            self._mostrada[numero] = mostrada
+            clave = (round(mostrada, 4), d["color"])
             if it["ultimo"] == clave:
                 continue
             it["ultimo"] = clave
-            self.canvas.coords(it["aguja"], *self._puntos_aguja(it, d["fraccion"]))
+            self.canvas.coords(it["aguja"], *self._puntos_aguja(it, mostrada))
             self.canvas.itemconfigure(it["aguja"], fill=d["color"])
             if numero == 5:
                 # R05: el contorno del turbo se pinta ambar mientras la presion supera 1.5 bar.
@@ -512,6 +539,15 @@ class Tablero:
             c.itemconfigure(it["reserva"], fill=d["reserva"]["color"])
             for pieza, atributo in it["iconos"]:
                 c.itemconfigure(pieza, **{atributo: ICONO_ENCENDIDO if d["reserva"]["encendido"] else ICONO_APAGADO})
+        d, it = v[17], self.extras[17]
+        clave = (None if d["sin_dato"] else round(d["valor"]), d["color"])
+        if it["ultimo"] != clave:
+            it["ultimo"] = clave
+            x0, y0, x1, y1 = ACEITE
+            c.coords(it["barra"], x0 + 1, y0 + 1, x0 + 1 + (x1 - x0 - 2) * d["fraccion"], y1 - 1)
+            c.itemconfigure(it["barra"], fill=d["color"])
+            c.itemconfigure(it["etiqueta"], text="17 TEMP. ACEITE" if d["sin_dato"] else f"17 TEMP. ACEITE {d['valor']:.0f} C",
+                            fill=ICONO_APAGADO if d["sin_dato"] else (d["color"] if d["color"] == COLOR_ROJO else MARCA_MENOR))
         if v[15]["texto"]:
             detalle, color = v[15]["texto"], COLOR_ROJO
         elif v[12]["encendido"] and v[12]["detalle"]:

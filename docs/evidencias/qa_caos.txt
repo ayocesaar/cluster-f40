@@ -1,8 +1,8 @@
-acciones de caos: {'grande': 126, 'vacio': 107, 'fuera': 127, 'valido': 352, 'basura': 121, '666': 104, '000': 97, 'borrar': 125}
+acciones de caos: {'grande': 115, 'vacio': 103, 'fuera': 119, 'valido': 330, 'basura': 113, '666': 100, '000': 90, 'borrar': 118}
 excepciones en la interfaz: 0 []
-tablero siempre programado: True muestras 3151
+tablero siempre programado: True muestras 1175
 se recupero con un dato valido al final: True
-odometro en memoria / guardado: 1.152 1.152182
+odometro en memoria / guardado: 1.157 1.156710
 segunda instancia codigo: 0 | odometro_en_uso registrado: True
 tipos de error registrados: ['archivo_demasiado_grande', 'archivo_inexistente', 'clave_faltante', 'dato_invalido', 'fuera_de_rango', 'linea_invalida', 'odometro_en_uso', 'permiso_denegado', 'permisos_inseguros']
 RESULTADO CAOS: APROBADO

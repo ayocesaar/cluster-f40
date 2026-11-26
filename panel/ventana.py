@@ -38,7 +38,7 @@ sys.path.insert(0, str(RAIZ / "tools"))
 
 from aceptacion.escenarios import cargar as cargar_escenarios  # noqa: E402
 from escribir_dato import exclusivo  # noqa: E402
-from panel import comandos, liberacion  # noqa: E402
+from panel import comandos, liberacion, practicas  # noqa: E402
 from panel import sonido as sonido_motor  # noqa: E402
 from panel.ecu import Ecu  # noqa: E402
 from panel.fisica import TANQUE_L, Vehiculo, velocidad_maxima  # noqa: E402
@@ -104,6 +104,7 @@ class Panel:
         self.sonido = sonido_motor.crear(sonido, salida_sonido)
         self.silencio = False
         self.giro_arranque = (0.0, 0.0)      # (hasta, fuerza) del motor de arranque sin prender
+        self.ejecucion = None                # practica de fallas en curso (Etapa 21)
         cfg = configuracion.cargar()
         self.ruta = pathlib.Path(ruta_datos) if ruta_datos else cfg.archivo_datos
         self.dir_logs = pathlib.Path(dir_logs) if dir_logs else cfg.dir_logs
@@ -133,7 +134,7 @@ class Panel:
 
         raiz.title("Panel de control - Cluster F40 (simulado)")
         raiz.configure(bg=FONDO)
-        raiz.geometry("1490x830")
+        raiz.geometry("1490x900")
         raiz.minsize(1240, 760)
         self._construir()
         raiz.bind_all("<KeyPress>", self._tecla_abajo)
@@ -231,6 +232,10 @@ class Panel:
         fila.pack(fill="x", pady=(0, 4))
         for texto, accion in (("Cargar bateria", "bateria"), ("Bateria debil 6 %", "bateria_debil")):
             _boton(fila, texto, lambda a=accion: self.taller(a)).pack(side="left", padx=2)
+        self.var_mojado = tk.BooleanVar()
+        tk.Checkbutton(fila, text="Pista mojada [Y]", variable=self.var_mojado, command=self._pista, bg=BOTON, fg=TEXTO,
+                       selectcolor="#1f3d5a", activebackground=BOTON_ACTIVO, indicatoron=False,
+                       font=(FUENTE, 9, "bold"), relief="raised", bd=2, padx=5, pady=3).pack(side="left", padx=2)
 
         teclas = _seccion(padre, "TECLAS")
         teclas.pack(fill="x")
@@ -355,10 +360,20 @@ class Panel:
         _boton(fila, "Banco (fallas actuales)", self.banco_actual, color="#1f3d27").pack(side="left", padx=2)
         _boton(fila, "ECE-15 en vivo (195 s)", self.ciclo_ece15).pack(side="left", padx=2)
 
+        guiadas = _seccion(padre, "PRACTICAS DE FALLAS (automaticas)")
+        guiadas.pack(fill="x", pady=(6, 0))
+        rejilla = tk.Frame(guiadas, bg=SECCION)
+        rejilla.pack(fill="x", padx=4, pady=4)
+        for i, practica in enumerate(practicas.CATALOGO.values()):
+            _boton(rejilla, practica.nombre, lambda c=practica.clave: self.iniciar_practica(c), ancho=20).grid(
+                row=i // 3, column=i % 3, padx=2, pady=1, sticky="we")
+        tk.Label(guiadas, text="Corren solas: la palanca, los pedales y las casillas siguen al robot.",
+                 bg=SECCION, fg=TENUE, font=(FUENTE, 8), anchor="w").pack(fill="x", padx=4, pady=(0, 4))
+
         salida = _seccion(padre, "CONSOLA")
         salida.pack(fill="both", expand=True, pady=6)
         self.txt = tk.Text(salida, bg="#07070a", fg="#cfd2d8", insertbackground=TEXTO, font=(FUENTE, 9),
-                           relief="flat", wrap="word", height=20)
+                           relief="flat", wrap="word", height=6)
         self.txt.pack(fill="both", expand=True, padx=2, pady=2)
         self.txt.tag_configure("ok", foreground=VERDE)
         self.txt.tag_configure("mal", foreground=ROJO)
@@ -367,7 +382,7 @@ class Panel:
 
         bitacoras = _seccion(padre, "BITACORAS DEL TABLERO (en vivo)")
         bitacoras.pack(fill="x")
-        self.txt_log = tk.Text(bitacoras, bg="#07070a", fg="#9fa3ab", font=(FUENTE, 8), relief="flat", height=9,
+        self.txt_log = tk.Text(bitacoras, bg="#07070a", fg="#9fa3ab", font=(FUENTE, 8), relief="flat", height=7,
                                wrap="none")
         self.txt_log.pack(fill="x", padx=2, pady=2)
         self.txt_log.tag_configure("error", foreground=ROJO)
@@ -403,6 +418,9 @@ class Panel:
             self._seguridad()
         elif k == "u":
             self.alternar_silencio()
+        elif k == "y":
+            self.var_mojado.set(not self.var_mojado.get())
+            self._pista()
         elif k == "l":
             self.var_altas.set(not self.var_altas.get())
             self._luces()
@@ -471,6 +489,33 @@ class Panel:
         self.registrar(f"Sonido {'en silencio' if self.silencio else 'activo'}")
         return self.silencio
 
+    def _pista(self):
+        self.vehiculo.mojado = self.var_mojado.get()
+        self.registrar("Pista mojada: 55 % de adherencia; sin ABS ni control de traccion" if self.vehiculo.mojado
+                       else "Pista seca")
+
+    def iniciar_practica(self, clave):
+        """Corre una practica de fallas en vivo: el robot maneja el mismo vehiculo que escribe el archivo."""
+        self.detener_todo()
+        self.vehiculo, self.ecu = Vehiculo(), Ecu()
+        self.pisando = {nombre: False for nombre in self.pisando}
+        practica = practicas.CATALOGO[clave]
+        mando = practicas.Mando(self.vehiculo, self.ecu, avisar=self.registrar)
+        self.ejecucion = practicas.Ejecucion(practica, mando)
+        self.modo = "practica"
+        self.registrar(f"PRACTICA {practica.nombre}: {practica.descripcion}", "cmd")
+        return True
+
+    def _avanzar_practica(self, dt):
+        e = self.ejecucion
+        e.avanzar(dt)
+        if e.terminada:
+            m = e.m
+            aprobadas = sum(ok for _, ok, _ in m.resultados)
+            self.registrar(f"PRACTICA {e.practica.nombre}: {'APROBADA' if e.aprobada else 'NO APROBADA'} "
+                           f"({aprobadas}/{len(m.resultados)} verificaciones, {m.t:.0f} s)", "ok" if e.aprobada else "mal")
+            self.modo = "fisica"
+
     def _seguridad(self):
         self.vehiculo.puertas = sum(bit for bit, var in self.var_puertas.items() if var.get())
         self.vehiculo.cinturon = self.var_cinturon.get()
@@ -519,7 +564,7 @@ class Panel:
         self.var_altas.set(False)
         self.var_emergencia.set(False)
         self.var_direccional.set("OFF")
-        for var in (*self.var_fallas.values(), *self.var_puertas.values(), self.var_cinturon):
+        for var in (*self.var_fallas.values(), *self.var_puertas.values(), self.var_cinturon, self.var_mojado):
             var.set(False)
         self.pausa_hasta = 0.0
         self.ultimo_escrito = None
@@ -645,8 +690,8 @@ class Panel:
         if self.recorrido is not None and self.recorrido.poll() is None:
             self.recorrido.terminate()
         self.recorrido = None
-        if self.modo == "ciclo":
-            self.vehiculo.acelerador = self.vehiculo.freno = 0.0
+        if self.modo in ("ciclo", "practica"):
+            self.vehiculo.acelerador = self.vehiculo.freno = self.vehiculo.embrague = 0.0
         if self.modo != "fisica":
             self.registrar("Detenido; el panel vuelve a los pedales.")
         self.modo = "fisica"
@@ -722,7 +767,9 @@ class Panel:
 
     def paso(self, dt):
         ahora = self.reloj()
-        if self.modo == "ciclo":                  # el robot del banco maneja los pedales
+        if self.modo == "practica":               # el robot de la practica maneja pedales, palanca y ECU
+            self._avanzar_practica(dt)
+        elif self.modo == "ciclo":                # el robot del banco maneja los pedales
             self._avanzar_ciclo(dt)
         else:
             for nombre, pisado in self.pisando.items():
@@ -740,8 +787,11 @@ class Panel:
         self._avanzar_escenario(ahora)
         # Productor del sonido: deja el estado mas reciente en el buzon del hilo de audio (no bloquea).
         hasta, fuerza = self.giro_arranque
-        self.sonido.publicar(sonido_motor.estado_de(self.vehiculo, 0.0 if self.silencio else 0.8,
-                                                    crank=fuerza if ahora < hasta and not self.vehiculo.motor else 0.0))
+        crank = fuerza if ahora < hasta and not self.vehiculo.motor else 0.0
+        if self.ejecucion is not None and self.modo == "practica":
+            hasta, fuerza = self.ejecucion.m.giro_arranque
+            crank = fuerza if self.ejecucion.m.t < hasta and not self.vehiculo.motor else 0.0
+        self.sonido.publicar(sonido_motor.estado_de(self.vehiculo, 0.0 if self.silencio else 0.8, crank=crank))
         if ahora >= self._proxima_escritura:
             self.escribir()
             self._proxima_escritura = ahora + self.ESCRITURA_S
@@ -789,6 +839,8 @@ class Panel:
                 color = AMBAR if malo else TEXTO
             lbl.configure(text=texto, fg=color)
 
+        if self.modo == "practica":       # los mandos muestran lo que hace el robot
+            self._sincronizar_mandos()
         valores = self.valores_actuales()
         for clave, lbl in self.lbl_lecturas.items():
             valor = valores[clave]
@@ -814,6 +866,18 @@ class Panel:
                                        fg=VERDE if pid else TENUE)
             self.lbl_sonido.configure(text=self.texto_sonido(), fg=VERDE if self.sonido.activo and not self.silencio
                                       else TENUE)
+
+    def _sincronizar_mandos(self):
+        v = self.vehiculo
+        for clave, var in self.var_fallas.items():
+            if var.get() != getattr(v.fallas, clave):
+                var.set(getattr(v.fallas, clave))
+        for bit, var in self.var_puertas.items():
+            if var.get() != bool(v.puertas & bit):
+                var.set(bool(v.puertas & bit))
+        for var, valor in ((self.var_cinturon, v.cinturon), (self.var_altas, v.luces_altas), (self.var_mojado, v.mojado)):
+            if var.get() != valor:
+                var.set(valor)
 
     def _dibujar_pedal(self, nombre, cx, ancho, alto, tecla, valor):
         c = self.cv

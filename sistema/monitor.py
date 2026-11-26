@@ -23,7 +23,8 @@ class MonitorEventos:
                         "motor": False, "emergencia": False,
                         # Etapa 18: elementos adicionales; None = el productor no envia la clave.
                         "proteccion": None, "puerta_mov": False, "cinturon_mov": False, "contacto": None,
-                        "pruebas": 0, "puerta": None, "cinturon": None, "reserva": False, "carga": False}
+                        "pruebas": 0, "puerta": None, "cinturon": None, "reserva": False, "carga": False,
+                        "aceite_temp": "normal"}
         self._km_previo = None  # el valor inicial ya lo registra odometro_cargado
 
     def _cambio(self, clave, valor):
@@ -113,6 +114,10 @@ class MonitorEventos:
                 b.info(COMPONENTE_MODELO, "cinturon_desabrochado", "con contacto (R10)")
             elif anterior:
                 b.info(COMPONENTE_MODELO, "cinturon_abrochado", "(R10)")
+        if self._cambio("aceite_temp", estado.color_aceite_temp):
+            (b.warn if estado.color_aceite_temp == "rojo" else b.info)(
+                COMPONENTE_MODELO, f"temperatura_aceite_{estado.color_aceite_temp}",
+                f"temp_aceite={estado.temp_aceite:g} C (R14)")
         if self._cambio("reserva", estado.reserva_combustible):
             nivel = estado.combustible if estado.combustible is not None else 0.0
             if estado.reserva_combustible:

@@ -1,7 +1,7 @@
 # Clúster F40 simulado
 
 Simulador del clúster de instrumentos del **Ferrari F40 (1987)**, con una interfaz inspirada en el cuadro del F40 (capota negra, esferas negras con numerales de época, odómetro de tambor), para el proyecto
-final de Sistemas Operativos (UAG), Equipo 3. Los dieciséis elementos (diez de la especificación original, el odómetro y cinco adicionales de seguridad y consumo) se controlan con **datos externos** (un archivo que
+final de Sistemas Operativos (UAG), Equipo 3. Los diecisiete elementos (diez de la especificación original, el odómetro y seis adicionales) se controlan con **datos externos** (un archivo que
 el tablero relee sin reiniciar); los eventos y los errores se registran en **bitácoras separadas**. Los rangos y
 umbrales son parámetros didácticos, no calibraciones oficiales del F40.
 
@@ -81,6 +81,7 @@ cluster-f40/
 | 14 | Combustible (adicional) | Información en línea | `combustible` (0–100 % de 120 L) |
 | 15 | Protección del motor (adicional) | Testigo de seguridad | `falla_motor` (ninguna, sobretemperatura, sobrepresion_turbo, aceite, combustible, electrica) |
 | 16 | Carga de batería (adicional) | Testigo de seguridad | `voltaje` (0–20 V) |
+| 17 | Temperatura de aceite (adicional) | Información en línea | `temp_aceite` (0–160 °C) |
 
 El motor se enciende con `motor=1`. Las claves de los elementos 12–15 y `contacto` (llave) son **opcionales**: un
 archivo con solo las diez claves originales funciona igual que antes (decisión D8). Ver
@@ -200,6 +201,19 @@ El sonido sigue las rpm, la carga, el turbo (silbido y descarga), el limitador, 
   4 cilindros (medio empuje, un turbo, ralentí irregular) y suena cojo. Sin testigo, como en 1987.
 - **Sonidos de cabina:** relevador de las direccionales, chirrido de llantas y ventilador del radiador.
 - Pruebas: `tests/test_caja_negra.py` y `tests/test_electrico.py` (CP-191 a CP-202).
+
+## Prácticas de fallas y física del F40 (Etapa 21)
+
+- **15 botones de prácticas** en el panel (manejo normal, fuga de aceite, sobrecalentamiento, turbo, frenos, puertas,
+  cinturón, combustible, alternador, batería débil, Weber-Marelli, limitador, lluvia sin ABS, 0-100 km/h y
+  velocímetro). Cada una corre sola: la palanca, los pedales y las casillas se mueven como los movería una persona,
+  el tablero lo muestra en vivo y la consola dice si aprobó. En la terminal: `python3 tools/practicas.py`.
+- **Física:** curva de par con los datos verificados (577 Nm a 4000 rpm, 478 CV a 7000 rpm) y retraso del turbo;
+  calibrada con el 0-100 y la velocidad máxima publicados. Sin ABS ni control de tracción, como el F40 original:
+  las llantas patinan y se bloquean, sobre todo con **Pista mojada [Y]**.
+- **Elemento 17, temperatura de aceite** (el F40 tiene este medidor) y **agujas con inercia** de instrumento analógico.
+- Detalle y fuentes: [docs/practicas_de_fallas.md](docs/practicas_de_fallas.md). Pruebas: `tests/test_practicas.py`
+  (CP-203 a CP-209).
 
 ## Observación del sistema (guía, sección 6)
 

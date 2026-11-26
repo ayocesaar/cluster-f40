@@ -55,8 +55,9 @@ CLAVES_EXTRA = {
     "combustible": ("set_combustible", "decimal"),   # porcentaje del tanque (120 L en el F40)
     "falla_motor": ("set_falla_motor", "causa"),     # causa de la proteccion del motor (la envia la ECU)
     "voltaje": ("set_voltaje", "decimal"),           # V del sistema electrico (Etapa 20)
+    "temp_aceite": ("set_temp_aceite", "decimal"),   # C del aceite (Etapa 21; el F40 tiene este medidor)
 }
-RANGOS_EXTRA = {"puertas": (0, 3), "combustible": (0.0, 100.0), "voltaje": (0.0, 20.0)}
+RANGOS_EXTRA = {"puertas": (0, 3), "combustible": (0.0, 100.0), "voltaje": (0.0, 20.0), "temp_aceite": (0.0, 160.0)}
 CAUSAS_MOTOR = ("ninguna", "sobretemperatura", "sobrepresion_turbo", "aceite", "combustible", "electrica")
 BITS_PUERTAS = ((1, "conductor"), (2, "pasajero"))
 

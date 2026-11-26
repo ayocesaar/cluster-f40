@@ -42,6 +42,7 @@ pruebas automatizadas con pytest y medicion de cobertura con coverage.
 | Odometro (elemento 11) | 20 | 20 | 0 | 0 |
 | Panel de control (mandos y atajos) | 10 | 10 | 0 | 0 |
 | Particion de equivalencia | 10 | 10 | 0 | 0 |
+| test_practicas | 21 | 21 | 0 | 0 |
 | Presentacion (caja negra) | 7 | 7 | 0 | 0 |
 | test_realismo | 16 | 16 | 0 | 0 |
 | Basada en requisitos | 3 | 3 | 0 | 0 |
@@ -50,7 +51,7 @@ pruebas automatizadas con pytest y medicion de cobertura con coverage.
 | test_sonido | 7 | 7 | 0 | 0 |
 | Integracion UI (Tkinter) | 6 | 6 | 0 | 0 |
 | Transicion de estados | 11 | 11 | 0 | 0 |
-| **Total** | **252** | **252** | **0** | **0** |
+| **Total** | **273** | **273** | **0** | **0** |
 
 Las ejecuciones cuentan cada variante parametrizada por separado; la matriz de
 trazabilidad agrupa por caso de prueba (CP).
@@ -59,12 +60,12 @@ trazabilidad agrupa por caso de prueba (CP).
 
 | Modulo | Lineas | Ramas | Cobertura |
 |--------|--------|-------|-----------|
-| `logic/estado.py` | 330/330 | 98/102 | 99.1% |
+| `logic/estado.py` | 356/356 | 110/114 | 99.1% |
 | `logic/reloj.py` | 18/18 | 4/4 | 100.0% |
 | `logic/odometro.py` | 27/27 | 8/8 | 100.0% |
 | `ui/presentacion.py` | 36/36 | 4/4 | 100.0% |
-| `ui/tablero.py` | 376/377 | 90/92 | 99.4% |
-| `main.py` | 114/120 | 21/24 | 93.8% |
+| `ui/tablero.py` | 406/407 | 96/98 | 99.4% |
+| `main.py` | 114/120 | 22/24 | 94.4% |
 | `aceptacion/escenarios.py` | 139/139 | 44/44 | 100.0% |
 
 ## 6. Trazabilidad
@@ -116,4 +117,4 @@ de las pruebas y el resultado de junit.
 
 ## 10. Conclusion
 
-Las 252 ejecuciones pasan, la cobertura de la logica es completa y no quedan defectos abiertos: la logica cumple R01-R08 segun las pruebas definidas.
+Las 273 ejecuciones pasan, la cobertura de la logica es completa y no quedan defectos abiertos: la logica cumple R01-R08 segun las pruebas definidas.

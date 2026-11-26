@@ -178,6 +178,16 @@ xxd -l 64 datos/caja_negra.bin                   # la cabecera en hexadecimal
 python tools/escribir_dato.py voltaje=12.3       # con el motor en marcha: WARN falla_de_carga (R13)
 ```
 
+## 5c. Prácticas de fallas (VM)
+
+En el panel, los 15 botones de **PRACTICAS DE FALLAS** corren cada caso solo. Desde la terminal:
+
+```
+python tools/practicas.py                        # las 15 en tiempo simulado (docs/evidencias/practicas.txt)
+python tools/practicas.py --practica lluvia      # una sola
+python tools/escribir_dato.py temp_aceite=135    # elemento 17 en rojo (R14)
+```
+
 ## 5b. Realismo, seguridad y banco de liberación (VM)
 
 ```

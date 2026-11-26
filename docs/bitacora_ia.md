@@ -357,3 +357,23 @@
   la siguiente muestra, y una falsa falla de carga al arrancar (solo cuenta con 800 rpm o más).
 - Pruebas nuevas: CP-191 a CP-202 (tests/test_caja_negra.py y tests/test_electrico.py). Pruebas
   anteriores: sin cambios (huella sha256).
+
+## Etapa 21 — Prácticas de fallas automáticas, curva de par, adherencia sin ABS, aceite e inercia
+- Fecha: 2026-11-26
+- Pedido del equipo: hacer también lo opcional del plan y agregar opciones para simular las fallas sin
+  provocarlas a mano, con la palanca y los pedales correspondiendo a lo que pasa, probadas todas y
+  puestas como botones.
+- Prácticas (panel/practicas.py, tools/practicas.py): 15 casos como corrutinas que el ciclo del panel
+  avanza cada 50 ms; el robot mueve los pedales con la rapidez del panel y pisa el embrague en cada
+  cambio; verifican con una copia en memoria del cuadro real. Botones en el panel y evidencia en
+  docs/evidencias/practicas.txt.
+- Física: curva de par por los datos verificados (577 Nm a 4000 rpm; 478 CV a 7000 rpm) con el turbo;
+  empuje y resistencia del aire calibrados con el 0-100 (4.1 s citado; rango 3.5-5.0 s) y la máxima
+  (324 km/h); adherencia con patinamiento y bloqueo, porque el F40 no tenía ABS ni control de tracción
+  (verificado en la revista de Ferrari); pista mojada al 55 %.
+- Elemento 17 (temperatura de aceite) con la regla R14; agujas del tablero con inercia.
+- Correcciones durante el desarrollo: dos prácticas verificaban la causa en el mismo instante del corte,
+  antes de la siguiente lectura del cuadro; se agregó una espera de 0.3 s. La comparación del
+  velocímetro ahora usa la velocidad del momento de la lectura.
+- Pruebas nuevas: CP-203 a CP-209 (tests/test_practicas.py; CP-203 corre las 15 prácticas). Pruebas
+  anteriores: sin cambios (huella sha256).

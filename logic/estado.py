@@ -26,6 +26,8 @@ llegan en claves opcionales y quedan "sin dato" si el productor no las envia):
   R11 - Elemento 14, combustible: porcentaje del tanque, ciclo de 500 ms y reserva con
         histeresis (enciende con <= 12 %, se apaga con >= 15 %).
   R12 - Elemento 15, proteccion del motor: rojo mientras la ECU informe una causa.
+  R14 - Elemento 17, temperatura de aceite (Etapa 21): rojo sobre 130 C; vuelve a normal con 125 C
+        o menos (histeresis); ciclo de 500 ms.
   R13 - Elemento 16, carga de bateria (Etapa 20): rojo con contacto y motor apagado (normal, como
         en un auto real) y con el motor en marcha si el voltaje baja de 13.0 V: el alternador no
         carga (advertencia critica).
@@ -49,6 +51,7 @@ VELOCIDAD_EN_MOVIMIENTO = 3.0    # km/h: desde aqui la puerta abierta es una adv
 VELOCIDAD_CINTURON = 10.0        # km/h: desde aqui el testigo del cinturon parpadea (R10)
 RESERVA_ENCIENDE, RESERVA_APAGA = 12.0, 15.0   # % del tanque (R11)
 VOLTAJE_DE_CARGA = 13.0          # V: con el motor en marcha y menos que esto, el alternador no carga (R13)
+ACEITE_ROJO, ACEITE_NORMAL = 130.0, 125.0   # C (R14)
 
 DIRECCIONALES_VALIDAS = ("OFF", "IZQ", "DER")
 CAUSAS_MOTOR = ("ninguna", "sobretemperatura", "sobrepresion_turbo", "aceite", "combustible", "electrica")
@@ -121,6 +124,10 @@ class EstadoCluster:
         self._obj_combustible = None
         self._falla_motor = None
         self._voltaje = None
+        self._obj_temp_aceite = None
+        self.temp_aceite = None
+        self.color_aceite_temp = "normal"
+        self._t_temp_aceite = ahora
         self.combustible = None
         self.reserva_combustible = False
         self._t_combustible = ahora
@@ -214,6 +221,27 @@ class EstadoCluster:
             _validar_numero(valor, "voltaje", 0, 20)
             valor = float(valor)
         self._voltaje = valor
+
+    def set_temp_aceite(self, valor):
+        if valor is not None:
+            _validar_numero(valor, "temp_aceite", 0, 160)
+            valor = float(valor)
+        self._obj_temp_aceite = valor
+        if valor is None:
+            self.temp_aceite = None
+            self.color_aceite_temp = "normal"
+
+    def _actualizar_temp_aceite(self, ahora):
+        """R14: ciclo lento (cambia despacio) y rojo con histeresis."""
+        if self._obj_temp_aceite is None:
+            return
+        if self.temp_aceite is None or ahora - self._t_temp_aceite >= CICLO_LENTO_MS:
+            self.temp_aceite = self._obj_temp_aceite
+            self._t_temp_aceite = ahora
+        if self.temp_aceite > ACEITE_ROJO:
+            self.color_aceite_temp = "rojo"
+        elif self.temp_aceite <= ACEITE_NORMAL:
+            self.color_aceite_temp = "normal"
 
     @property
     def voltaje(self):
@@ -335,6 +363,7 @@ class EstadoCluster:
                 # motor no gira. El testigo 9 queda apagado: sin giro no hay falla de lubricacion.
                 self._aplicar_motor_detenido()
             self._actualizar_combustible(ahora)
+            self._actualizar_temp_aceite(ahora)
             # Elemento 11: la distancia avanza con la velocidad mostrada durante el tiempo transcurrido.
             # Si la velocidad cambio en este tick, la nueva solo cuenta para el ultimo ciclo de lectura;
             # el resto del intervalo (por ejemplo, un refresco retrasado) se integra con la anterior (DEF-07).
@@ -364,6 +393,8 @@ class EstadoCluster:
 
         self.combustible = None          # el medidor sin energia no indica
         self.reserva_combustible = False
+        self.temp_aceite = None
+        self.color_aceite_temp = "normal"
 
     def _aplicar_motor_detenido(self):
         self.rpm = 0

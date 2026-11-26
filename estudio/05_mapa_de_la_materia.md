@@ -90,6 +90,14 @@ Las salidas reales están en `docs/evidencias/so/`. Se generan con `xvfb-run -a 
 | 3.4 Productor y consumidor | La interfaz deja cada muestra en una cola acotada y un hilo escritor la graba; si la cola se llena, la muestra se descarta y se cuenta (la interfaz nunca espera al disco) | CP-195 |
 | 6 Seguridad e integridad | CRC por registro y cabecera; una cabecera dañada se aparta y se crea otra (recuperación) | CP-193 |
 
+## Etapa 21: prácticas de fallas en la materia
+
+| Tema | Qué se agregó | Evidencia |
+|---|---|---|
+| 3.1 Calendarización | Cada práctica es una corrutina (generador) que el ciclo del panel avanza cada 50 ms: calendarización cooperativa, sin hilos nuevos ni espera activa | CP-203, CP-205 |
+| 3.4 Comunicación | Las verificaciones pasan por el mismo formato del archivo, la validación del lector y el monitor del cuadro real (copia en memoria) | CP-203; `docs/evidencias/practicas.txt` |
+| 1.2 Representación | Curva de par por interpolación, decimales con unidades (Nm, °C, km/h por segundo) | CP-206 |
+
 ## Lo que no se añadió y por qué
 
 - **Asignación de memoria (5.2), acceso a disco (5.4) y asignación de espacio (5.5) como algoritmos:** serían simuladores independientes; no mejoran el clúster ni se evalúan con él.

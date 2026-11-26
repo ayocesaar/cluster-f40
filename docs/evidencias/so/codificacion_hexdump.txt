@@ -1,6 +1,6 @@
 == Codificacion del archivo de datos (tema 1.2) ==
 Comando: hexdump -C
-Fecha: 2026-11-26 16:12:15  Kernel: 5.15.0-204-generic
+Fecha: 2026-11-26 16:51:04  Kernel: 5.15.0-204-generic
 
 -- datos/vehiculo.conf: texto ASCII, un byte por caracter; 0a es el salto de linea --
 00000000  23 20 44 61 74 6f 73 20  64 65 20 65 6e 74 72 61  |# Datos de entra|

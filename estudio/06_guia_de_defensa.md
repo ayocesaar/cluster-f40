@@ -282,3 +282,17 @@ Respuesta corta: en vivo, con el panel: "Dato corrupto" o "Borrar archivo". El t
 **¿Qué agrega el sistema eléctrico?** El testigo 16 (la guía pone "batería" como ejemplo de testigo de seguridad) con voltímetro. Con la llave puesta y el motor apagado el testigo se enciende, como en cualquier auto: el alternador no gira. Si el motor gira y no hay 13 V, es una falla de carga: WARN prioritario. La batería se descarga 60 veces más rápido para que se vea en la demostración (decisión D14). Bajo 10.5 V la gestión electrónica se apaga, y con la batería débil el motor de arranque gira lento (se oye) y no prende.
 
 **¿Qué es la falla Weber-Marelli?** Un dato real del F40: su gestión Weber-Marelli tiene encendido e inyección separados por banco de cilindros. Si falla uno, el motor sigue con 4 cilindros: medio empuje, un solo turbo, ralentí irregular y sonido cojo (falta una de cada dos explosiones). No enciende ningún testigo porque en 1987 no había testigo de motor (D15); la detecta el banco de liberación en la prueba de arranque (L01).
+
+## 13. Prácticas de fallas y física del F40 (Etapa 21)
+
+**¿Qué hacen los botones de prácticas?** Cada uno corre solo un caso completo que antes había que provocar a mano: fuga de aceite, sobrecalentamiento, turbo, frenos, puertas, cinturón, combustible, alternador, batería débil, Weber-Marelli, limitador, lluvia sin ABS, 0-100 km/h y velocímetro. El robot maneja como una persona: pisa los pedales con la misma rapidez que el panel y pisa el embrague para cambiar, así que la palanca y los pedales dibujados muestran lo que hace. Al final la consola dice APROBADA o NO APROBADA.
+
+**¿Cómo corren sin trabar la ventana? (tema 3.1)** Cada práctica es una corrutina: un generador de Python que hace un paso y cede el control. El ciclo del panel la avanza cada 50 ms (calendarización cooperativa): no hay hilos nuevos ni espera activa.
+
+**¿Cómo saben que el tablero mostró lo correcto?** Las verificaciones usan una copia en memoria del cuadro real: el mismo formato del archivo, la misma validación del lector, `EstadoCluster` y el monitor. Comprueban los testigos encendidos, los WARN registrados y las causas de protección (`docs/evidencias/practicas.txt`; CP-203).
+
+**¿Qué tan real es la física?** El empuje sigue una curva de par que pasa por los datos verificados del F40: 577 Nm a 4000 rpm y 478 CV a 7000 rpm. Bajo 2500 rpm, o mientras el turbo carga, empuja como un motor atmosférico: se siente el retraso del turbo. Se calibró con el 0-100 y la velocidad máxima publicados: da unos 4.7 s en la práctica (publicado: 4.1 s, con pruebas de 3.5 a 5.0 s) y unos 326 km/h (publicado: 324 km/h).
+
+**¿Por qué se bloquean las llantas?** Porque el F40 original no tenía ABS ni control de tracción (lo dice la revista de Ferrari). Con "Pista mojada" las llantas se bloquean al frenar a fondo, y una bloqueada agarra menos: por eso frenar dosificado detiene en menos metros. Esa es la razón de ser del ABS.
+
+**Demostración (2 min):** botón "Lluvia sin ABS" (patina al salir y se bloquea al frenar) o "Sobrecalentamiento" (la aguja del agua sube a rojo y la ECU corta). Mientras corre, señalar la palanca y los pedales moviéndose solos.

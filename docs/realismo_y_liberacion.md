@@ -102,6 +102,7 @@ podía indicar menos que la velocidad real, lo que R39 prohíbe (DEF-16, corregi
 | Tanque del F40: 120 L; motor 2.9 L V8 biturbo, 478 hp a 7000 rpm | Fichas de cararac.com y auto-data.net | Verificado en dos fichas |
 | El F40 tenía medidores de temperatura de aceite, presión de aceite y combustible y una luz de advertencia | Catálogos de refacciones (eurospares, diagrama 119; ricambiamerica) | Verificado |
 | Gestión Weber-Marelli IAW con encendido e inyección separados por banco de cilindros; dos turbos IHI a 1.1 bar; 577 Nm a 4000 rpm | Wikipedia (Ferrari F40), supercars.net, ultimatespecs, cararac | Verificado en varias fuentes (Etapa 20) |
+| Sin ABS, sin control de tracción, sin dirección asistida ni servofreno | Revista de Ferrari (ferrari.com), Top Gear, Octane | Verificado (Etapa 21) |
 | Cinturón: luz de al menos 60 s y señal audible de 4 a 8 s al dar contacto | FMVSS 208 S7.3 (texto vigente; interpretaciones de NHTSA) | Verificado el texto vigente |
 
 ## 6. Pendiente de verificar (no se presenta como dato)
