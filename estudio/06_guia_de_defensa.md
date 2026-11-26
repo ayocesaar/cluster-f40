@@ -2,31 +2,32 @@
 
 Equipo 3 · César Saúl Vázquez Preciado e Ian Josué Cota Flores · Sistemas Operativos (UAG) · Ferrari F40 (1987)
 
-Este documento sigue el orden de la guía del proyecto. Para cada pregunta trae una **respuesta corta** (para decirla en voz alta), el detalle si el profesor pide más y la **evidencia** que se puede mostrar. Todos los números salen de la última corrida oficial en la VM (Etapa 21, commit 2cdf1e5, 26-nov-2026): `docs/evidencias/`.
+Este documento sigue el orden de la guía del proyecto. Para cada pregunta trae una **respuesta corta** (para decirla en voz alta), el detalle si el profesor pide más y la **evidencia** que se puede mostrar. Todos los números salen de la última corrida oficial en la VM (Etapa 22, commit f19fe11, 26-nov-2026): `docs/evidencias/`.
 
 ## Números clave (memorizar)
 
 | Dato | Valor real |
 |---|---|
-| Pruebas automatizadas | 273 de 273 aprobadas (pytest, Xvfb): las 208 originales sin cambios, 25 de realismo (CP-163 a CP-183), 7 de sonido (CP-184 a CP-190), 12 de caja negra y sistema eléctrico (CP-191 a CP-202) y 21 de prácticas y física (CP-203 a CP-209) |
+| Pruebas automatizadas | 278 de 278 aprobadas (pytest, Xvfb): las 208 originales sin cambios, 25 de realismo (CP-163 a CP-183), 7 de sonido (CP-184 a CP-190), 12 de caja negra y sistema eléctrico (CP-191 a CP-202), 21 de prácticas y física (CP-203 a CP-209) y 5 de datos verificados (CP-210 a CP-214) |
 | Aceptación sobre la interfaz | 10 de 10 escenarios, 72 pasos (CA-01 a CA-10) |
 | Pruebas de la guía P01–P12 | 12 de 12 aprobadas |
 | Casos del documento de pruebas | 28 de 28 (CT-01 a CT-28) |
-| Cobertura | total 94 %; logic 99–100 %, ui 99–100 %, sistema 95–100 %, main 96 %, panel/liberacion 99 %, panel/sonido 95 %, panel/practicas 96 % |
-| Refresco real del tablero (P12, 60 s) | promedio 55.8 ms, p95 65.4 ms (objetivo 50 ms) |
-| Latencia archivo → tablero | promedio 104.0 ms (cota de diseño 150 ms); p95 156.3 ms y máximo 295.9 ms |
-| Memoria en 60 s | 29 216 KB → 29 596 KB (+380 KB, estable) |
-| Bitácoras en 60 s | 41 948 bytes de un límite de 49 152 (acotadas) |
-| Datos procesados en P12 | 527 escrituras del simulador, 501 lecturas aplicadas, 0 errores |
-| Defectos | 16 registrados: DEF-01 rechazado, 15 cerrados (DEF-16 lo encontró el banco), 0 abiertos |
+| Cobertura | total 94 %; logic 99–100 %, ui 99–100 %, sistema 95–100 %, main 94 %, panel/liberacion 99 %, panel/sonido 94 %, panel/practicas 96 %, tools/consumo 100 % |
+| Refresco real del tablero (P12, 60 s) | promedio 51.5 ms, p95 53.1 ms (objetivo 50 ms) |
+| Latencia archivo → tablero | promedio 85.6 ms, p95 136.7 ms (cota de diseño 150 ms); máximo 154.1 ms |
+| Memoria en 60 s | 29 108 KB → 29 428 KB (+320 KB, estable) |
+| Bitácoras en 60 s | 41 068 bytes de un límite de 49 152 (acotadas) |
+| Datos procesados en P12 | 592 escrituras del simulador, 563 lecturas aplicadas, 0 errores |
+| Defectos | 17 registrados: DEF-01 rechazado, 16 cerrados (DEF-16 lo encontró el banco; DEF-17, el embrague del robot, la suite), 0 abiertos |
 | Ataque QA | fuzzing 0 hallazgos; caos: 1 088 acciones, 0 excepciones |
-| Prácticas de fallas | 15 de 15 aprobadas (docs/evidencias/practicas.txt); 0-100 km/h en unos 4.7 s; frenos 31 m sanos contra 113 m con la falla |
+| Prácticas de fallas | 15 de 15 aprobadas (docs/evidencias/practicas.txt); 0-100 km/h en 4.75 s; frenos 40 m sanos contra 141 m con la falla |
 | Caja negra | 19 264 bytes fijos; 700 registros escritos, el anillo conserva 600; 0 dañados; evento del sobrecalentamiento con 100 registros |
-| Banco con 7 fallas | la unidad sana es APTA 9/9 y cada falla es RECHAZADA (alternador: L01 y L07; Weber-Marelli: L01 y L06) |
+| Banco con 7 fallas | la unidad sana es APTA 9/9 y cada falla es RECHAZADA (alternador: L01 y L07; Weber-Marelli: L01) |
 | Sonido del motor | ralentí: una explosión cada 15.0 ms (4 por vuelta); limitador: envolvente p10/p90 = 0.001; alarma del cinturón 5.5 s; síntesis: 5 % de un núcleo |
 | Banco de liberación | unidad sana APTA 9/9; cada una de las 5 fallas RECHAZADA por la prueba de su sistema |
-| Frenado tipo 0 (modelo) | 30.2 m y 12.77 m/s² (límites: 70 m y 6.43 m/s²); en caliente 10.99 m/s² con frenos a 438 °C |
-| Ciclo ECE-15 | distancia real 0.9860 km; odómetro del cuadro 0.9875 km (0.15 %) |
+| Frenado tipo 0 (modelo) | desde 100 km/h: 38.9 m y 9.89 m/s² (R13-H: 70 m y 6.43 m/s²); desde 80 km/h: 25.0 m (Directiva 71/320/CEE de 1987: 50.7 m y 5.8 m/s²); en caliente 8.52 m/s² con frenos a 438 °C |
+| Ciclo ECE-15 | distancia real 0.9857 km; odómetro del cuadro 0.9871 km (0.15 %); 0.00 s fuera de la tolerancia de UN R84 (± 1 km/h, ± 0.5 s) |
+| Consumo contra el fabricante (UN R84) | ciudad 17.3 L/100 km (publicado 18.4, −5.8 %); 90 km/h 8.9 (8.6, +4.1 %); 120 km/h 10.4 (10.3, +1.2 %) |
 
 ## 1. Guion de la demostración (20 a 25 minutos)
 
@@ -220,7 +221,7 @@ Respuesta corta: en vivo, con el panel: "Dato corrupto" o "Borrar archivo". El t
 
 **Limitaciones (decirlas antes de que las pregunten):**
 
-- La latencia promedio (104.0 ms) cumple la cota de 150 ms, pero en la última corrida el p95 fue 156.3 ms y el máximo 295.9 ms, con la VM muy cargada (la suite tardó 4.5 min). Entre corridas varía con la carga (Etapa 19: p95 140.0 ms; Etapa 17: p95 233.4 ms).
+- La latencia cumple la cota de 150 ms en promedio (85.6 ms) y en el p95 (136.7 ms), pero el máximo fue 154.1 ms. Entre corridas varía con la carga de la VM (Etapa 21: p95 156.3 ms; Etapa 17: p95 233.4 ms).
 - Probado a fondo en Linux. En Windows, el Python de Microsoft Store falla a veces al cargar Tcl/Tk.
 - En pantallas de 1024×768, parte de los controles no cabe.
 - Las categorías de los elementos 2, 3 y 5 están por confirmar con el profesor.
@@ -293,8 +294,27 @@ Respuesta corta: en vivo, con el panel: "Dato corrupto" o "Borrar archivo". El t
 
 **¿Cómo saben que el tablero mostró lo correcto?** Las verificaciones usan una copia en memoria del cuadro real: el mismo formato del archivo, la misma validación del lector, `EstadoCluster` y el monitor. Comprueban los testigos encendidos, los WARN registrados y las causas de protección (`docs/evidencias/practicas.txt`; CP-203).
 
-**¿Qué tan real es la física?** El empuje sigue una curva de par que pasa por los datos verificados del F40: 577 Nm a 4000 rpm y 478 CV a 7000 rpm. Bajo 2500 rpm, o mientras el turbo carga, empuja como un motor atmosférico: se siente el retraso del turbo. Se calibró con el 0-100 y la velocidad máxima publicados: da unos 4.7 s en la práctica (publicado: 4.1 s, con pruebas de 3.5 a 5.0 s) y unos 326 km/h (publicado: 324 km/h).
+**¿Qué tan real es la física?** El empuje sigue una curva de par que pasa por los datos verificados del F40: 577 Nm a 4000 rpm y 478 CV a 7000 rpm. Bajo 2500 rpm, o mientras el turbo carga, empuja como un motor atmosférico: se siente el retraso del turbo. Se calibró con el 0-100 y la velocidad máxima publicados: da 4.75 s en la práctica (publicado: 4.1 s, con pruebas de 3.5 a 5.0 s) y unos 326 km/h (publicado: 324 km/h).
 
 **¿Por qué se bloquean las llantas?** Porque el F40 original no tenía ABS ni control de tracción (lo dice la revista de Ferrari). Con "Pista mojada" las llantas se bloquean al frenar a fondo, y una bloqueada agarra menos: por eso frenar dosificado detiene en menos metros. Esa es la razón de ser del ABS.
 
 **Demostración (2 min):** botón "Lluvia sin ABS" (patina al salir y se bloquea al frenar) o "Sobrecalentamiento" (la aguja del agua sube a rojo y la ECU corta). Mientras corre, señalar la palanca y los pedales moviéndose solos.
+
+## 14. Datos verificados (Etapa 22)
+
+**¿Qué se verificó de lo pendiente?** Las normas de la época en su texto original. La Directiva 71/320/CEE vigente en 1987 (versión consolidada de 1986, EUR-Lex) pide para autos (M1), desde 80 km/h con el motor desembragado, s ≤ 0.1 v + v²/150 = 50.7 m y 5.8 m/s². La Directiva 75/443/CEE pide para el velocímetro lo mismo que R39: nunca indicar menos. UN R84 da la tolerancia del ciclo urbano: ± 1 km/h y ± 0.5 s. También se verificaron los datos del fabricante en ADAC: 1250 kg, 120 L y el consumo normalizado.
+
+**¿Qué cambió en el banco?** L03 exige el criterio de 1987 además del de R13-H. L06 exige la tolerancia de R84 en lugar de ± 2 km/h, que era un criterio del equipo. La unidad sana pasa los dos: frena desde 80 km/h en 25.0 m y queda 0.00 s fuera de la tolerancia.
+
+**¿Y en el modelo?**
+- Las velocidades por marcha siguen las relaciones de la caja (2.769 a 0.767).
+- El frenado a fondo da los 36.3 m de 60 a 0 mph publicados.
+- El consumo sale de la potencia que entrega el motor. Con las tres pruebas de R84 da 17.3, 8.9 y 10.4 L/100 km contra 18.4, 8.6 y 10.3 del fabricante: todas dentro del ± 10 % que fijó el equipo (`python3 tools/consumo.py`; CP-214).
+
+**¿Qué sigue sin verificar?**
+- El texto de FMVSS 208 de 1987: se leyó el de 1996.
+- La prueba de origen de la frenada y de las relaciones de marcha: son fuentes secundarias.
+- Las rpm del limitador real.
+- Una discrepancia que no se cambió: la especificación pone el rojo del tacómetro en 8000 rpm (R03) y la línea roja real del F40 es 7750 rpm.
+
+Todo está en `docs/realismo_y_liberacion.md`, secciones 5 y 6.
