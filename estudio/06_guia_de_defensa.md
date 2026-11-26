@@ -2,24 +2,27 @@
 
 Equipo 3 · César Saúl Vázquez Preciado e Ian Josué Cota Flores · Sistemas Operativos (UAG) · Ferrari F40 (1987)
 
-Este documento sigue el orden de la guía del proyecto. Para cada pregunta trae una **respuesta corta** (para decirla en voz alta), el detalle si el profesor pide más y la **evidencia** que se puede mostrar. Todos los números salen de la última corrida oficial en la VM (commit 91e595b): `docs/evidencias/`.
+Este documento sigue el orden de la guía del proyecto. Para cada pregunta trae una **respuesta corta** (para decirla en voz alta), el detalle si el profesor pide más y la **evidencia** que se puede mostrar. Todos los números salen de la última corrida oficial en la VM (Etapa 18, commit 1699ba0, 25-nov-2026): `docs/evidencias/`.
 
 ## Números clave (memorizar)
 
 | Dato | Valor real |
 |---|---|
-| Pruebas automatizadas | 208 de 208 aprobadas (pytest, Xvfb) |
+| Pruebas automatizadas | 233 de 233 aprobadas (pytest, Xvfb): las 208 anteriores sin cambios y 25 nuevas (CP-163 a CP-183) |
 | Aceptación sobre la interfaz | 10 de 10 escenarios, 72 pasos (CA-01 a CA-10) |
 | Pruebas de la guía P01–P12 | 12 de 12 aprobadas |
 | Casos del documento de pruebas | 28 de 28 (CT-01 a CT-28) |
-| Cobertura | logic 100 %, ui 99–100 %, sistema 97–100 %, main 96 % |
-| Refresco real del tablero (P12, 60 s) | promedio 61.9 ms, p95 103.0 ms (objetivo 50 ms) |
-| Latencia archivo → tablero | promedio 122.8 ms (cota de diseño 150 ms); p95 233.4 ms |
-| Memoria en 60 s | 28 588 KB → 28 908 KB (+320 KB, estable) |
-| Bitácoras en 60 s | 45 136 bytes de un límite de 49 152 (acotadas) |
-| Datos procesados en P12 | 476 escrituras del simulador, 449 aplicadas, 0 errores |
-| Defectos | 15 registrados: DEF-01 rechazado, 14 cerrados, 0 abiertos |
-| Ataque QA | fuzzing 0 hallazgos; caos: unas 1 100 agresiones, 0 excepciones |
+| Cobertura | total 94 %; logic 99–100 %, ui 99–100 %, sistema 96–100 %, main 96 %, panel/liberacion 99 %, panel/ecu 94 % |
+| Refresco real del tablero (P12, 60 s) | promedio 51.0 ms, p95 51.8 ms (objetivo 50 ms) |
+| Latencia archivo → tablero | promedio 92.4 ms, p95 141.4 ms (cota de diseño 150 ms); máximo 1098.7 ms |
+| Memoria en 60 s | 29 016 KB → 29 336 KB (+320 KB, estable) |
+| Bitácoras en 60 s | 36 576 bytes de un límite de 49 152 (acotadas) |
+| Datos procesados en P12 | 583 escrituras del simulador, 554 lecturas aplicadas, 0 errores |
+| Defectos | 16 registrados: DEF-01 rechazado, 15 cerrados (DEF-16 lo encontró el banco), 0 abiertos |
+| Ataque QA | fuzzing 0 hallazgos; caos: 1 334 acciones, 0 excepciones |
+| Banco de liberación | unidad sana APTA 9/9; cada una de las 5 fallas RECHAZADA por la prueba de su sistema |
+| Frenado tipo 0 (modelo) | 30.2 m y 12.77 m/s² (límites: 70 m y 6.43 m/s²); en caliente 10.99 m/s² con frenos a 438 °C |
+| Ciclo ECE-15 | distancia real 0.9860 km; odómetro del cuadro 0.9875 km (0.15 %) |
 
 ## 1. Guion de la demostración (20 a 25 minutos)
 
@@ -27,13 +30,13 @@ Preparación: VM encendida, VcXsrv abierto, panel abierto (`./abrir_panel.sh` po
 
 | Momento | Qué hacer | Qué decir |
 |---|---|---|
-| 1 Contexto (2 min) | Mostrar el tablero | Ferrari F40 1987. Diez elementos de la especificación más el odómetro: 2 principales, 3 de información en línea, 3 testigos informativos y 2 de seguridad |
+| 1 Contexto (2 min) | Mostrar el tablero (el encabezado dice FERRARI F40 (1987)) | Ferrari F40 1987. Diez elementos de la especificación más el odómetro: 2 principales, 3 de información en línea, 3 testigos informativos y 2 de seguridad. Abajo, cuatro adicionales de seguridad y consumo (12-15) |
 | 2 Arquitectura (4 min) | Diagrama `docs/diagramas/arquitectura.png` | Entrada (lector), validación, modelo, interfaz, registrador y configuración separados; un hilo lector y el hilo de la interfaz unidos por un buzón |
-| 3 Operación normal (3 min) | Panel: Abrir tablero, CONTACTO (M), marcha 1, acelerar (W) | El panel solo escribe `datos/vehiculo.conf`; el tablero lo lee cada 100 ms y cambia sin reiniciar |
-| 4 Advertencias (3 min) | Luces altas (informativo) y "Fuga de aceite" (seguridad) | El testigo 9 se enciende tras 1 s bajo 1 bar (R02) y queda un WARN prioritario en eventos.log |
+| 3 Operación normal (3 min) | Panel: Abrir tablero, LLAVE (K: prueba de testigos), ARRANQUE (M), cinturón (B), marcha 1, acelerar (W) | El panel solo escribe `datos/vehiculo.conf`; el tablero lo lee cada 100 ms y cambia sin reiniciar |
+| 4 Advertencias (3 min) | Luces altas o puerta abierta (informativo) y "Fuga de aceite" (seguridad) | El testigo 9 se enciende tras 1 s bajo 1 bar (R02) y queda un WARN prioritario en eventos.log. Con la puerta abierta el auto no avanza; con la fuga, al apagar ya no arranca (STOP · ACEITE) |
 | 5 Error controlado (3 min) | "Dato corrupto" o "Borrar archivo" | El tablero no se detiene: conserva el último valor válido, avisa y registra ERROR; a los 3 s se recupera solo |
 | 6 Evidencia (2 min) | Recuadro de bitácoras del panel, o `tail -f logs/eventos.log logs/errores.log` | Dos archivos separados con fecha ISO, nivel, componente, evento, detalle y resultado |
-| 7 Conocimientos (5 min) | Respuestas de las secciones 2 a 4 de esta guía | Comunicación, sincronización, memoria, almacenamiento y seguridad, con la prueba de cada uno |
+| 7 Conocimientos (5 min) | Respuestas de las secciones 2 a 4 de esta guía; si sobra tiempo, el banco de liberación (sección 10) | Comunicación, sincronización, memoria, almacenamiento y seguridad, con la prueba de cada uno |
 | 8 Cierre (2 min) | Sección 9 de esta guía | Limitaciones reales y mejoras futuras |
 
 ## 2. Las ocho preguntas obligatorias (guía, sección 9)
@@ -72,7 +75,7 @@ Respuesta corta: el monitor de seguridad (testigos 9 y 10), porque una advertenc
 
 Respuesta corta: en memoria solo el estado actual; en disco lo que debe sobrevivir al apagado.
 
-- Memoria: un `EstadoCluster` de tamaño fijo, el último valor válido de las 10 claves y un buzón de capacidad 1. No hay historial en RAM.
+- Memoria: un `EstadoCluster` de tamaño fijo, el último valor válido de las 10 claves (más las opcionales que lleguen) y un buzón de capacidad 1. No hay historial en RAM.
 - Disco: `config/cluster.ini` (parámetros), `datos/vehiculo.conf` (entrada), `datos/odometro.txt` con su respaldo `.bak` (kilometraje) y `logs/` (eventos y errores por separado).
 - Evidencia: P12 (+320 KB en 60 s); `so/procesos_hilos_memoria.txt` (VmSize contra VmRSS); `so/senales.txt` (el kilometraje se guarda al cerrar).
 
@@ -82,7 +85,7 @@ Respuesta corta: rotación por tamaño y registro solo de cambios, no de cada ci
 
 - `RotatingFileHandler`: cada archivo tiene un tamaño máximo (`max_bytes`, 256 KB por defecto) y un número fijo de respaldos (3). El espacio total queda acotado.
 - El monitor registra transiciones (un testigo que se enciende o se apaga), no cada parpadeo. El lector no repite el mismo error mientras dura.
-- Evidencia: P12 con bitácoras de 16 KB: 45 136 bytes de un límite de 49 152; CP-104 (3000 ciclos con rotación).
+- Evidencia: P12 con bitácoras de 16 KB: 36 576 bytes de un límite de 49 152; CP-104 (3000 ciclos con rotación).
 
 **6. ¿Qué amenaza considera más probable y qué control la reduce?**
 
@@ -129,7 +132,7 @@ Respuesta corta: en vivo, con el panel: "Dato corrupto" o "Borrar archivo". El t
 
 **4.2 Procesos y calendarización.** Lectura (hilo lector), validación (lector), actualización visual (hilo de Tkinter con `after()`) y registro (bitácora) separados. Sin espera activa: `Event.wait` y `after()`. El simulador o el panel es otro proceso (fork + exec). Hay 3 hilos en el clúster: el principal, el lector y uno interno de Tcl/Tk (`so/procesos_hilos_memoria.txt`).
 
-**4.3 Comunicación y sincronización.** Productor: el panel, el simulador o `escribir_dato.py` (otros procesos). Consumidor: el hilo lector, y después el hilo de la interfaz. Dato: el snapshot de las 10 claves. Dirección: archivo → lector → buzón → interfaz. Sin carreras: escritura atómica, `flock` entre escritores y un solo dueño del estado. Concurrencia probada: CP-98, CP-146. Además, señales (SIGTERM → cierre ordenado) y tuberías en los atajos del panel.
+**4.3 Comunicación y sincronización.** Productor: el panel, el simulador o `escribir_dato.py` (otros procesos). Consumidor: el hilo lector, y después el hilo de la interfaz. Dato: el snapshot de las 10 claves y de las opcionales presentes. Dirección: archivo → lector → buzón → interfaz. Sin carreras: escritura atómica, `flock` entre escritores y un solo dueño del estado. Concurrencia probada: CP-98, CP-146. Además, señales (SIGTERM → cierre ordenado) y tuberías en los atajos del panel.
 
 **4.4 Sistema de archivos.** Rutas relativas al proyecto (las absolutas se rechazan). Archivo de datos: se sobrescribe completo y se lee secuencial. Bitácoras: solo se agrega al final (modo adición). Persisten configuración, kilometraje y bitácoras.
 
@@ -159,14 +162,14 @@ Respuesta corta: en vivo, con el panel: "Dato corrupto" o "Borrar archivo". El t
 
 | Criterio | Qué mostrar |
 |---|---|
-| 1 Definición y diseño | F40 1987, fichas de los 11 elementos, diagramas |
+| 1 Definición y diseño | F40 1987, fichas de los 15 elementos (10 aprobados, odómetro y 4 adicionales), diagramas |
 | 2 Diez elementos | Los 10 funcionando en vivo; aceptación 10/10 |
-| 3 Datos y validación | Tipos y rangos; dato corrupto en vivo; CP-150 y CP-151 |
+| 3 Datos y validación | Tipos y rangos; bits de estado (puertas); consistencia motor/contacto (`dato_inconsistente`); dato corrupto en vivo; CP-150, CP-151 y CP-164 |
 | 4 Archivos y persistencia | Estructura de carpetas; escritura atómica; kilometraje que sobrevive al cierre |
 | 5 Procesos y actualización | Hilo lector y hilo de la interfaz; 50/100 ms; P12 |
 | 6 Comunicación y sincronización | Buzón, flock, rename; CP-98 y CP-146 |
 | 7 Memoria y almacenamiento | Sin historial en RAM, rotación, +320 KB en 60 s |
-| 8 Seguridad | Validación, 640/750, amenazas, fuzzing y caos |
+| 8 Seguridad | Validación, 640/750, amenazas, fuzzing y caos; seguridad del vehículo: interbloqueo de puertas y protecciones de la ECU |
 | 9 Errores y registros | Dos bitácoras con formato completo; recuperación en vivo |
 | 10 Documentación y defensa | Informe técnico, documento de pruebas, este documento |
 
@@ -174,7 +177,7 @@ Respuesta corta: en vivo, con el panel: "Dato corrupto" o "Borrar archivo". El t
 
 | Archivo | Qué hace en una frase |
 |---|---|
-| `logic/estado.py` | El modelo: reglas R01–R08, validación de entradas y el reloj de cada ciclo |
+| `logic/estado.py` | El modelo: reglas R01–R08 y R09–R12, llave (Encendido contra Motor activo), validación de entradas y el reloj de cada ciclo |
 | `logic/odometro.py` | Integra velocidad × tiempo; 6 dígitos con vuelta a cero |
 | `sistema/lector.py` | Lee y valida el archivo de datos; hilo lector, buzón y consumidor; escritura atómica |
 | `sistema/bitacora.py` | Dos bitácoras rotativas con permisos 640 |
@@ -184,7 +187,9 @@ Respuesta corta: en vivo, con el panel: "Dato corrupto" o "Borrar archivo". El t
 | `ui/presentacion.py` | Traduce el estado a lo que se dibuja (colores y posiciones), sin Tkinter |
 | `ui/tablero.py` | Dibuja el cuadro estilo F40; no contiene reglas |
 | `main.py` | Une todo; maneja las señales SIGTERM y SIGINT para un cierre ordenado |
-| `panel/` | Panel de control: cabina, física simplificada, fallas, atajos de comandos |
+| `panel/ventana.py`, `panel/fisica.py` | Panel de control: cabina, llave, puertas, taller y una física simplificada con fallas reales |
+| `panel/ecu.py` | ECU simulada: decide si el motor puede arrancar o debe detenerse y bloquea la tracción con una puerta abierta |
+| `panel/liberacion.py` | Banco de liberación: 9 pruebas de la época (R13-H, R39, ECE-15) con dictamen APTO o RECHAZADO |
 | `tools/` | Simulador, escritor, P12, capturas, diagnóstico en Bash, evidencia del SO, ataque QA |
 
 ## 8. Preguntas difíciles probables
@@ -193,7 +198,7 @@ Respuesta corta: en vivo, con el panel: "Dato corrupto" o "Borrar archivo". El t
 
 **¿Puede haber interbloqueo?** No. Ningún proceso retiene un candado mientras espera otro, así que se rompe la condición de "retención y espera" y no puede formarse una espera circular. El candado de instancia ni siquiera espera (`LOCK_NB`).
 
-**¿Es un sistema de tiempo real?** Blando: un retraso degrada la lectura, pero no causa una catástrofe. El plazo de diseño archivo → tablero es de 150 ms; el promedio medido es de 122.8 ms.
+**¿Es un sistema de tiempo real?** Blando: un retraso degrada la lectura, pero no causa una catástrofe. El plazo de diseño archivo → tablero es de 150 ms; el promedio medido es de 92.4 ms (p95 141.4 ms).
 
 **¿Qué hace un `kill PID`?** Envía SIGTERM. El clúster lo atrapa, agenda el cierre en el hilo de Tkinter, guarda el kilometraje, detiene el hilo lector, libera el candado y registra "sistema fin" (código 0). Antes se cerraba sin guardar (DEF-15, código -15).
 
@@ -211,13 +216,35 @@ Respuesta corta: en vivo, con el panel: "Dato corrupto" o "Borrar archivo". El t
 
 **Limitaciones (decirlas antes de que las pregunten):**
 
-- La latencia promedio cumple la cota de 150 ms, pero el 5 % más lento llega a 233 ms.
+- La latencia promedio (92.4 ms) y el p95 (141.4 ms) cumplen la cota de 150 ms, pero hubo un máximo aislado de 1098.7 ms; entre corridas varía con la carga de la VM (en la Etapa 17 el p95 fue 233.4 ms).
 - Probado a fondo en Linux. En Windows, el Python de Microsoft Store falla a veces al cargar Tcl/Tk.
 - En pantallas de 1024×768, parte de los controles no cabe.
 - Las categorías de los elementos 2, 3 y 5 están por confirmar con el profesor.
 - Las cifras del motor del panel son aproximadas, no oficiales.
+- El banco usa los criterios de UN R13-H y UN R39 leídos en su texto moderno; los valores de la Directiva 71/320/CEE de 1987 quedan pendientes de verificar. Las protecciones y el interbloqueo de puertas son del equipo, no del F40 original.
 - Siguen pendientes la revisión cruzada, el escenario sorpresa y el acceso por Wi-Fi.
 
 **Mejoras futuras:** avisar los cambios del archivo con inotify en lugar de revisar cada 100 ms (menor latencia y consumo); vista de solo lectura por red para otros dispositivos; pruebas nativas en Windows y macOS.
 
 **Aprendizaje:** las pruebas deben salir de la especificación, no del código; atacar el propio sistema encuentra lo que las pruebas "felices" no ven (DEF-04 a DEF-15).
+
+## 10. Realismo, seguridad y banco de liberación (Etapa 18)
+
+**Qué se agregó (respuesta corta):** llave de contacto separada del arranque, cuatro elementos adicionales (12 puerta, 13 cinturón, 14 combustible, 15 protección del motor), una ECU simulada en el panel que decide cuándo el motor no puede arrancar o debe detenerse, fallas con consecuencias físicas y un banco de pruebas de liberación de producción con normas de la época.
+
+**Demostración corta (3 min):** K (prueba de testigos) → marcar "Fuga de aceite" y M: no arranca, STOP · ACEITE → Taller: Reparar fallas y M: arranca → P y acelerar: no avanza (interbloqueo) → "Banco con las fallas actuales" con "Frenos": RECHAZADO (L02, L03, L04) → Reparar fallas y repetir: APTO PARA PRODUCCIÓN. Guion completo: `docs/realismo_y_liberacion.md`, sección 7.
+
+**¿Por qué el cuadro no decide si el motor se apaga?** Porque en un auto real la unidad de control del motor y el cuadro son equipos distintos: el cuadro solo muestra. Aquí la ECU vive en el proceso del panel (`panel/ecu.py`) y la causa viaja al tablero en la clave `falla_motor` (decisión D11).
+
+**¿Qué pasa con un archivo de diez claves?** Funciona igual que antes: las claves nuevas son opcionales (D8). Si una opcional nunca llega, su elemento queda "sin dato" sin error; si deja de llegar, se registra INFO `clave_opcional_retirada`; si llega inválida, ERROR y se conserva el último valor válido, igual que las diez.
+
+**¿Qué es la consistencia del validador?** La guía pide al validador "tipo, rango, unidad y consistencia". `motor=1` con `contacto=0` es imposible: ERROR `dato_inconsistente` y el cuadro sigue al motor (D9, CP-164).
+
+**¿Qué es un dato de bits de estado?** `puertas` guarda dos puertas en un entero: bit 0 conductor y bit 1 pasajero; `puertas=3` son las dos abiertas (bloque 4.1, CP-163).
+
+**¿Qué normas usa el banco y son reales?** UN R13-H anexo 3 (frenado tipo 0: desde 100 km/h, distancia ≤ 70 m y desaceleración ≥ 6.43 m/s²; tipo I: 15 frenadas de 120 a 60 km/h cada 45 s), UN R39 (velocímetro: nunca indica menos que la velocidad real y 0 ≤ V1 − V2 ≤ 0.1 V2 + 4 km/h a 40, 80 y 120 km/h) y el ciclo urbano ECE-15 (195 s, 0.994 km). Los textos se leyeron en las ADR 31/01 y 18/03 de Australia, que adoptan esos reglamentos. Lo que no se pudo verificar (los valores de 1987 de la Directiva 71/320/CEE) está marcado como pendiente.
+
+**¿Encontró algo el banco?** Sí: DEF-16. El sensor de velocidad del panel redondeaba al décimo más cercano y podía indicar 80.0 km/h a 80.04 km/h reales, lo que R39 prohíbe. Ahora redondea hacia arriba.
+
+**¿Cómo se relaciona con Sistemas Operativos?** El banco corre como proceso hijo del panel con su salida por una tubería; el ciclo ECE-15 en vivo es un productor que escribe mientras el tablero consume; el formato evoluciona sin romper a los productores anteriores; y el odómetro del cuadro se compara contra la distancia real del ciclo (prueba L06).
+

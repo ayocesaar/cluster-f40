@@ -57,7 +57,17 @@ Las salidas reales están en `docs/evidencias/so/`. Se generan con `xvfb-run -a 
 | Tema | En el proyecto | Evidencia | Estado |
 |---|---|---|---|
 | 6.1 Seguridad de acceso | Permisos 640 y 750; un archivo de datos o de odómetro escribible por cualquiera se rechaza; corre sin root (privilegio mínimo); auditoría en bitácoras separadas | `so/permisos.txt`; CP-101 a CP-103, CP-131 | Cubierto |
-| 6.2 Amenazas externas | Validación de toda entrada (rango, tipo, tamaño, ASCII, NaN); defensa contra DoS: tamaño máximo, rotación de bitácoras, prueba de caos con 1 100 agresiones; el kilometraje no se puede inyectar desde el archivo (`clave_no_permitida`) | `docs/evidencias/qa_caos.txt`, `qa_fuzzing.txt`; CP-107, CP-133, CP-150 | Cubierto |
+| 6.2 Amenazas externas | Validación de toda entrada (rango, tipo, tamaño, ASCII, NaN); defensa contra DoS: tamaño máximo, rotación de bitácoras, prueba de caos con 1 334 acciones (Etapa 18); el kilometraje no se puede inyectar desde el archivo (`clave_no_permitida`) | `docs/evidencias/qa_caos.txt`, `qa_fuzzing.txt`; CP-107, CP-133, CP-150 | Cubierto |
+
+## Etapa 18: realismo y banco de liberación en la materia
+
+| Tema | Qué se agregó | Evidencia |
+|---|---|---|
+| 1.2 Codificación | `puertas` codifica dos puertas en bits de estado de un entero (bit 0 conductor, bit 1 pasajero); `falla_motor` es una enumeración cerrada | CP-163 |
+| 3.2 Creación de procesos | El banco de liberación corre como proceso hijo del panel (fork + exec) y su salida llega por una tubería a la consola | CP-178; `tools/banco_liberacion.py` |
+| 3.4 Comunicación entre procesos | El formato del archivo creció con claves opcionales sin romper a los productores de diez claves (compatibilidad hacia atrás); el validador comprueba la consistencia entre claves (`dato_inconsistente`) | CP-164 |
+| 3.4 Productor y consumidor en vivo | En el ciclo ECE-15 en vivo, el robot del panel produce 195 s de datos mientras el tablero los consume; el odómetro del cuadro debe medir 0.994 km (± 1 %) | L06 en `docs/evidencias/banco_liberacion.txt` |
+| 6 Seguridad | Además de la seguridad informática, seguridad funcional del vehículo: interbloqueo de puertas y protecciones de la ECU en otro proceso | CP-172 a CP-177 |
 
 ## Lo que no se añadió y por qué
 
