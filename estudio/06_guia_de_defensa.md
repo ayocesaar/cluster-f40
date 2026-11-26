@@ -2,24 +2,25 @@
 
 Equipo 3 · César Saúl Vázquez Preciado e Ian Josué Cota Flores · Sistemas Operativos (UAG) · Ferrari F40 (1987)
 
-Este documento sigue el orden de la guía del proyecto. Para cada pregunta trae una **respuesta corta** (para decirla en voz alta), el detalle si el profesor pide más y la **evidencia** que se puede mostrar. Todos los números salen de la última corrida oficial en la VM (Etapa 20, commit e0e4443, 26-nov-2026): `docs/evidencias/`.
+Este documento sigue el orden de la guía del proyecto. Para cada pregunta trae una **respuesta corta** (para decirla en voz alta), el detalle si el profesor pide más y la **evidencia** que se puede mostrar. Todos los números salen de la última corrida oficial en la VM (Etapa 21, commit 2cdf1e5, 26-nov-2026): `docs/evidencias/`.
 
 ## Números clave (memorizar)
 
 | Dato | Valor real |
 |---|---|
-| Pruebas automatizadas | 252 de 252 aprobadas (pytest, Xvfb): las 208 originales sin cambios, 25 de realismo (CP-163 a CP-183), 7 de sonido (CP-184 a CP-190) y 12 de caja negra y sistema eléctrico (CP-191 a CP-202) |
+| Pruebas automatizadas | 273 de 273 aprobadas (pytest, Xvfb): las 208 originales sin cambios, 25 de realismo (CP-163 a CP-183), 7 de sonido (CP-184 a CP-190), 12 de caja negra y sistema eléctrico (CP-191 a CP-202) y 21 de prácticas y física (CP-203 a CP-209) |
 | Aceptación sobre la interfaz | 10 de 10 escenarios, 72 pasos (CA-01 a CA-10) |
 | Pruebas de la guía P01–P12 | 12 de 12 aprobadas |
 | Casos del documento de pruebas | 28 de 28 (CT-01 a CT-28) |
-| Cobertura | total 94 %; logic 99–100 %, ui 99–100 %, sistema 95–100 %, main 96 %, panel/liberacion 99 %, panel/sonido 95 %, sistema/caja_negra 95 % |
-| Refresco real del tablero (P12, 60 s) | promedio 53.1 ms, p95 57.6 ms (objetivo 50 ms) |
-| Latencia archivo → tablero | promedio 99.1 ms (cota de diseño 150 ms); p95 151.6 ms y máximo 194.0 ms |
-| Memoria en 60 s | 29 340 KB → 29 660 KB (+320 KB, estable) |
-| Bitácoras en 60 s | 45 885 bytes de un límite de 49 152 (acotadas) |
-| Datos procesados en P12 | 545 escrituras del simulador, 519 lecturas aplicadas, 0 errores |
+| Cobertura | total 94 %; logic 99–100 %, ui 99–100 %, sistema 95–100 %, main 96 %, panel/liberacion 99 %, panel/sonido 95 %, panel/practicas 96 % |
+| Refresco real del tablero (P12, 60 s) | promedio 55.8 ms, p95 65.4 ms (objetivo 50 ms) |
+| Latencia archivo → tablero | promedio 104.0 ms (cota de diseño 150 ms); p95 156.3 ms y máximo 295.9 ms |
+| Memoria en 60 s | 29 216 KB → 29 596 KB (+380 KB, estable) |
+| Bitácoras en 60 s | 41 948 bytes de un límite de 49 152 (acotadas) |
+| Datos procesados en P12 | 527 escrituras del simulador, 501 lecturas aplicadas, 0 errores |
 | Defectos | 16 registrados: DEF-01 rechazado, 15 cerrados (DEF-16 lo encontró el banco), 0 abiertos |
-| Ataque QA | fuzzing 0 hallazgos; caos: 1 159 acciones, 0 excepciones |
+| Ataque QA | fuzzing 0 hallazgos; caos: 1 088 acciones, 0 excepciones |
+| Prácticas de fallas | 15 de 15 aprobadas (docs/evidencias/practicas.txt); 0-100 km/h en unos 4.7 s; frenos 31 m sanos contra 113 m con la falla |
 | Caja negra | 19 264 bytes fijos; 700 registros escritos, el anillo conserva 600; 0 dañados; evento del sobrecalentamiento con 100 registros |
 | Banco con 7 fallas | la unidad sana es APTA 9/9 y cada falla es RECHAZADA (alternador: L01 y L07; Weber-Marelli: L01 y L06) |
 | Sonido del motor | ralentí: una explosión cada 15.0 ms (4 por vuelta); limitador: envolvente p10/p90 = 0.001; alarma del cinturón 5.5 s; síntesis: 5 % de un núcleo |
@@ -88,7 +89,7 @@ Respuesta corta: rotación por tamaño y registro solo de cambios, no de cada ci
 
 - `RotatingFileHandler`: cada archivo tiene un tamaño máximo (`max_bytes`, 256 KB por defecto) y un número fijo de respaldos (3). El espacio total queda acotado.
 - El monitor registra transiciones (un testigo que se enciende o se apaga), no cada parpadeo. El lector no repite el mismo error mientras dura.
-- Evidencia: P12 con bitácoras de 16 KB: 45 885 bytes de un límite de 49 152; CP-104 (3000 ciclos con rotación).
+- Evidencia: P12 con bitácoras de 16 KB: 41 948 bytes de un límite de 49 152; CP-104 (3000 ciclos con rotación).
 
 **6. ¿Qué amenaza considera más probable y qué control la reduce?**
 
@@ -201,7 +202,7 @@ Respuesta corta: en vivo, con el panel: "Dato corrupto" o "Borrar archivo". El t
 
 **¿Puede haber interbloqueo?** No. Ningún proceso retiene un candado mientras espera otro, así que se rompe la condición de "retención y espera" y no puede formarse una espera circular. El candado de instancia ni siquiera espera (`LOCK_NB`).
 
-**¿Es un sistema de tiempo real?** Blando: un retraso degrada la lectura, pero no causa una catástrofe. El plazo de diseño archivo → tablero es de 150 ms; el promedio medido es de 99.1 ms (p95 151.6 ms).
+**¿Es un sistema de tiempo real?** Blando: un retraso degrada la lectura, pero no causa una catástrofe. El plazo de diseño archivo → tablero es de 150 ms; el promedio medido es de 104.0 ms (p95 156.3 ms).
 
 **¿Qué hace un `kill PID`?** Envía SIGTERM. El clúster lo atrapa, agenda el cierre en el hilo de Tkinter, guarda el kilometraje, detiene el hilo lector, libera el candado y registra "sistema fin" (código 0). Antes se cerraba sin guardar (DEF-15, código -15).
 
@@ -219,7 +220,7 @@ Respuesta corta: en vivo, con el panel: "Dato corrupto" o "Borrar archivo". El t
 
 **Limitaciones (decirlas antes de que las pregunten):**
 
-- La latencia promedio (99.1 ms) cumple la cota de 150 ms, pero en la última corrida el p95 fue 151.6 ms y el máximo 194.0 ms. Entre corridas varía con la carga de la VM (Etapa 19: p95 140.0 ms; Etapa 17: p95 233.4 ms).
+- La latencia promedio (104.0 ms) cumple la cota de 150 ms, pero en la última corrida el p95 fue 156.3 ms y el máximo 295.9 ms, con la VM muy cargada (la suite tardó 4.5 min). Entre corridas varía con la carga (Etapa 19: p95 140.0 ms; Etapa 17: p95 233.4 ms).
 - Probado a fondo en Linux. En Windows, el Python de Microsoft Store falla a veces al cargar Tcl/Tk.
 - En pantallas de 1024×768, parte de los controles no cabe.
 - Las categorías de los elementos 2, 3 y 5 están por confirmar con el profesor.
