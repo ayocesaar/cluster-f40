@@ -2,24 +2,25 @@
 
 Equipo 3 · César Saúl Vázquez Preciado e Ian Josué Cota Flores · Sistemas Operativos (UAG) · Ferrari F40 (1987)
 
-Este documento sigue el orden de la guía del proyecto. Para cada pregunta trae una **respuesta corta** (para decirla en voz alta), el detalle si el profesor pide más y la **evidencia** que se puede mostrar. Todos los números salen de la última corrida oficial en la VM (Etapa 18, commit 1699ba0, 25-nov-2026): `docs/evidencias/`.
+Este documento sigue el orden de la guía del proyecto. Para cada pregunta trae una **respuesta corta** (para decirla en voz alta), el detalle si el profesor pide más y la **evidencia** que se puede mostrar. Todos los números salen de la última corrida oficial en la VM (Etapa 19, commit 4988ccc, 26-nov-2026): `docs/evidencias/`.
 
 ## Números clave (memorizar)
 
 | Dato | Valor real |
 |---|---|
-| Pruebas automatizadas | 233 de 233 aprobadas (pytest, Xvfb): las 208 anteriores sin cambios y 25 nuevas (CP-163 a CP-183) |
+| Pruebas automatizadas | 240 de 240 aprobadas (pytest, Xvfb): las 208 originales sin cambios, 25 de realismo (CP-163 a CP-183) y 7 de sonido (CP-184 a CP-190) |
 | Aceptación sobre la interfaz | 10 de 10 escenarios, 72 pasos (CA-01 a CA-10) |
 | Pruebas de la guía P01–P12 | 12 de 12 aprobadas |
 | Casos del documento de pruebas | 28 de 28 (CT-01 a CT-28) |
-| Cobertura | total 94 %; logic 99–100 %, ui 99–100 %, sistema 96–100 %, main 96 %, panel/liberacion 99 %, panel/ecu 94 % |
-| Refresco real del tablero (P12, 60 s) | promedio 51.0 ms, p95 51.8 ms (objetivo 50 ms) |
-| Latencia archivo → tablero | promedio 92.4 ms, p95 141.4 ms (cota de diseño 150 ms); máximo 1098.7 ms |
-| Memoria en 60 s | 29 016 KB → 29 336 KB (+320 KB, estable) |
-| Bitácoras en 60 s | 36 576 bytes de un límite de 49 152 (acotadas) |
-| Datos procesados en P12 | 583 escrituras del simulador, 554 lecturas aplicadas, 0 errores |
+| Cobertura | total 94 %; logic 99–100 %, ui 99–100 %, sistema 96–100 %, main 96 %, panel/liberacion 99 %, panel/sonido 94 % |
+| Refresco real del tablero (P12, 60 s) | promedio 51.1 ms, p95 52.1 ms (objetivo 50 ms) |
+| Latencia archivo → tablero | promedio 86.6 ms, p95 140.0 ms (cota de diseño 150 ms); máximo 154.2 ms |
+| Memoria en 60 s | 29 148 KB → 29 468 KB (+320 KB, estable) |
+| Bitácoras en 60 s | 39 976 bytes de un límite de 49 152 (acotadas) |
+| Datos procesados en P12 | 595 escrituras del simulador, 566 lecturas aplicadas, 0 errores |
 | Defectos | 16 registrados: DEF-01 rechazado, 15 cerrados (DEF-16 lo encontró el banco), 0 abiertos |
-| Ataque QA | fuzzing 0 hallazgos; caos: 1 334 acciones, 0 excepciones |
+| Ataque QA | fuzzing 0 hallazgos; caos: 1 320 acciones, 0 excepciones |
+| Sonido del motor | ralentí: una explosión cada 15.0 ms (4 por vuelta); limitador: envolvente p10/p90 = 0.001; alarma del cinturón 5.5 s; síntesis: 5 % de un núcleo |
 | Banco de liberación | unidad sana APTA 9/9; cada una de las 5 fallas RECHAZADA por la prueba de su sistema |
 | Frenado tipo 0 (modelo) | 30.2 m y 12.77 m/s² (límites: 70 m y 6.43 m/s²); en caliente 10.99 m/s² con frenos a 438 °C |
 | Ciclo ECE-15 | distancia real 0.9860 km; odómetro del cuadro 0.9875 km (0.15 %) |
@@ -85,7 +86,7 @@ Respuesta corta: rotación por tamaño y registro solo de cambios, no de cada ci
 
 - `RotatingFileHandler`: cada archivo tiene un tamaño máximo (`max_bytes`, 256 KB por defecto) y un número fijo de respaldos (3). El espacio total queda acotado.
 - El monitor registra transiciones (un testigo que se enciende o se apaga), no cada parpadeo. El lector no repite el mismo error mientras dura.
-- Evidencia: P12 con bitácoras de 16 KB: 36 576 bytes de un límite de 49 152; CP-104 (3000 ciclos con rotación).
+- Evidencia: P12 con bitácoras de 16 KB: 39 976 bytes de un límite de 49 152; CP-104 (3000 ciclos con rotación).
 
 **6. ¿Qué amenaza considera más probable y qué control la reduce?**
 
@@ -198,7 +199,7 @@ Respuesta corta: en vivo, con el panel: "Dato corrupto" o "Borrar archivo". El t
 
 **¿Puede haber interbloqueo?** No. Ningún proceso retiene un candado mientras espera otro, así que se rompe la condición de "retención y espera" y no puede formarse una espera circular. El candado de instancia ni siquiera espera (`LOCK_NB`).
 
-**¿Es un sistema de tiempo real?** Blando: un retraso degrada la lectura, pero no causa una catástrofe. El plazo de diseño archivo → tablero es de 150 ms; el promedio medido es de 92.4 ms (p95 141.4 ms).
+**¿Es un sistema de tiempo real?** Blando: un retraso degrada la lectura, pero no causa una catástrofe. El plazo de diseño archivo → tablero es de 150 ms; el promedio medido es de 86.6 ms (p95 140.0 ms).
 
 **¿Qué hace un `kill PID`?** Envía SIGTERM. El clúster lo atrapa, agenda el cierre en el hilo de Tkinter, guarda el kilometraje, detiene el hilo lector, libera el candado y registra "sistema fin" (código 0). Antes se cerraba sin guardar (DEF-15, código -15).
 
@@ -216,7 +217,7 @@ Respuesta corta: en vivo, con el panel: "Dato corrupto" o "Borrar archivo". El t
 
 **Limitaciones (decirlas antes de que las pregunten):**
 
-- La latencia promedio (92.4 ms) y el p95 (141.4 ms) cumplen la cota de 150 ms, pero hubo un máximo aislado de 1098.7 ms; entre corridas varía con la carga de la VM (en la Etapa 17 el p95 fue 233.4 ms).
+- La latencia promedio (86.6 ms) y el p95 (140.0 ms) cumplen la cota de 150 ms; el máximo fue 154.2 ms. Entre corridas varía con la carga de la VM (en la Etapa 17 el p95 fue 233.4 ms y en la Etapa 18 hubo un máximo aislado de 1098.7 ms).
 - Probado a fondo en Linux. En Windows, el Python de Microsoft Store falla a veces al cargar Tcl/Tk.
 - En pantallas de 1024×768, parte de los controles no cabe.
 - Las categorías de los elementos 2, 3 y 5 están por confirmar con el profesor.
