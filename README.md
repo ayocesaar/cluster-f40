@@ -172,6 +172,20 @@ El panel es un proceso aparte que escribe `datos/vehiculo.conf` con el mismo can
 - Pruebas: `tests/test_realismo.py` y `tests/test_liberacion.py` (CP-163 a CP-183). Fuentes y lo que queda
   pendiente de verificar: [docs/realismo_y_liberacion.md](docs/realismo_y_liberacion.md).
 
+## Sonido del motor (Etapa 19)
+
+El panel genera por código el sonido del motor (`panel/sonido.py`: pulsos de combustión de un V8, 4 por vuelta).
+El sonido sigue las rpm, la carga, el turbo (silbido y descarga), el limitador, el arranque y la alarma del cinturón
+(4 a 8 s, FMVSS 208 S7.3). No usa grabaciones ni audio de terceros.
+
+- En el mismo equipo: `./abrir_panel.sh --sonido auto` (Windows: waveOut; Linux: `aplay`, que en la VM requiere
+  `sudo apt-get install -y alsa-utils` y `sudo usermod -aG audio $USER`).
+- Panel en la VM y bocinas en Windows: en Windows `python tools\bocina.py`, y el panel con un túnel inverso:
+  `ssh -Y -R 5055:127.0.0.1:5055 -p 2222 USUARIO@127.0.0.1 "cd ~/cluster-f40 && ./abrir_panel.sh --sonido 127.0.0.1:5055"`.
+- `U` silencia. Demostración sin VM: `docs/evidencias/sonido/motor_demo.wav` (la genera `tools/sonido_demo.py`).
+- Detalle, latencia y seguridad: [docs/sonido_motor.md](docs/sonido_motor.md). Pruebas: `tests/test_sonido.py`
+  (CP-184 a CP-190).
+
 ## Observación del sistema (guía, sección 6)
 
 ```bash

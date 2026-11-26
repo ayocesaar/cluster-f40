@@ -236,6 +236,9 @@ AMENAZAS = (
      "No aplica", "No aplica", "Revisión de código (subprocess sin shell)"),
     ("Datos contradictorios entre claves (motor sin contacto)", "Regla de consistencia en el validador (D9)",
      "ERROR dato_inconsistente", "Se descarta el contacto y el cuadro sigue al motor", "CP-164"),
+    ("Mensajes falsos o malformados a la bocina de sonido", "Escucha solo en 127.0.0.1 y llega por un túnel SSH; "
+     "cada línea JSON se valida (claves, tipos, rangos, sin NaN, máximo 512 bytes)", "Contador de mensajes rechazados",
+     "El mensaje se descarta y el audio sigue con el último estado válido", "CP-189"),
 )
 
 SEGURIDAD_VEHICULO = (
@@ -405,6 +408,14 @@ def construir():
                       "queue.Queue(maxsize=1) → interfaz. Ningún objeto se modifica desde dos hilos. La prueba P08 (CP-98) "
                       "ejecuta 300 escrituras mientras el hilo lee cada 1 ms y comprueba que cada dato leído es "
                       "consistente.")
+    doc.add_heading("Sonido del motor: un tercer proceso por socket (Etapa 19)", level=2)
+    doc.add_paragraph("El panel sintetiza el sonido del motor por código (panel/sonido.py: pulsos de combustión de un V8, "
+                      "4 explosiones por vuelta). Como el panel corre en la máquina virtual y las bocinas están en Windows, "
+                      "el panel envía el estado del motor (líneas JSON, 20 por segundo) por un socket TCP a tools/bocina.py a "
+                      "través de un túnel SSH inverso. En la bocina, un hilo de tiempo real genera bloques de 30 ms y los "
+                      "entrega a waveOut, que bloquea cuando su cola está llena; el hilo nunca va más de 120 ms adelante del "
+                      "reloj, así la latencia queda acotada. El estado llega por un buzón de tamaño 1, el mismo patrón del "
+                      "lector del tablero. Pruebas CP-184 a CP-190; mediciones del audio en docs/evidencias/sonido/reporte.txt.")
     for pregunta, *partes in JUSTIFICACIONES:
         doc.add_heading(pregunta, level=2)
         ficha(doc, list(zip(("Necesidad", "Alternativas", "Criterios", "Decisión", "Consecuencia", "Evidencia"), partes)))

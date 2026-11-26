@@ -69,6 +69,17 @@ Las salidas reales están en `docs/evidencias/so/`. Se generan con `xvfb-run -a 
 | 3.4 Productor y consumidor en vivo | En el ciclo ECE-15 en vivo, el robot del panel produce 195 s de datos mientras el tablero los consume; el odómetro del cuadro debe medir 0.994 km (± 1 %) | L06 en `docs/evidencias/banco_liberacion.txt` |
 | 6 Seguridad | Además de la seguridad informática, seguridad funcional del vehículo: interbloqueo de puertas y protecciones de la ECU en otro proceso | CP-172 a CP-177 |
 
+## Etapa 19: sonido del motor en la materia
+
+| Tema | Qué se agregó | Evidencia |
+|---|---|---|
+| 3.4 Comunicación entre procesos | Socket TCP entre el panel (VM) y la bocina (Windows) por un túnel SSH inverso; protocolo de líneas JSON validadas | CP-189 |
+| 3.1 Calendarización y tiempo real | Hilo de audio de tiempo real blando: bloques de 30 ms, adelanto máximo de 120 ms, sin espera activa (Event.wait y WaitForSingleObject) | CP-188 |
+| 3.4 Productor y consumidor | El panel publica el estado del motor en un buzón de tamaño 1 que consume el hilo de audio | CP-188, CP-190 |
+| 3.2 Procesos hijo y tuberías | En Linux la salida de audio es un proceso hijo aplay alimentado por una tubería | `panel/sonido.py` (SalidaAplay) |
+| 1.2 Codificación | PCM de 16 bits con signo, little endian, 22 050 muestras por segundo, mono; archivo WAV | `docs/evidencias/sonido/` |
+| 6 Seguridad | La bocina escucha solo en 127.0.0.1, valida cada mensaje y cuenta los rechazados | CP-189 |
+
 ## Lo que no se añadió y por qué
 
 - **Asignación de memoria (5.2), acceso a disco (5.4) y asignación de espacio (5.5) como algoritmos:** serían simuladores independientes; no mejoran el clúster ni se evalúan con él.

@@ -23,6 +23,7 @@ TECNICAS = {
     "test_panel.py": "Panel de control (mandos y atajos)",
     "test_realismo.py": "Realismo y seguridad (elementos 12-15, ECU)",
     "test_liberacion.py": "Banco de liberacion (normas de la epoca)",
+    "test_sonido.py": "Sonido del motor (sintesis y tiempo real)",
 }
 
 # Los casos parametrizados llegan como "test_x[param]": se agrupan por funcion

@@ -1,6 +1,6 @@
 == Permisos y privilegio minimo (tema 6.1) ==
 Comando: id; ls -l; stat -c
-Fecha: 2026-11-25 23:48:11  Kernel: 5.15.0-204-generic
+Fecha: 2026-11-26 00:25:09  Kernel: 5.15.0-204-generic
 
 Usuario que ejecuta el cluster: uid=1000(ayocesaar) gid=1000(ayocesaar) groups=1000(ayocesaar),4(adm),24(cdrom),27(sudo),30(dip),46(plugdev),110(lxd)
 

@@ -58,6 +58,7 @@ TECNICAS = {
     "test_panel": "Panel de control (mandos y atajos)",
     "test_realismo": "Realismo y seguridad (elementos 12-15, ECU)",
     "test_liberacion": "Banco de liberacion (normas de la epoca)",
+    "test_sonido": "Sonido del motor (sintesis y tiempo real)",
 }
 
 PRODUCCION = ("logic/estado.py", "logic/reloj.py", "ui/presentacion.py", "ui/tablero.py",

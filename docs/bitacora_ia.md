@@ -314,3 +314,22 @@
   cambios (huella sha256). Un error de una prueba nueva (leía la temperatura un paso después del corte) se
   corrigió en la prueba antes de la corrida oficial.
 - Qué generó la IA: el código, las pruebas y la documentación de la etapa; el alcance lo pidió el equipo.
+
+## Etapa 19 — Sonido del motor sintetizado por código
+- Fecha: 2026-11-26
+- Pedido del equipo: el sonido del motor junto con la acción. Se propuso cortar audio de videos de
+  YouTube; se descartó (YouTube no permite descargar sus videos y la guía pide procedencia y licencia
+  de los recursos de terceros) y el equipo eligió generarlo por código.
+- Qué se hizo: panel/sonido.py (modelo de pulsos de combustión de un V8, 4 explosiones por vuelta,
+  tres resonadores, ruido de admisión y viento, turbo con silbido y descarga, limitador, petardeos,
+  motor de arranque y alarma del cinturón de 4 a 8 s según FMVSS 208 S7.3); salidas waveOut
+  (Windows, ctypes), aplay (Linux, tubería) y WAV; hilo de tiempo real con adelanto máximo de 120 ms;
+  tools/bocina.py, que recibe el estado del panel por un socket a través de un túnel SSH y valida cada
+  mensaje; tools/sonido_demo.py, que deja un WAV de 22 s y las mediciones del audio en docs/evidencias/sonido.
+- La VM tiene tarjeta de sonido (AC97) pero le falta alsa-utils y el usuario no está en el grupo audio
+  (requiere sudo con contraseña): por eso la ruta principal es la bocina en Windows.
+- Pruebas nuevas: CP-184 a CP-190 (tests/test_sonido.py); miden el audio (ritmo de 15 ms en ralentí,
+  frecuencia de encendido, cortes del limitador, silbido del turbo, duración de la alarma). Pruebas
+  anteriores: sin cambios (huella sha256).
+- Qué generó la IA: el sintetizador, la bocina, las pruebas y la documentación; el sonido es aproximado
+  y no se calibró contra un F40.

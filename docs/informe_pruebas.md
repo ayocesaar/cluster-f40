@@ -45,9 +45,10 @@ pruebas automatizadas con pytest y medicion de cobertura con coverage.
 | Basada en requisitos | 3 | 3 | 0 | 0 |
 | Robustez (auditoria y ataque QA) | 27 | 27 | 0 | 0 |
 | Sistema (archivos, bitacoras, concurrencia) | 37 | 37 | 0 | 0 |
+| test_sonido | 7 | 7 | 0 | 0 |
 | Integracion UI (Tkinter) | 6 | 6 | 0 | 0 |
 | Transicion de estados | 11 | 11 | 0 | 0 |
-| **Total** | **233** | **233** | **0** | **0** |
+| **Total** | **240** | **240** | **0** | **0** |
 
 Las ejecuciones cuentan cada variante parametrizada por separado; la matriz de
 trazabilidad agrupa por caso de prueba (CP).
@@ -113,4 +114,4 @@ de las pruebas y el resultado de junit.
 
 ## 10. Conclusion
 
-Las 233 ejecuciones pasan, la cobertura de la logica es completa y no quedan defectos abiertos: la logica cumple R01-R08 segun las pruebas definidas.
+Las 240 ejecuciones pasan, la cobertura de la logica es completa y no quedan defectos abiertos: la logica cumple R01-R08 segun las pruebas definidas.

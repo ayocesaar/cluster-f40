@@ -248,3 +248,19 @@ Respuesta corta: en vivo, con el panel: "Dato corrupto" o "Borrar archivo". El t
 
 **¿Cómo se relaciona con Sistemas Operativos?** El banco corre como proceso hijo del panel con su salida por una tubería; el ciclo ECE-15 en vivo es un productor que escribe mientras el tablero consume; el formato evoluciona sin romper a los productores anteriores; y el odómetro del cuadro se compara contra la distancia real del ciclo (prueba L06).
 
+
+## 11. Sonido del motor (Etapa 19)
+
+**Qué es (respuesta corta):** el sonido no es una grabación: se calcula muestra por muestra. Cada explosión del motor es un pulso que hace sonar tres resonadores; un V8 de cuatro tiempos tiene 4 explosiones por vuelta, así que en ralentí (1000 rpm) suena una cada 15 ms y en el limitador 547 por segundo. Encima van el turbo (silbido y descarga), el limitador (cortes de combustión), el motor de arranque y la alarma del cinturón.
+
+**¿Por qué no usaron el audio de un video?** Porque YouTube no permite descargar sus videos y la guía pide la procedencia y la licencia de todo recurso de terceros. Sintetizado no hay terceros y el sonido sigue exactamente al modelo físico.
+
+**¿Cómo llega el sonido de la VM a las bocinas?** Es un tercer proceso: el panel (en la VM) manda el estado del motor, 20 veces por segundo, por un socket TCP dentro de un túnel SSH inverso a `tools/bocina.py` en Windows, que sintetiza y reproduce con waveOut. Es el mecanismo "sockets" de la sección 4.3 de la guía.
+
+**¿Es tiempo real?** Blando: el hilo de audio genera bloques de 30 ms y nunca va más de 120 ms adelante del reloj. Si se atrasa, se oye un hueco pero nada falla, y se resincroniza. No hay espera activa: el hilo duerme con `Event.wait` y waveOut lo despierta con un evento cuando termina un búfer.
+
+**¿Cómo saben que suena a V8 si no se puede "ver" un sonido?** Las pruebas miden el audio: en ralentí la envolvente se repite cada 15 ms (4 explosiones por vuelta), a 6000 rpm domina la frecuencia de encendido (400 Hz), en el limitador la envolvente cae casi a cero a ratos, el silbido del turbo aparece con la presión y la alarma dura entre 4 y 8 s (CP-184 a CP-190; `docs/evidencias/sonido/reporte.txt`).
+
+**¿Qué pasa si alguien manda basura a la bocina?** Escucha solo en 127.0.0.1, valida cada línea (claves, tipos, rangos, sin NaN, máximo 512 bytes), descarta y cuenta lo inválido, y si el panel deja de hablar 1 s se calla (CP-189).
+
+**Demostración (1 min):** con la bocina abierta, `M` (motor de arranque y ralentí), `W` en neutral (acelerones y petardeos al soltar), primera a fondo hasta el limitador (cortes), segunda con el turbo y soltar (descarga). Sin VM: reproducir `docs/evidencias/sonido/motor_demo.wav`.

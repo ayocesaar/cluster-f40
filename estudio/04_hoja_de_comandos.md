@@ -15,6 +15,20 @@ ssh -Y -p 2222 ayocesaar@127.0.0.1 "cd ~/cluster-f40 && ./abrir_panel.sh"
 
 En el panel: **Abrir tablero**, **LLAVE** (K: contacto y prueba de testigos), **ARRANQUE** (M), marcha (1-5), acelerador (W) y freno (S). Puertas (P y O), cinturón (B), fallas, **TALLER**, entradas inválidas, escenarios CA-01 a CA-10, el **banco de liberación**, el **ciclo ECE-15 en vivo** y las pruebas también tienen botones.
 
+**Con sonido del motor** (Windows, dos PowerShell): en la primera, la bocina; en la segunda, el panel con el túnel de sonido.
+
+```
+cd C:\Users\W11\cluster-f40
+python tools\bocina.py
+```
+
+```
+$env:DISPLAY = "127.0.0.1:0.0"
+ssh -Y -R 5055:127.0.0.1:5055 -p 2222 ayocesaar@127.0.0.1 "cd ~/cluster-f40 && ./abrir_panel.sh --sonido 127.0.0.1:5055"
+```
+
+La barra del panel dice "bocina ... (conectada)". `U` silencia. Para oírlo sin la VM: `docs\evidencias\sonido\motor_demo.wav`.
+
 ## 1. Conexión y arranque
 
 **(Windows)** Encender la VM, solo si está apagada:

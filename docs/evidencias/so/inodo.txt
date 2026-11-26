@@ -1,18 +1,18 @@
 == Inodo antes y despues del reemplazo atomico (tema 4.1) ==
 Comando: ls -li; stat
-Fecha: 2026-11-25 23:47:51  Kernel: 5.15.0-204-generic
+Fecha: 2026-11-26 00:24:49  Kernel: 5.15.0-204-generic
 
-Antes:   918121 -rw-r----- 1 ayocesaar ayocesaar 223 Nov 25 23:47 /tmp/evidencia_so.SSmoyh/datos/vehiculo.conf
-Despues: 918125 -rw-r----- 1 ayocesaar ayocesaar 222 Nov 25 23:47 /tmp/evidencia_so.SSmoyh/datos/vehiculo.conf
+Antes:   918888 -rw-r----- 1 ayocesaar ayocesaar 223 Nov 26 00:24 /tmp/evidencia_so.CoCI1m/datos/vehiculo.conf
+Despues: 918893 -rw-r----- 1 ayocesaar ayocesaar 222 Nov 26 00:24 /tmp/evidencia_so.CoCI1m/datos/vehiculo.conf
 
 El numero de inodo (primera columna) cambia: rename() publica un archivo nuevo. Por eso el lector
 incluye el inodo en su firma (DEF-10).
 
-  File: /tmp/evidencia_so.SSmoyh/datos/vehiculo.conf
+  File: /tmp/evidencia_so.CoCI1m/datos/vehiculo.conf
   Size: 222       	Blocks: 8          IO Block: 4096   regular file
-Device: 802h/2050d	Inode: 918125      Links: 1
+Device: 802h/2050d	Inode: 918893      Links: 1
 Access: (0640/-rw-r-----)  Uid: ( 1000/ayocesaar)   Gid: ( 1000/ayocesaar)
-Access: 2026-11-25 23:47:51.128234544 -0600
-Modify: 2026-11-25 23:47:51.128234544 -0600
-Change: 2026-11-25 23:47:51.144234752 -0600
- Birth: 2026-11-25 23:47:51.128234544 -0600
+Access: 2026-11-26 00:24:49.690645703 -0600
+Modify: 2026-11-26 00:24:49.690645703 -0600
+Change: 2026-11-26 00:24:49.694645722 -0600
+ Birth: 2026-11-26 00:24:49.690645703 -0600

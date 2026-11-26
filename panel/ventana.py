@@ -19,7 +19,11 @@ externa. El panel reemplaza los comandos de la terminal por mandos de cabina:
 
 Teclas: W/flecha arriba acelerador, S/flecha abajo freno, C embrague, 1-5/R/N marchas,
 K llave (contacto), M arranque/paro, P/O puerta conductor/pasajero, B cinturon,
-L luces altas, Z/X direccional, H intermitentes."""
+L luces altas, Z/X direccional, H intermitentes, U silencio.
+
+Etapa 19: sonido del motor sintetizado por codigo (panel/sonido.py). Con --sonido auto suena
+en las bocinas del equipo; con --sonido HOST:PUERTO el estado viaja por un socket a
+tools/bocina.py (por ejemplo, en Windows a traves de un tunel SSH)."""
 
 import os
 import pathlib
@@ -35,6 +39,7 @@ sys.path.insert(0, str(RAIZ / "tools"))
 from aceptacion.escenarios import cargar as cargar_escenarios  # noqa: E402
 from escribir_dato import exclusivo  # noqa: E402
 from panel import comandos, liberacion  # noqa: E402
+from panel import sonido as sonido_motor  # noqa: E402
 from panel.ecu import Ecu  # noqa: E402
 from panel.fisica import TANQUE_L, Vehiculo, velocidad_maxima  # noqa: E402
 from sistema import config as configuracion  # noqa: E402
@@ -93,9 +98,11 @@ class Panel:
     PAUSA_INYECCION_S = 3.0    # tiempo que una entrada invalida queda en el archivo
     PASO_ESCENARIO_MIN_S = 1.2  # para que el profesor vea cada paso del escenario
 
-    def __init__(self, raiz, ruta_datos=None, dir_logs=None, reloj=time.monotonic):
+    def __init__(self, raiz, ruta_datos=None, dir_logs=None, reloj=time.monotonic, sonido="no", salida_sonido=None):
         self.raiz = raiz
         self.reloj = reloj
+        self.sonido = sonido_motor.crear(sonido, salida_sonido)
+        self.silencio = False
         cfg = configuracion.cargar()
         self.ruta = pathlib.Path(ruta_datos) if ruta_datos else cfg.archivo_datos
         self.dir_logs = pathlib.Path(dir_logs) if dir_logs else cfg.dir_logs
@@ -133,6 +140,7 @@ class Panel:
         raiz.protocol("WM_DELETE_WINDOW", self.cerrar)
         self.registrar(f"Panel listo. Escribe en {self.ruta}. Teclas: W acelerador, S freno, C embrague, "
                        "1-5/R/N marchas, K llave, M arranque, P/O puertas, B cinturon.")
+        self.registrar(f"Sonido del motor: {self.sonido.descripcion}" + (" (U silencia)" if self.sonido.activo else ""))
         self._id_after = raiz.after(self.PERIODO_MS, self._ciclo)
 
     # ================================================================ construccion
@@ -144,6 +152,9 @@ class Panel:
                  font=(FUENTE, 13, "bold")).pack(side="left", pady=6)
         self.lbl_tablero = tk.Label(barra, text="", bg="#0b0b0d", fg=TENUE, font=(FUENTE, 10, "bold"))
         self.lbl_tablero.pack(side="right", padx=10)
+        self.lbl_sonido = tk.Label(barra, text="", bg="#0b0b0d", fg=TENUE, font=(FUENTE, 9, "bold"))
+        self.lbl_sonido.pack(side="right", padx=8)
+        _boton(barra, "Silencio [U]", self.alternar_silencio).pack(side="right", padx=3)
         _boton(barra, "Cerrar tablero", self.cerrar_tablero).pack(side="right", padx=3)
         _boton(barra, "Abrir tablero", self.abrir_tablero, color="#1f3d27").pack(side="right", padx=3)
 
@@ -388,6 +399,8 @@ class Panel:
         elif k == "b":
             self.var_cinturon.set(not self.var_cinturon.get())
             self._seguridad()
+        elif k == "u":
+            self.alternar_silencio()
         elif k == "l":
             self.var_altas.set(not self.var_altas.get())
             self._luces()
@@ -446,6 +459,11 @@ class Panel:
             v.contacto = True
             self.registrar("Llave en contacto: el tablero hace la prueba de testigos (2 s); M para arrancar")
         return v.contacto
+
+    def alternar_silencio(self):
+        self.silencio = not self.silencio
+        self.registrar(f"Sonido {'en silencio' if self.silencio else 'activo'}")
+        return self.silencio
 
     def _seguridad(self):
         self.vehiculo.puertas = sum(bit for bit, var in self.var_puertas.items() if var.get())
@@ -708,6 +726,8 @@ class Panel:
             self.registrar("Recorrido terminado.", "ok")
             self.modo, self.recorrido, self.ultimo_escrito = "fisica", None, None
         self._avanzar_escenario(ahora)
+        # Productor del sonido: deja el estado mas reciente en el buzon del hilo de audio (no bloquea).
+        self.sonido.publicar(sonido_motor.estado_de(self.vehiculo, 0.0 if self.silencio else 0.8))
         if ahora >= self._proxima_escritura:
             self.escribir()
             self._proxima_escritura = ahora + self.ESCRITURA_S
@@ -775,6 +795,8 @@ class Panel:
             pid = comandos.pid_tablero()
             self.lbl_tablero.configure(text=f"tablero: ABIERTO (PID {pid})" if pid else "tablero: cerrado",
                                        fg=VERDE if pid else TENUE)
+            self.lbl_sonido.configure(text=self.texto_sonido(), fg=VERDE if self.sonido.activo and not self.silencio
+                                      else TENUE)
 
     def _dibujar_pedal(self, nombre, cx, ancho, alto, tecla, valor):
         c = self.cv
@@ -838,9 +860,16 @@ class Panel:
     def texto_consola(self):
         return self.txt.get("1.0", "end")
 
+    def texto_sonido(self):
+        texto = f"sonido: {self.sonido.descripcion}"
+        if getattr(self.sonido, "destino", None) is not None:
+            texto += " (conectada)" if self.sonido.conectado else " (esperando la bocina)"
+        return texto + (" · SILENCIO" if self.silencio else "")
+
     def cerrar(self):
         """Cierra el panel (el tablero sigue abierto: son procesos independientes)."""
         self.raiz.after_cancel(self._id_after)
+        self.sonido.detener()
         self.ejecutor.detener()
         if self.recorrido is not None and self.recorrido.poll() is None:
             self.recorrido.terminate()

@@ -195,11 +195,18 @@
 | CP-181 | Banco de liberacion (normas de la epoca) | - | la unidad sin fallas aprueba las 9 pruebas del banco y el odometro del cuadro mide el ciclo ECE-15 con menos de 1 % de error: APTO PARA PRODUCCION. | `test_liberacion.py::test_cp181_unidad_sana_apta_para_produccion` | PASS |
 | CP-182 | Banco de liberacion (normas de la epoca) | R39 | cada falla del panel deja la unidad RECHAZADA y la detecta la prueba de su sistema: aceite en el arranque, radiador en el enfriamiento, turbo a plena carga, frenos en testigos, tipo 0 y tipo I, y velocimetro en R39 y el odometro. | `test_liberacion.py::test_cp182_cada_falla_la_rechaza_la_prueba_de_su_sistema` | PASS |
 | CP-183 | Banco de liberacion (normas de la epoca) | - | tools/banco_liberacion.py --evidencia escribe el reporte con la matriz falla -> prueba y termina con 0 porque el banco distingue la unidad sana de cada falla; con una falla termina con 1. | `test_liberacion.py::test_cp183_herramienta_del_banco_deja_evidencia` | PASS |
+| CP-184 | Sonido del motor (sintesis y tiempo real) | - | con el motor apagado hay silencio exacto; con el motor el PCM queda en 16 bits sin saturar; la misma semilla da el mismo audio y n=0 no falla. | `test_sonido.py::test_cp184_sintetizador_silencio_rango_y_determinismo` | PASS |
+| CP-185 | Sonido del motor (sintesis y tiempo real) | - | en ralenti (1000 rpm) la envolvente se repite cada 15 ms, 4 explosiones por vuelta de un V8 de cuatro tiempos; a 6000 rpm domina la frecuencia de encendido (400 Hz) sobre 425 Hz. | `test_sonido.py::test_cp185_ritmo_de_explosiones_de_un_v8` | PASS |
+| CP-186 | Sonido del motor (sintesis y tiempo real) | - | a fondo en el limitador (8200 rpm) la combustion se corta a ratos y la envolvente cae casi a cero; a 7000 rpm no hay cortes; el silbido del turbo aparece con la presion y al soltar el acelerador con presion hay descarga. | `test_sonido.py::test_cp186_limitador_turbo_y_descarga` | PASS |
+| CP-187 | Sonido del motor (sintesis y tiempo real) | - | con contacto y el cinturon sin abrochar la alarma suena entre 4 y 8 s (FMVSS 208 S7.3) y se calla al abrochar; al arrancar, 0.55 s de motor de arranque sin explosiones y despues el motor prende. | `test_sonido.py::test_cp187_alarma_del_cinturon_y_motor_de_arranque` | PASS |
+| CP-188 | Sonido del motor (sintesis y tiempo real) | - | el hilo de audio produce al ritmo del reloj (bloques de 30 ms, nunca mas de 150 ms adelantado, sin espera activa), toma el estado mas reciente del buzon y se detiene cerrando la salida. | `test_sonido.py::test_cp188_hilo_de_tiempo_real` | PASS |
+| CP-189 | Sonido del motor (sintesis y tiempo real) | - | los mensajes del socket se validan (rango, tipo, claves, largo, NaN) antes de usarse; la bocina escucha solo en 127.0.0.1, aplica los validos, cuenta los rechazados y graba el audio; el panel remoto no se bloquea sin bocina. | `test_sonido.py::test_cp189_protocolo_y_bocina_por_socket` | PASS |
+| CP-190 | Sonido del motor (sintesis y tiempo real) | - | el panel publica el estado del motor al hilo de audio (arranque y rpm), la tecla U silencia, los modos invalidos quedan apagados y sin tarjeta de sonido el panel sigue sin sonido explicando el motivo. | `test_sonido.py::test_cp190_panel_con_sonido_y_modos` | PASS |
 
 ## Resumen
 
-- Casos de prueba: 193
-- Pasaron: 193
+- Casos de prueba: 200
+- Pasaron: 200
 - Fallo esperado por defecto abierto (XFAIL): 0
 - Fallaron / otros: 0
 
