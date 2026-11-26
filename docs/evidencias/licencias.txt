@@ -1,0 +1,15 @@
+Dependencias externas (requirements.txt) y su licencia segun los metadatos instalados
+Python 3.10.12 (PSF-2.0, biblioteca estandar); Tcl/Tk 8.6 (licencia BSD de Tcl/Tk, incluido con Python)
+
+coverage             7.16.2     Apache-2.0
+exceptiongroup       1.3.1      MIT License
+iniconfig            2.3.1      MIT
+lxml                 6.1.3      BSD-3-Clause
+packaging            26.3       Apache-2.0 OR BSD-2-Clause
+pillow               12.3.0     MIT-CMU
+pluggy               1.7.0      MIT
+Pygments             2.21.0     BSD-2-Clause
+pytest               9.2.0      MIT
+python-docx          1.2.0      MIT
+tomli                2.5.0      MIT
+typing_extensions    4.16.0     PSF-2.0

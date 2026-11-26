@@ -6,8 +6,16 @@ abajo son APROXIMADAS y quedan pendientes de verificar contra una ficha tecnica
 oficial. Lo que si se garantiza (CP-159) es que todo valor producido esta dentro
 de los rangos de la especificacion, para que el panel nunca genere un dato invalido.
 
-Unidades: velocidad en km/h, rpm, presiones en bar, temperatura en C, tiempo en s."""
+Unidades: velocidad en km/h, rpm, presiones en bar, temperatura en C, tiempo en s.
 
+Etapa 18 (realismo): las fallas tienen consecuencias fisicas. Con falla de frenos el auto
+frena al 30 % (un circuito hidraulico perdido) y los frenos calientes pierden eficiencia
+(fading); la fuga de aceite vacia el deposito y, bajo 30 %, la presion se desploma; el
+consumo vacia el tanque de 120 L y sin combustible el motor se apaga; la temperatura sube
+con la carga. Las decisiones de proteccion (no arrancar, cortar el motor, bloquear la
+traccion con una puerta abierta) no estan aqui: las toma panel/ecu.py."""
+
+import math
 from dataclasses import dataclass, field
 
 RALENTI = 1000
@@ -24,6 +32,19 @@ TURBO_RETRASO_S = 0.5        # constante de tiempo del turbo (retraso perceptibl
 TEMPERATURA_NORMAL = 90.0
 TEMPERATURA_SOBRECALENTADO = 125.0
 CALENTAMIENTO_S = 20.0       # constante de tiempo del motor (acelerada para la demostracion)
+CARGA_TERMICA = 12.0         # C adicionales a plena carga sobre la temperatura normal (aprox.)
+TANQUE_L = 120.0             # capacidad del tanque del F40 (cararac.com y auto-data.net)
+COMBUSTIBLE_INICIAL_L = 60.0
+CONSUMO_RALENTI_LH = 2.0     # litros por hora en ralenti (aprox.)
+CONSUMO_PLENA_LH = 140.0     # litros por hora a plena carga (aprox.: unos 350 kW con 300 g/kWh)
+FRENADO_CON_FALLA = 0.30     # fraccion del frenado que queda con un circuito perdido (aprox.)
+MASA_KG = 1350.0             # con conductor e instrumentos de prueba (aprox.)
+CALOR_FRENOS_J_K = 6000.0    # capacidad termica de discos y pastillas (aprox.)
+AMBIENTE_C = 25.0
+FADING_DESDE_C, FADING_HASTA_C, FADING_MINIMO = 350.0, 750.0, 0.60   # eficiencia de 1.0 a 0.6 (aprox.)
+FUGA_ACEITE_PCT_S = 0.5      # % del deposito por segundo con el motor en marcha (aprox.)
+NIVEL_ACEITE_CRITICO = 30.0  # % bajo el cual la bomba toma aire y la presion cae
+ERROR_VELOCIMETRO_FALLA = 0.05   # el sensor descalibrado indica 5 % menos que la velocidad real
 MARCHAS = ("R", "N", "1", "2", "3", "4", "5")
 RANGOS = {"velocidad": (0.0, 360.0), "rpm": (0, 9000), "presion_aceite": (0.0, 10.0),
           "temp_agua": (40.0, 130.0), "presion_turbo": (0.0, 2.0)}
@@ -43,7 +64,8 @@ class Fallas:
     fuga_aceite: bool = False          # R02: la presion cae bajo 1 bar en ralenti
     radiador: bool = False             # R04: la temperatura sube a 125 C
     sobrepresion_turbo: bool = False   # R05: el turbo pasa de 1.5 bar
-    frenos: bool = False               # R08: testigo de falla de frenos
+    frenos: bool = False               # R08: testigo de falla de frenos y frenado al 30 %
+    velocimetro: bool = False          # sensor de velocidad descalibrado: indica 5 % menos (UN R39)
 
 
 @dataclass
@@ -61,6 +83,14 @@ class Vehiculo:
     direccional: str = "OFF"
     emergencia: bool = False
     fallas: Fallas = field(default_factory=Fallas)
+    # Etapa 18
+    contacto: bool = False
+    puertas: int = 0            # bits de estado: 1 conductor, 2 pasajero
+    cinturon: bool = False      # cinturon del conductor abrochado
+    combustible_l: float = COMBUSTIBLE_INICIAL_L
+    nivel_aceite: float = 100.0  # % del deposito de aceite
+    temp_frenos: float = AMBIENTE_C
+    traccion_bloqueada: bool = False   # lo fija la ECU (interbloqueo de puertas)
 
     # ----------------------------------------------------------------- mandos
     def cambiar(self, marcha):
@@ -81,7 +111,8 @@ class Vehiculo:
         """Avanza dt segundos (se recomienda 0.05)."""
         if dt <= 0:
             return
-        acelerador = _limitar(self.acelerador, 0.0, 1.0)
+        # Con la traccion bloqueada por la ECU (puerta abierta) el acelerador no tiene efecto.
+        acelerador = 0.0 if self.traccion_bloqueada else _limitar(self.acelerador, 0.0, 1.0)
         freno = _limitar(self.freno, 0.0, 1.0)
 
         if not self.motor:
@@ -100,11 +131,14 @@ class Vehiculo:
             empuje = 0.0
 
         resistencia = 0.8 + 0.00005 * self.velocidad ** 2
-        decel = resistencia + FRENADO * freno
+        frenado = FRENADO * freno * self.eficiencia_frenos
+        decel = resistencia + frenado
+        antes = self.velocidad
         self.velocidad = max(0.0, self.velocidad + (empuje - decel) * dt)
         if self.motor and self.acoplado:
             self.velocidad = min(self.velocidad, LIMITADOR / relacion)
             self.rpm = max(RALENTI, self.velocidad * relacion)
+        self._temperatura_frenos(frenado, antes, dt)
 
         # Turbo: sigue al acelerador con retraso y solo da presion por encima de 2500 rpm.
         carga = acelerador * _limitar((self.rpm - 2500) / 2500, 0.0, 1.0) if self.motor else 0.0
@@ -113,11 +147,40 @@ class Vehiculo:
         self.presion_turbo += (objetivo_turbo - self.presion_turbo) * min(1.0, dt / TURBO_RETRASO_S)
 
         # Temperatura: se acerca a la de operacion con el motor encendido y se enfria apagado.
+        carga_motor = acelerador * _limitar(self.rpm / 7000.0, 0.0, 1.0) if self.motor else 0.0
         if self.motor:
-            objetivo_t = TEMPERATURA_SOBRECALENTADO if self.fallas.radiador else TEMPERATURA_NORMAL
+            objetivo_t = (TEMPERATURA_SOBRECALENTADO if self.fallas.radiador
+                          else TEMPERATURA_NORMAL + CARGA_TERMICA * carga_motor)
         else:
             objetivo_t = 40.0
         self.temp_agua += (objetivo_t - self.temp_agua) * min(1.0, dt / CALENTAMIENTO_S)
+
+        # Combustible: sin combustible el motor se apaga solo.
+        if self.motor:
+            consumo_lh = CONSUMO_RALENTI_LH + CONSUMO_PLENA_LH * carga_motor
+            self.combustible_l = max(0.0, self.combustible_l - consumo_lh * dt / 3600.0)
+            if self.combustible_l == 0.0:
+                self.motor = False
+        # Aceite: la fuga vacia el deposito (mas rapido con el motor en marcha, por la presion).
+        if self.fallas.fuga_aceite:
+            ritmo = FUGA_ACEITE_PCT_S if self.motor else FUGA_ACEITE_PCT_S / 10
+            self.nivel_aceite = max(0.0, self.nivel_aceite - ritmo * dt)
+
+    def _temperatura_frenos(self, frenado_kmh_s, antes_kmh, dt):
+        """Los frenos convierten la energia del auto en calor y se enfrian con el aire (mas rapido al avanzar)."""
+        media_ms = (antes_kmh + self.velocidad) / 2 / 3.6
+        energia = MASA_KG * (frenado_kmh_s / 3.6) * media_ms * dt
+        energia = min(energia, 0.5 * MASA_KG * (antes_kmh / 3.6) ** 2)
+        self.temp_frenos += energia / CALOR_FRENOS_J_K
+        enfriamiento = (0.001 + 0.00008 * media_ms) * dt
+        self.temp_frenos -= (self.temp_frenos - AMBIENTE_C) * min(1.0, enfriamiento)
+
+    @property
+    def eficiencia_frenos(self):
+        """1.0 con frenos frios; baja con la temperatura (fading) y queda en 30 % con un circuito perdido."""
+        caliente = _limitar((self.temp_frenos - FADING_DESDE_C) / (FADING_HASTA_C - FADING_DESDE_C), 0.0, 1.0)
+        eficiencia = 1.0 - (1.0 - FADING_MINIMO) * caliente
+        return eficiencia * (FRENADO_CON_FALLA if self.fallas.frenos else 1.0)
 
     @property
     def presion_aceite(self):
@@ -125,7 +188,14 @@ class Vehiculo:
         if not self.motor or self.rpm <= 0:
             return 0.0
         presion = 1.5 + 4.0 * _limitar((self.rpm - RALENTI) / (CORTE - RALENTI), 0.0, 1.0)
-        return presion * (0.45 if self.fallas.fuga_aceite else 1.0)
+        presion *= 0.45 if self.fallas.fuga_aceite else 1.0
+        return presion * _limitar(self.nivel_aceite / NIVEL_ACEITE_CRITICO, 0.0, 1.0)
+
+    def velocidad_indicada(self):
+        """Lo que mide el sensor de velocidad: decimas de km/h redondeadas hacia arriba, para no
+        indicar nunca menos que la velocidad real (UN R39 5.3); descalibrado indica 5 % menos."""
+        real = self.velocidad * (1 - ERROR_VELOCIMETRO_FALLA if self.fallas.velocimetro else 1.0)
+        return min(360.0, math.ceil(round(_limitar(real, 0.0, 360.0) * 10, 6)) / 10)
 
     # ----------------------------------------------------------------- salida
     def lecturas(self):
@@ -135,7 +205,7 @@ class Vehiculo:
             return _limitar(valor, minimo, maximo)
         return {
             "motor": self.motor,
-            "velocidad": round(limitado("velocidad", self.velocidad), 1),
+            "velocidad": self.velocidad_indicada(),
             "rpm": int(round(limitado("rpm", self.rpm))),
             "presion_aceite": round(limitado("presion_aceite", self.presion_aceite), 2),
             "temp_agua": round(limitado("temp_agua", self.temp_agua), 1),
@@ -144,4 +214,15 @@ class Vehiculo:
             "luces_altas": self.luces_altas,
             "emergencia": self.emergencia,
             "falla_frenos": self.fallas.frenos,
+        }
+
+    def lecturas_extra(self, falla_motor="ninguna"):
+        """Claves opcionales de la Etapa 18 (contacto, puertas, cinturon, combustible y la causa
+        de proteccion que informa la ECU), ya tipadas y dentro de rango."""
+        return {
+            "contacto": bool(self.contacto or self.motor),
+            "puertas": int(self.puertas) & 3,
+            "cinturon": bool(self.cinturon),
+            "combustible": round(_limitar(100.0 * self.combustible_l / TANQUE_L, 0.0, 100.0), 1),
+            "falla_motor": falla_motor,
         }

@@ -1,6 +1,6 @@
 == Candado de instancia unica (tema 4.4) ==
 Comando: flock -n datos/odometro.txt.lock
-Fecha: 2026-11-24 02:03:18  Kernel: 5.15.0-203-generic
+Fecha: 2026-11-25 23:47:57  Kernel: 5.15.0-204-generic
 
 Con el cluster abierto: flock -n no obtiene el candado (codigo 1): otra ventana no puede tomarlo.
 Despues de cerrar el cluster: flock -n SI obtiene el candado (el sistema lo libero).

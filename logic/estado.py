@@ -16,6 +16,17 @@ Resumen de reglas implementadas:
   R08 - Testigo de falla de frenos (rojo, parpadeo 300 ms).
   Elemento 11 - Odometro: integra la velocidad en el tiempo (logic/odometro.py).
 
+Elementos adicionales de seguridad y consumo (Etapa 18, reglas agregadas por el equipo;
+llegan en claves opcionales y quedan "sin dato" si el productor no las envia):
+  Contacto - separa Encendido (elementos 1 y 4, odometro y testigos) de Motor activo
+        (2, 3 y 5), como distingue la especificacion (decision D3). Al dar contacto se
+        hace la prueba de testigos de 2 s (R13-H 5.2.21.4 la exige para los de frenos).
+  R09 - Elemento 12, puerta abierta: ambar fijo detenido; rojo parpadeante en movimiento.
+  R10 - Elemento 13, cinturon: rojo con contacto y cinturon sin abrochar; parpadea sobre 10 km/h.
+  R11 - Elemento 14, combustible: porcentaje del tanque, ciclo de 500 ms y reserva con
+        histeresis (enciende con <= 12 %, se apaga con >= 15 %).
+  R12 - Elemento 15, proteccion del motor: rojo mientras la ECU informe una causa.
+
 Nota de diseno (resuelve una ambiguedad de la guia original, documentada
 tambien en el informe): al apagar el motor (R01, encendido=0) se apaga
 tambien el testigo 9 (baja presion de aceite) y el amber inmediato del
@@ -30,8 +41,13 @@ CICLO_RAPIDO_MS = 100.0   # velocidad, p_aceite, rpm, p_turbo
 CICLO_LENTO_MS = 500.0    # temp_agua, direccionales, emergencia
 CICLO_FRENOS_MS = 300.0   # falla de frenos
 RETARDO_HISTERESIS_ACEITE_MS = 1000.0
+PRUEBA_TESTIGOS_MS = 2000.0      # todos los testigos encienden al dar contacto
+VELOCIDAD_EN_MOVIMIENTO = 3.0    # km/h: desde aqui la puerta abierta es una advertencia critica (R09)
+VELOCIDAD_CINTURON = 10.0        # km/h: desde aqui el testigo del cinturon parpadea (R10)
+RESERVA_ENCIENDE, RESERVA_APAGA = 12.0, 15.0   # % del tanque (R11)
 
 DIRECCIONALES_VALIDAS = ("OFF", "IZQ", "DER")
+CAUSAS_MOTOR = ("ninguna", "sobretemperatura", "sobrepresion_turbo", "aceite", "combustible")
 
 
 def _validar_numero(valor, nombre, minimo, maximo, *, tipo="float"):
@@ -94,6 +110,18 @@ class EstadoCluster:
         self._inicio_bajo_ms = None
         self._inicio_alto_ms = None
 
+        # Claves opcionales (Etapa 18). None = sin dato: el productor no las envia.
+        self._contacto = None
+        self._puertas = None
+        self._cinturon = None
+        self._obj_combustible = None
+        self._falla_motor = None
+        self.combustible = None
+        self.reserva_combustible = False
+        self._t_combustible = ahora
+        self._prueba_hasta_ms = None
+        self.pruebas_de_testigos = 0     # cuantas veces se hizo la prueba (la registra el monitor)
+
         self._ultimo_tick_ms = ahora
 
     def set_velocidad(self, valor):
@@ -139,6 +167,109 @@ class EstadoCluster:
             raise ValueError(f"direccional desconocido: {valor!r}")
         self._direccional = valor
 
+    # ------------------------------------------------ claves opcionales (None = sin dato)
+    def set_contacto(self, valor):
+        if valor is not None:
+            _validar_bool(valor, "contacto")
+        if valor is True and self._contacto is not True:
+            # Llave a contacto: prueba de testigos (solo de presentacion; no cambia ninguna regla).
+            self._prueba_hasta_ms = self.reloj.ahora_ms() + PRUEBA_TESTIGOS_MS
+            self.pruebas_de_testigos += 1
+        self._contacto = valor
+
+    def set_puertas(self, valor):
+        if valor is not None:
+            _validar_numero(valor, "puertas", 0, 3, tipo="int")
+        self._puertas = valor
+
+    def set_cinturon(self, valor):
+        if valor is not None:
+            _validar_bool(valor, "cinturon")
+        self._cinturon = valor
+
+    def set_combustible(self, valor):
+        if valor is not None:
+            _validar_numero(valor, "combustible", 0, 100)
+            valor = float(valor)
+        self._obj_combustible = valor
+        if valor is None:
+            self.combustible = None
+            self.reserva_combustible = False
+
+    def set_falla_motor(self, valor):
+        if valor is not None:
+            if not isinstance(valor, str):
+                raise TypeError("falla_motor debe ser str")
+            if valor not in CAUSAS_MOTOR:
+                raise ValueError(f"falla_motor desconocida: {valor!r}")
+        self._falla_motor = valor
+
+    @property
+    def contacto(self):
+        """Contacto tal como llego; None si el productor no lo envia."""
+        return self._contacto
+
+    @property
+    def encendido(self):
+        """Cuadro energizado: llave en contacto o, sin dato de contacto, el motor (R01, como antes)."""
+        if self._contacto is None:
+            return self._motor
+        return self._contacto or self._motor
+
+    @property
+    def prueba_testigos_activa(self):
+        return (self._prueba_hasta_ms is not None and self.encendido
+                and self.reloj.ahora_ms() < self._prueba_hasta_ms)
+
+    @property
+    def puertas(self):
+        return self._puertas
+
+    @property
+    def puerta_abierta(self):
+        """True o False con dato; None sin dato."""
+        return None if self._puertas is None else self._puertas != 0
+
+    @property
+    def en_movimiento(self):
+        return self.velocidad >= VELOCIDAD_EN_MOVIMIENTO
+
+    @property
+    def puerta_abierta_en_movimiento(self):
+        return bool(self.encendido and self.puerta_abierta and self.en_movimiento)
+
+    @property
+    def testigo_puerta_encendido(self):
+        """Elemento 12 (R09): fijo con el auto detenido, parpadeo de 500 ms en movimiento."""
+        if not self.encendido or not self.puerta_abierta:
+            return False
+        return self._parpadeo(CICLO_LENTO_MS) if self.en_movimiento else True
+
+    @property
+    def cinturon_desabrochado(self):
+        """True o False con dato; None sin dato."""
+        return None if self._cinturon is None else not self._cinturon
+
+    @property
+    def cinturon_desabrochado_en_movimiento(self):
+        return bool(self.encendido and self.cinturon_desabrochado and self.velocidad > VELOCIDAD_CINTURON)
+
+    @property
+    def testigo_cinturon_encendido(self):
+        """Elemento 13 (R10): fijo con contacto y cinturon sin abrochar; parpadea sobre 10 km/h."""
+        if not self.encendido or not self.cinturon_desabrochado:
+            return False
+        return self._parpadeo(CICLO_LENTO_MS) if self.velocidad > VELOCIDAD_CINTURON else True
+
+    @property
+    def falla_motor(self):
+        return self._falla_motor
+
+    @property
+    def proteccion_motor_activa(self):
+        """Elemento 15 (R12): la ECU informa que detuvo o no deja arrancar el motor."""
+        return bool(self.encendido and self._falla_motor not in (None, "ninguna"))
+
     @property
     def motor_activo(self):
         return self._motor
@@ -162,12 +293,18 @@ class EstadoCluster:
         pruebas: tras avanzar un RelojSimulado)."""
         ahora = self.reloj.ahora_ms()
 
-        if not self._motor:
+        if not self.encendido:
             self._aplicar_estado_apagado(ahora)
         else:
             velocidad_previa = self.velocidad
             self._actualizar_lecturas(ahora)
-            self._actualizar_histeresis_aceite(ahora)
+            if self._motor:
+                self._actualizar_histeresis_aceite(ahora)
+            else:
+                # Contacto sin motor (D3): 1 y 4 siguen midiendo; 2, 3 y 5 en reposo porque el
+                # motor no gira. El testigo 9 queda apagado: sin giro no hay falla de lubricacion.
+                self._aplicar_motor_detenido()
+            self._actualizar_combustible(ahora)
             # Elemento 11: la distancia avanza con la velocidad mostrada durante el tiempo transcurrido.
             # Si la velocidad cambio en este tick, la nueva solo cuenta para el ultimo ciclo de lectura;
             # el resto del intervalo (por ejemplo, un refresco retrasado) se integra con la anterior (DEF-07).
@@ -194,6 +331,31 @@ class EstadoCluster:
         self.testigo_baja_presion_aceite = False
         self._inicio_bajo_ms = None
         self._inicio_alto_ms = None
+
+        self.combustible = None          # el medidor sin energia no indica
+        self.reserva_combustible = False
+
+    def _aplicar_motor_detenido(self):
+        self.rpm = 0
+        self.p_aceite = 0.0
+        self.p_turbo = 0.0
+        self.color_rpm = "normal"
+        self.contorno_turbo = "normal"
+        self.testigo_baja_presion_aceite = False
+        self._inicio_bajo_ms = None
+        self._inicio_alto_ms = None
+
+    def _actualizar_combustible(self, ahora):
+        """R11: el nivel se muestra con el ciclo lento (cambia despacio) y la reserva tiene histeresis."""
+        if self._obj_combustible is None:
+            return
+        if self.combustible is None or ahora - self._t_combustible >= CICLO_LENTO_MS:
+            self.combustible = self._obj_combustible
+            self._t_combustible = ahora
+        if self.combustible <= RESERVA_ENCIENDE:
+            self.reserva_combustible = True
+        elif self.combustible >= RESERVA_APAGA:
+            self.reserva_combustible = False
 
     def _actualizar_lecturas(self, ahora):
         if ahora - self._t_vel >= CICLO_RAPIDO_MS:
@@ -256,9 +418,11 @@ class EstadoCluster:
         ahora = self.reloj.ahora_ms()
         return int(ahora // periodo_ms) % 2 == 0
 
+    # Los testigos informativos dependen de que el cuadro este energizado: sin dato de
+    # contacto es el motor, como en la decision D2; con contacto basta la llave.
     @property
     def testigo_direccional_encendido(self):
-        if not self._motor:
+        if not self.encendido:
             return False
         if self._direccional == "OFF":
             return False
@@ -266,11 +430,11 @@ class EstadoCluster:
 
     @property
     def testigo_luces_altas_encendido(self):
-        return self._motor and self._luces_altas
+        return self.encendido and self._luces_altas
 
     @property
     def testigo_emergencia_encendido(self):
-        if not self._motor:
+        if not self.encendido:
             return False
         if not self._emergencia:
             return False
@@ -281,7 +445,7 @@ class EstadoCluster:
         """True si la emergencia esta activa mientras hay un direccional
         puesto: el testigo 8 tiene precedencia visual sobre el testigo 6
         (R07). La UI usa esta bandera para decidir que dibujar primero."""
-        return self._motor and self._emergencia and self._direccional != "OFF"
+        return self.encendido and self._emergencia and self._direccional != "OFF"
 
     @property
     def testigo_falla_frenos_encendido(self):

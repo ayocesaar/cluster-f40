@@ -290,3 +290,27 @@
 - Medición (tools de la etapa, VM con Xvfb): construir la ventana 143 ms (antes 222 ms) y menos de
   300 figuras (antes 1206); ciclo con dibujo 21 ms (antes 19 ms).
 - Se descartó el reflejo del cristal con trama (stipple): en pantalla se veía como puntos.
+
+## Etapa 18 — Realismo, seguridad y banco de liberación de producción
+- Fecha: 2026-11-25
+- Pedido del equipo: puertas con testigo que impidan avanzar, fallas con consecuencias reales (frenos que no
+  frenan bien, sobrecalentamiento o turbo que detienen el motor, fuga de aceite que impide arrancar), pruebas
+  reales de la época para liberar el auto a producción y una nueva revisión de la guía y la rúbrica.
+- Cuadro: claves opcionales contacto, puertas (bits de estado), cinturon, combustible y falla_motor (D8: un
+  archivo de diez claves funciona igual); llave que separa Encendido de Motor activo (D3); prueba de testigos de
+  2 s (R13-H 5.2.21.4); elementos adicionales 12-15 con las reglas agregadas R09-R12; consistencia motor/contacto
+  en el validador (D9); franja inferior en el tablero y encabezado con el vehículo.
+- Panel: ECU simulada (panel/ecu.py) que no deja arrancar con fuga de aceite o sin combustible y detiene el motor
+  por sobretemperatura, sobrepresión o falta de presión de aceite; interbloqueo de puertas; frenos al 30 % con
+  falla y pérdida de eficiencia en caliente; consumo con el tanque de 120 L; TALLER; llave y arranque separados.
+- Banco de liberación (panel/liberacion.py, tools/banco_liberacion.py): 9 pruebas, entre ellas frenado tipo 0 y
+  tipo I de UN R13-H, velocímetro de UN R39 y el ciclo urbano ECE-15 con el odómetro del cuadro. Con --evidencia
+  comprueba que la unidad sana sale APTA y cada falla RECHAZADA. Encontró DEF-16 (el sensor de velocidad podía
+  indicar menos que la real), corregido.
+- Fuentes: los criterios de R13-H y R39 se leyeron en el texto de las ADR 31/01 y 18/03; lo que no se pudo
+  verificar (Directiva 71/320/CEE de 1987, versiones de 1987 de R39 y FMVSS 208, cifras reales del F40) quedó
+  marcado como pendiente en docs/realismo_y_liberacion.md.
+- Pruebas nuevas: CP-163 a CP-183 (tests/test_realismo.py y tests/test_liberacion.py). Pruebas anteriores: sin
+  cambios (huella sha256). Un error de una prueba nueva (leía la temperatura un paso después del corte) se
+  corrigió en la prueba antes de la corrida oficial.
+- Qué generó la IA: el código, las pruebas y la documentación de la etapa; el alcance lo pidió el equipo.

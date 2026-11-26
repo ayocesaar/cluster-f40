@@ -9,17 +9,19 @@ testigos van en una barra aparte, con su simbolo. No usa logotipos de la marca.
 Solo dibuja lo que entrega ui.presentacion.vista(estado) y envia los valores de
 los controles a EstadoCluster; no contiene reglas de negocio. Lo que las pruebas
 observan se conserva: items[n]["aguja"] y ["valor"] (1-5), items[n]["forma"]
-(6-10; ovalos 6-8 y rectangulos 9-10) e items[11] (odometro de 6 digitos)."""
+(6-10; ovalos 6-8 y rectangulos 9-10) e items[11] (odometro de 6 digitos).
+Los elementos adicionales de la Etapa 18 van en una franja inferior aparte (extras[12-15]):
+llave, combustible con su reserva, puerta, cinturon y proteccion del motor."""
 
 import math
 import tkinter as tk
 import tkinter.font as tkfont
 
-from ui.presentacion import (COLOR_AMBAR, COLOR_APAGADO, COLOR_NORMAL, COLOR_ROJO, CRITICA, ELEMENTOS, vista,
-                             vista_odometro)
+from ui.presentacion import (COLOR_AMBAR, COLOR_APAGADO, COLOR_NORMAL, COLOR_ROJO, CRITICA, ELEMENTOS,
+                             ELEMENTOS_EXTRA, vista, vista_extra, vista_odometro)
 
 PERIODO_REFRESCO_MS = 50
-ANCHO, ALTO = 1120, 500
+ANCHO, ALTO = 1120, 572
 FUENTE = "Helvetica"
 FUENTE_TAMBOR = "Courier New"
 
@@ -66,6 +68,12 @@ BARRA = (400, 436, 1040, 490)
 TESTIGOS = {6: (445, 463, 34, 34), 7: (525, 463, 34, 34), 8: (605, 463, 34, 34),
             9: (725, 463, 74, 38), 10: (865, 463, 74, 38)}
 NOMBRES_TESTIGO = {6: "DIRECC.", 7: "ALTAS", 8: "EMERG.", 9: "PRES. ACEITE", 10: "FRENOS"}
+
+# Franja inferior con los elementos adicionales de la Etapa 18 (los diez aprobados no se mueven).
+FRANJA = (22, 500, 1100, 564)
+FILA_EXTRA = 534                     # centro vertical de los testigos de la franja
+EXTRA = {12: (648, 32, 30, "12 PUERTA"), 13: (722, 50, 30, "13 CINTURON"), 15: (808, 64, 30, "15 PROTECCION")}
+COMBUSTIBLE = (150, 528, 420, 542)   # barra del elemento 14: x0, y0, x1, y1
 
 # (setter de EstadoCluster, etiqueta, minimo, maximo, resolucion, conversion)
 DESLIZADORES = (
@@ -119,6 +127,7 @@ class Tablero:
         self._dibujar_medidores()
         self._dibujar_testigos()
         self._dibujar_estado()
+        self._dibujar_extras()
         self._crear_controles()
         self.mensaje = tk.Label(raiz, text="", fg=COLOR_AMBAR, bg=FONDO, font=(FUENTE, 10, "bold"))
         self.mensaje.grid(row=2, column=0, columnspan=2, sticky="w", padx=10, pady=(0, 6))
@@ -138,8 +147,8 @@ class Tablero:
         c.create_text(22, 16, text="F40", anchor="w", fill=NUMERO, font=(FUENTE, 15, "bold italic"))
         c.create_text(70, 17, text="CUADRO DE INSTRUMENTOS  ·  SIMULACION DIDACTICA", anchor="w",
                       fill=COLOR_TEXTO, font=(FUENTE, 8, "bold"))
-        c.create_text(ANCHO - 20, 17, text="R01-R08  ·  ELEMENTOS 1-11", anchor="e", fill=COLOR_TEXTO,
-                      font=(FUENTE, 8, "bold"))
+        c.create_text(ANCHO - 20, 17, text="FERRARI F40 (1987)  ·  R01-R12  ·  ELEMENTOS 1-15", anchor="e",
+                      fill=COLOR_TEXTO, font=(FUENTE, 8, "bold"))
         # Capota negra mate: una sola pieza curva, mas alta sobre el tacometro, como en el F40.
         contorno = (14, 410, 14, 100, 34, 74, 170, 64, 372, 60, 400, 34, 565, 22, 735, 30, 765, 52,
                     1040, 62, 1092, 80, 1108, 118, 1108, 404, 1080, 424, 44, 424)
@@ -280,6 +289,63 @@ class Tablero:
         self._txt_fuente = c.create_text(232, 462, text="FUENTE: MANUAL", anchor="w", fill=COLOR_TEXTO,
                                          font=(FUENTE, 8, "bold"))
 
+    def _icono_extra(self, clave, cx, cy):
+        """Simbolos de los testigos adicionales. Devuelve [(item, atributo que toma el color)]."""
+        c, piezas = self.canvas, []
+        if clave == 12:         # puerta: contorno de la puerta con su manija
+            piezas.append((c.create_polygon(cx - 9, cy - 9, cx + 5, cy - 9, cx + 10, cy - 3, cx + 10, cy + 10,
+                                            cx - 9, cy + 10, fill="", width=2), "outline"))
+            piezas.append((c.create_line(cx + 1, cy + 1, cx + 7, cy + 1, width=2), "fill"))
+        elif clave == 13:       # cinturon: persona sentada con la banda cruzada
+            piezas.append((c.create_oval(cx - 4, cy - 12, cx + 2, cy - 6, outline=""), "fill"))
+            piezas.append((c.create_line(cx - 1, cy - 5, cx - 1, cy + 5, cx + 6, cy + 5, cx + 6, cy + 11, width=3),
+                           "fill"))
+            piezas.append((c.create_line(cx - 7, cy - 6, cx + 6, cy + 3, width=2), "fill"))
+        elif clave == 15:       # proteccion del motor
+            piezas.append((c.create_text(cx, cy, text="STOP", font=(FUENTE, 11, "bold")), "fill"))
+        else:                   # reserva de combustible: surtidor
+            piezas.append((c.create_rectangle(cx - 6, cy - 7, cx + 2, cy + 7, outline=""), "fill"))
+            piezas.append((c.create_line(cx + 2, cy - 5, cx + 6, cy - 2, cx + 6, cy + 5, width=2), "fill"))
+        return piezas
+
+    def _dibujar_extras(self):
+        """Franja de los elementos 12-15 (Etapa 18): llave, combustible, puerta, cinturon y proteccion."""
+        c = self.canvas
+        x0, y0, x1, y1 = FRANJA
+        c.create_rectangle(x0, y0, x1, y1, fill="#0c0c0d", outline=CAPOTA_BORDE, width=2)
+        c.create_text(36, 511, text="LLAVE", anchor="w", fill=MARCA_MENOR, font=(FUENTE, 8, "bold"))
+        self._txt_llave = c.create_text(36, 538, text="", anchor="w", font=(FUENTE, 12, "bold"))
+        # Elemento 14: medidor de barra, con la zona de reserva pintada y marcas E, 1/2 y F.
+        bx0, by0, bx1, by1 = COMBUSTIBLE
+        c.create_text(bx0, 511, text="14 COMBUSTIBLE", anchor="w", fill=MARCA_MENOR, font=(FUENTE, 8, "bold"))
+        c.create_rectangle(bx0, by0, bx1, by1, fill="#161616", outline=BISEL_LUZ, width=1)
+        c.create_rectangle(bx0, by1 + 2, bx0 + (bx1 - bx0) * 0.12, by1 + 4, fill=ZONA_AMBAR, outline="")
+        for fraccion, texto in ((0, "E"), (0.25, ""), (0.5, "1/2"), (0.75, ""), (1, "F")):
+            x = bx0 + (bx1 - bx0) * fraccion
+            c.create_line(x, by1 + 2, x, by1 + 7, fill=NUMERO if texto else MARCA_MENOR)
+            if texto:
+                c.create_text(x, by1 + 14, text=texto, fill=NUMERO, font=(FUENTE, 7, "bold"))
+        barra = c.create_rectangle(bx0 + 1, by0 + 1, bx0 + 1, by1 - 1, fill=COLOR_NORMAL, outline="")
+        valor = c.create_text(bx1 + 10, 535, text="", anchor="w", fill=COLOR_TEXTO, font=(FUENTE, 9, "bold"))
+        rx, ry = 566, FILA_EXTRA
+        reserva = c.create_rectangle(rx - 15, ry - 12, rx + 15, ry + 12, fill=COLOR_APAGADO, outline=BISEL_LUZ, width=1)
+        c.create_text(rx, ry + 20, text="RESERVA", fill=MARCA_MENOR, font=(FUENTE, 6, "bold"))
+        self.extras = {14: {"barra": barra, "valor": valor, "reserva": reserva,
+                            "iconos": self._icono_extra("reserva", rx, ry), "ultimo": None}}
+        for numero, (cx, ancho, alto, nombre) in EXTRA.items():
+            cy = FILA_EXTRA
+            if ELEMENTOS_EXTRA[numero]["categoria"] == CRITICA:
+                forma = c.create_rectangle(cx - ancho / 2, cy - alto / 2, cx + ancho / 2, cy + alto / 2,
+                                           fill=COLOR_APAGADO, outline=COLOR_ROJO, width=3)
+            else:
+                forma = c.create_oval(cx - ancho / 2, cy - alto / 2, cx + ancho / 2, cy + alto / 2,
+                                      fill=COLOR_APAGADO, outline=BISEL_LUZ, width=2)
+            etiqueta = c.create_text(cx, cy + alto / 2 + 9, text=nombre, fill=MARCA_MENOR, font=(FUENTE, 6, "bold"))
+            self.extras[numero] = {"forma": forma, "iconos": self._icono_extra(numero, cx, cy), "etiqueta": etiqueta,
+                                   "ultimo": None}
+        self._txt_detalle = c.create_text(852, FILA_EXTRA, text="", anchor="w", fill=COLOR_ROJO,
+                                          font=(FUENTE, 10, "bold"))
+
     # ------------------------------------------------------------------ controles
 
     def _crear_controles(self):
@@ -347,7 +413,8 @@ class Tablero:
         """Aplica un valor ya validado del archivo de datos directamente al modelo
         (sin pasar por la resolucion de los deslizadores) y lo refleja en el control."""
         getattr(self.estado, setter)(valor)
-        self.variables[setter].set(valor)
+        if setter in self.variables:      # las claves opcionales (12-15, contacto) no tienen control manual
+            self.variables[setter].set(valor)
         return True
 
     def ajustar(self, setter, valor):
@@ -407,7 +474,44 @@ class Tablero:
                                   fill=VERDE_TEXTO if motor else COLOR_TEXTO)
         self.canvas.itemconfigure(self._txt_reloj, text=f"{self.estado.reloj.ahora_ms() / 1000:.1f} s")
         self.canvas.itemconfigure(self.items[11]["valor"], text=vista_odometro(self.estado)["texto"])
+        self._refrescar_extras()
         return v
+
+    def _refrescar_extras(self):
+        """Elementos 12-15: solo se redibuja lo que cambio, como en los testigos 6-10."""
+        c, v = self.canvas, vista_extra(self.estado)
+        for numero in (12, 13, 15):
+            d, it = v[numero], self.extras[numero]
+            clave = (d["encendido"], d["color"], d["sin_dato"])
+            if it["ultimo"] == clave:
+                continue
+            it["ultimo"] = clave
+            c.itemconfigure(it["forma"], fill=d["color"])
+            for pieza, atributo in it["iconos"]:
+                c.itemconfigure(pieza, **{atributo: ICONO_ENCENDIDO if d["encendido"] else ICONO_APAGADO})
+            c.itemconfigure(it["etiqueta"], fill=ICONO_APAGADO if d["sin_dato"] else MARCA_MENOR)
+        d, it = v[14], self.extras[14]
+        clave = (None if d["sin_dato"] else round(d["valor"], 1), d["color"], d["reserva"]["encendido"])
+        if it["ultimo"] != clave:
+            it["ultimo"] = clave
+            bx0, by0, bx1, by1 = COMBUSTIBLE
+            c.coords(it["barra"], bx0 + 1, by0 + 1, bx0 + 1 + (bx1 - bx0 - 2) * d["fraccion"], by1 - 1)
+            c.itemconfigure(it["barra"], fill=d["color"])
+            c.itemconfigure(it["valor"], fill=d["color"] if not d["sin_dato"] else ICONO_APAGADO,
+                            text="sin dato" if d["sin_dato"] else f"{d['valor']:.0f} %  {d['litros']:.0f} L")
+            c.itemconfigure(it["reserva"], fill=d["reserva"]["color"])
+            for pieza, atributo in it["iconos"]:
+                c.itemconfigure(pieza, **{atributo: ICONO_ENCENDIDO if d["reserva"]["encendido"] else ICONO_APAGADO})
+        if v[15]["texto"]:
+            detalle, color = v[15]["texto"], COLOR_ROJO
+        elif v[12]["encendido"] and v[12]["detalle"]:
+            detalle, color = f"PUERTA {v[12]['detalle']}", v[12]["color"]
+        else:
+            detalle, color = "", COLOR_TEXTO
+        c.itemconfigure(self._txt_detalle, text=detalle, fill=color)
+        llave = v["llave"]["estado"]
+        c.itemconfigure(self._txt_llave, text=llave,
+                        fill={"MOTOR": VERDE_TEXTO, "CONTACTO": COLOR_AMBAR}.get(llave, COLOR_TEXTO))
 
     def ciclo(self):
         if self.antes_del_tick is not None:

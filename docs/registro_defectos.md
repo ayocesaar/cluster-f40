@@ -290,3 +290,19 @@ en el borde del cambio de digito. Los casos se corrigieron a 1.5 km (45 s y 15 s
 **Observado:** en fd55f73, kill -TERM al cluster devolvia -15 (muerto por la senal), no registraba "sistema fin" y perdia el kilometraje recorrido desde el ultimo guardado (docs/evidencias/senales_antes.txt).
 
 **Correccion:** SIGTERM y SIGINT agendan el cierre ordenado en el hilo de Tkinter (guarda el kilometraje, detiene el hilo lector, libera el candado y registra el fin); los manejadores anteriores se restauran al salir.
+
+## DEF-16 - El sensor de velocidad del panel podia indicar menos que la velocidad real
+
+| Campo | Valor |
+|-------|-------|
+| ID | DEF-16 |
+| Estado | Cerrado (Etapa 18) |
+| Severidad / prioridad | Baja / media |
+| Requisitos relacionados | UN R39 5.3 (la velocidad indicada nunca es menor que la real); elemento 1 |
+| Componente | panel/fisica.py (Vehiculo.lecturas) |
+| Detectado en | Revision del codigo al implementar la prueba L05 del banco de liberacion (25-nov-2026) |
+| Caso de prueba | CP-181 y CP-182 (tests/test_liberacion.py, prueba L05) |
+
+**Observado:** en b1d4fad el panel escribia la velocidad con round(v, 1): una velocidad real de 80.04 km/h se enviaba como 80.0 km/h, es decir, el tablero indicaba menos que la velocidad real. UN R39 5.3 exige 0 <= V1 - V2.
+
+**Correccion:** el sensor del panel redondea hacia arriba a la decima (Vehiculo.velocidad_indicada); la diferencia queda entre 0 y 0.1 km/h, dentro de 0.1 V2 + 4 km/h. La falla simulada "velocimetro" (indica 5 % menos) hace que L05 y L06 rechacen la unidad.

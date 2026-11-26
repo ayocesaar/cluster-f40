@@ -56,6 +56,8 @@ TECNICAS = {
     "test_robustez": "Robustez (auditoria y ataque QA)",
     "test_materia": "Temas de la materia (senales, shell)",
     "test_panel": "Panel de control (mandos y atajos)",
+    "test_realismo": "Realismo y seguridad (elementos 12-15, ECU)",
+    "test_liberacion": "Banco de liberacion (normas de la epoca)",
 }
 
 PRODUCCION = ("logic/estado.py", "logic/reloj.py", "ui/presentacion.py", "ui/tablero.py",

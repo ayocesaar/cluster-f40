@@ -1,0 +1,193 @@
+BANCO DE LIBERACION DE PRODUCCION - Ferrari F40 (1987), cluster simulado
+Fecha: 2026-11-25T23:50:06-06:00  Python 3.10.12  Linux
+Normas: UN R13-H anexo 3 (frenado), UN R39 (velocimetro), ciclo ECE-15; ver docs/realismo_y_liberacion.md. Cifras del vehiculo aproximadas.
+
+Unidad: sin fallas
+  L01 APROBADA  Arranque, ralenti y presion de aceite  [Fin de linea (criterio del equipo)]
+       criterio: Arranca; tras 30 s de ralenti: 950-1050 rpm, aceite >= 1.2 bar (testigo 9 apagado, R02)
+       medido:   1000 rpm, aceite 1.50 bar
+  L02 APROBADA  Prueba de testigos al dar contacto  [UN R13-H 5.2.21.4]
+       criterio: Todos encienden 2 s y se apagan si no hay falla (9, 10, 13 y 15 apagados)
+       medido:   encendidos en la prueba: 9/9; despues de 2 s: ninguno
+  L03 APROBADA  Frenado tipo 0 (en frio)  [UN R13-H anexo 3, 2.1.1 A]
+       criterio: Desde 100 km/h: s <= 70 m y dm >= 6.43 m/s2
+       medido:   s = 30.2 m, dm = 12.77 m/s2
+  L04 APROBADA  Frenado tipo I (perdida de eficiencia en caliente)  [UN R13-H anexo 3, 1.5]
+       criterio: 15 frenadas 120->60 km/h cada 45 s; en caliente dm >= 75 % de 6.43 y >= 60 % del valor en frio
+       medido:   frenos a 438 C; dm caliente 10.99 m/s2 (frio 12.77; minimo 7.66)
+  L05 APROBADA  Exactitud del velocimetro  [UN R39 5.2.5, 5.3 y anexo 3]
+       criterio: A 40, 80 y 120 km/h: 0 <= V1 - V2 <= 0.1 V2 + 4 km/h (nunca indica menos)
+       medido:   V1 - V2 en km/h: 40: +0.00 a +0.00; 80: +0.00 a +0.00; 120: +0.00 a +0.00
+  L06 APROBADA  Ciclo urbano ECE-15 y odometro  [ECE-15 (prueba tipo I de emisiones)]
+       criterio: 195 s y 0.99403 km (+-2 %); seguimiento <= 2 km/h; odometro del cuadro a <= 1 % de la distancia real
+       medido:   error maximo 1.21 km/h; distancia real 0.9860 km; odometro del cuadro 0.9875 km (0.15 %); consumo 17.9 L/100 km (informativo)
+  L07 APROBADA  Enfriamiento a carga sostenida  [Criterio del equipo (no es una norma)]
+       criterio: 300 s a 250 km/h sin pasar de 110 C (R04) ni detener el motor
+       medido:   agua maxima 96.2 C en 300 s a 250 km/h
+  L08 APROBADA  Turbo y valvula de descarga a plena carga  [Criterio del equipo (umbral de R05)]
+       criterio: 6 s a fondo en 3a desde 100 km/h: presion <= 1.5 bar sin corte
+       medido:   presion maxima 1.10 bar
+  L09 APROBADA  Interbloqueo de puertas  [Medida de seguridad agregada (el F40 de 1987 no la tenia)]
+       criterio: Con la puerta abierta no avanza aunque se acelere y el testigo 12 enciende; al cerrar avanza
+       medido:   puerta abierta: 0.0 km/h, testigo encendido; cerrada: 87.2 km/h en 3 s
+  DICTAMEN: APTO PARA PRODUCCION (9/9 pruebas aprobadas)
+
+Unidad: fuga_aceite
+  L01 RECHAZADA Arranque, ralenti y presion de aceite  [Fin de linea (criterio del equipo)]
+       criterio: Arranca; tras 30 s de ralenti: 950-1050 rpm, aceite >= 1.2 bar (testigo 9 apagado, R02)
+       medido:   no arranca: fuga o nivel bajo de aceite (100 %; minimo 50 %): arrancar dañaria el motor
+  L02 APROBADA  Prueba de testigos al dar contacto  [UN R13-H 5.2.21.4]
+       criterio: Todos encienden 2 s y se apagan si no hay falla (9, 10, 13 y 15 apagados)
+       medido:   encendidos en la prueba: 9/9; despues de 2 s: ninguno
+  L03 APROBADA  Frenado tipo 0 (en frio)  [UN R13-H anexo 3, 2.1.1 A]
+       criterio: Desde 100 km/h: s <= 70 m y dm >= 6.43 m/s2
+       medido:   s = 30.2 m, dm = 12.77 m/s2
+  L04 APROBADA  Frenado tipo I (perdida de eficiencia en caliente)  [UN R13-H anexo 3, 1.5]
+       criterio: 15 frenadas 120->60 km/h cada 45 s; en caliente dm >= 75 % de 6.43 y >= 60 % del valor en frio
+       medido:   frenos a 438 C; dm caliente 10.99 m/s2 (frio 12.77; minimo 7.66)
+  L05 APROBADA  Exactitud del velocimetro  [UN R39 5.2.5, 5.3 y anexo 3]
+       criterio: A 40, 80 y 120 km/h: 0 <= V1 - V2 <= 0.1 V2 + 4 km/h (nunca indica menos)
+       medido:   V1 - V2 en km/h: 40: +0.00 a +0.00; 80: +0.00 a +0.00; 120: +0.00 a +0.00
+  L06 RECHAZADA Ciclo urbano ECE-15 y odometro  [ECE-15 (prueba tipo I de emisiones)]
+       criterio: 195 s y 0.99403 km (+-2 %); seguimiento <= 2 km/h; odometro del cuadro a <= 1 % de la distancia real
+       medido:   error maximo 9.06 km/h; distancia real 0.9692 km; odometro del cuadro 0.9706 km (0.15 %); consumo 16.0 L/100 km (informativo); ECU: motor detenido por falta de aceite (fuga, nivel bajo o presion insuficiente) (R12). No arranca hasta reparar.
+  L07 RECHAZADA Enfriamiento a carga sostenida  [Criterio del equipo (no es una norma)]
+       criterio: 300 s a 250 km/h sin pasar de 110 C (R04) ni detener el motor
+       medido:   agua maxima 96.2 C en 188 s a 250 km/h; ECU: motor detenido por falta de aceite (fuga, nivel bajo o presion insuficiente) (R12). No arranca hasta reparar.
+  L08 APROBADA  Turbo y valvula de descarga a plena carga  [Criterio del equipo (umbral de R05)]
+       criterio: 6 s a fondo en 3a desde 100 km/h: presion <= 1.5 bar sin corte
+       medido:   presion maxima 1.10 bar
+  L09 APROBADA  Interbloqueo de puertas  [Medida de seguridad agregada (el F40 de 1987 no la tenia)]
+       criterio: Con la puerta abierta no avanza aunque se acelere y el testigo 12 enciende; al cerrar avanza
+       medido:   puerta abierta: 0.0 km/h, testigo encendido; cerrada: 87.2 km/h en 3 s
+  DICTAMEN: RECHAZADO: fallaron L01, L06, L07 (6/9 aprobadas)
+
+Unidad: radiador
+  L01 APROBADA  Arranque, ralenti y presion de aceite  [Fin de linea (criterio del equipo)]
+       criterio: Arranca; tras 30 s de ralenti: 950-1050 rpm, aceite >= 1.2 bar (testigo 9 apagado, R02)
+       medido:   1000 rpm, aceite 1.50 bar
+  L02 APROBADA  Prueba de testigos al dar contacto  [UN R13-H 5.2.21.4]
+       criterio: Todos encienden 2 s y se apagan si no hay falla (9, 10, 13 y 15 apagados)
+       medido:   encendidos en la prueba: 9/9; despues de 2 s: ninguno
+  L03 APROBADA  Frenado tipo 0 (en frio)  [UN R13-H anexo 3, 2.1.1 A]
+       criterio: Desde 100 km/h: s <= 70 m y dm >= 6.43 m/s2
+       medido:   s = 30.2 m, dm = 12.77 m/s2
+  L04 APROBADA  Frenado tipo I (perdida de eficiencia en caliente)  [UN R13-H anexo 3, 1.5]
+       criterio: 15 frenadas 120->60 km/h cada 45 s; en caliente dm >= 75 % de 6.43 y >= 60 % del valor en frio
+       medido:   frenos a 438 C; dm caliente 10.99 m/s2 (frio 12.77; minimo 7.66)
+  L05 APROBADA  Exactitud del velocimetro  [UN R39 5.2.5, 5.3 y anexo 3]
+       criterio: A 40, 80 y 120 km/h: 0 <= V1 - V2 <= 0.1 V2 + 4 km/h (nunca indica menos)
+       medido:   V1 - V2 en km/h: 40: +0.00 a +0.00; 80: +0.00 a +0.00; 120: +0.00 a +0.00
+  L06 RECHAZADA Ciclo urbano ECE-15 y odometro  [ECE-15 (prueba tipo I de emisiones)]
+       criterio: 195 s y 0.99403 km (+-2 %); seguimiento <= 2 km/h; odometro del cuadro a <= 1 % de la distancia real
+       medido:   error maximo 50.00 km/h; distancia real 0.1426 km; odometro del cuadro 0.1432 km (0.42 %); consumo 29.4 L/100 km (informativo); ECU: motor detenido por sobretemperatura del agua (>= 120 C) (R12). No arranca hasta reparar.
+  L07 RECHAZADA Enfriamiento a carga sostenida  [Criterio del equipo (no es una norma)]
+       criterio: 300 s a 250 km/h sin pasar de 110 C (R04) ni detener el motor
+       medido:   agua maxima 120.0 C en 39 s a 250 km/h; ECU: motor detenido por sobretemperatura del agua (>= 120 C) (R12). No arranca hasta reparar.
+  L08 APROBADA  Turbo y valvula de descarga a plena carga  [Criterio del equipo (umbral de R05)]
+       criterio: 6 s a fondo en 3a desde 100 km/h: presion <= 1.5 bar sin corte
+       medido:   presion maxima 1.10 bar
+  L09 APROBADA  Interbloqueo de puertas  [Medida de seguridad agregada (el F40 de 1987 no la tenia)]
+       criterio: Con la puerta abierta no avanza aunque se acelere y el testigo 12 enciende; al cerrar avanza
+       medido:   puerta abierta: 0.0 km/h, testigo encendido; cerrada: 87.2 km/h en 3 s
+  DICTAMEN: RECHAZADO: fallaron L06, L07 (7/9 aprobadas)
+
+Unidad: sobrepresion_turbo
+  L01 APROBADA  Arranque, ralenti y presion de aceite  [Fin de linea (criterio del equipo)]
+       criterio: Arranca; tras 30 s de ralenti: 950-1050 rpm, aceite >= 1.2 bar (testigo 9 apagado, R02)
+       medido:   1000 rpm, aceite 1.50 bar
+  L02 APROBADA  Prueba de testigos al dar contacto  [UN R13-H 5.2.21.4]
+       criterio: Todos encienden 2 s y se apagan si no hay falla (9, 10, 13 y 15 apagados)
+       medido:   encendidos en la prueba: 9/9; despues de 2 s: ninguno
+  L03 APROBADA  Frenado tipo 0 (en frio)  [UN R13-H anexo 3, 2.1.1 A]
+       criterio: Desde 100 km/h: s <= 70 m y dm >= 6.43 m/s2
+       medido:   s = 30.2 m, dm = 12.77 m/s2
+  L04 APROBADA  Frenado tipo I (perdida de eficiencia en caliente)  [UN R13-H anexo 3, 1.5]
+       criterio: 15 frenadas 120->60 km/h cada 45 s; en caliente dm >= 75 % de 6.43 y >= 60 % del valor en frio
+       medido:   frenos a 438 C; dm caliente 10.99 m/s2 (frio 12.77; minimo 7.66)
+  L05 APROBADA  Exactitud del velocimetro  [UN R39 5.2.5, 5.3 y anexo 3]
+       criterio: A 40, 80 y 120 km/h: 0 <= V1 - V2 <= 0.1 V2 + 4 km/h (nunca indica menos)
+       medido:   V1 - V2 en km/h: 40: +0.00 a +0.00; 80: +0.00 a +0.00; 120: +0.00 a +0.00
+  L06 APROBADA  Ciclo urbano ECE-15 y odometro  [ECE-15 (prueba tipo I de emisiones)]
+       criterio: 195 s y 0.99403 km (+-2 %); seguimiento <= 2 km/h; odometro del cuadro a <= 1 % de la distancia real
+       medido:   error maximo 1.21 km/h; distancia real 0.9860 km; odometro del cuadro 0.9875 km (0.15 %); consumo 17.9 L/100 km (informativo)
+  L07 APROBADA  Enfriamiento a carga sostenida  [Criterio del equipo (no es una norma)]
+       criterio: 300 s a 250 km/h sin pasar de 110 C (R04) ni detener el motor
+       medido:   agua maxima 96.2 C en 300 s a 250 km/h
+  L08 RECHAZADA Turbo y valvula de descarga a plena carga  [Criterio del equipo (umbral de R05)]
+       criterio: 6 s a fondo en 3a desde 100 km/h: presion <= 1.5 bar sin corte
+       medido:   presion maxima 1.77 bar; ECU: motor detenido por sobrepresion del turbo (> 1.5 bar durante 1 s) (R12). No arranca hasta reparar.
+  L09 APROBADA  Interbloqueo de puertas  [Medida de seguridad agregada (el F40 de 1987 no la tenia)]
+       criterio: Con la puerta abierta no avanza aunque se acelere y el testigo 12 enciende; al cerrar avanza
+       medido:   puerta abierta: 0.0 km/h, testigo encendido; cerrada: 87.2 km/h en 3 s
+  DICTAMEN: RECHAZADO: fallaron L08 (8/9 aprobadas)
+
+Unidad: frenos
+  L01 APROBADA  Arranque, ralenti y presion de aceite  [Fin de linea (criterio del equipo)]
+       criterio: Arranca; tras 30 s de ralenti: 950-1050 rpm, aceite >= 1.2 bar (testigo 9 apagado, R02)
+       medido:   1000 rpm, aceite 1.50 bar
+  L02 RECHAZADA Prueba de testigos al dar contacto  [UN R13-H 5.2.21.4]
+       criterio: Todos encienden 2 s y se apagan si no hay falla (9, 10, 13 y 15 apagados)
+       medido:   encendidos en la prueba: 9/9; despues de 2 s: testigo 10
+  L03 RECHAZADA Frenado tipo 0 (en frio)  [UN R13-H anexo 3, 2.1.1 A]
+       criterio: Desde 100 km/h: s <= 70 m y dm >= 6.43 m/s2
+       medido:   s = 95.5 m, dm = 4.02 m/s2
+  L04 RECHAZADA Frenado tipo I (perdida de eficiencia en caliente)  [UN R13-H anexo 3, 1.5]
+       criterio: 15 frenadas 120->60 km/h cada 45 s; en caliente dm >= 75 % de 6.43 y >= 60 % del valor en frio
+       medido:   frenos a 438 C; dm caliente 3.50 m/s2 (frio 4.02; minimo 4.82)
+  L05 APROBADA  Exactitud del velocimetro  [UN R39 5.2.5, 5.3 y anexo 3]
+       criterio: A 40, 80 y 120 km/h: 0 <= V1 - V2 <= 0.1 V2 + 4 km/h (nunca indica menos)
+       medido:   V1 - V2 en km/h: 40: +0.00 a +0.00; 80: +0.00 a +0.00; 120: +0.00 a +0.00
+  L06 APROBADA  Ciclo urbano ECE-15 y odometro  [ECE-15 (prueba tipo I de emisiones)]
+       criterio: 195 s y 0.99403 km (+-2 %); seguimiento <= 2 km/h; odometro del cuadro a <= 1 % de la distancia real
+       medido:   error maximo 1.21 km/h; distancia real 0.9860 km; odometro del cuadro 0.9875 km (0.15 %); consumo 17.9 L/100 km (informativo)
+  L07 APROBADA  Enfriamiento a carga sostenida  [Criterio del equipo (no es una norma)]
+       criterio: 300 s a 250 km/h sin pasar de 110 C (R04) ni detener el motor
+       medido:   agua maxima 96.2 C en 300 s a 250 km/h
+  L08 APROBADA  Turbo y valvula de descarga a plena carga  [Criterio del equipo (umbral de R05)]
+       criterio: 6 s a fondo en 3a desde 100 km/h: presion <= 1.5 bar sin corte
+       medido:   presion maxima 1.10 bar
+  L09 APROBADA  Interbloqueo de puertas  [Medida de seguridad agregada (el F40 de 1987 no la tenia)]
+       criterio: Con la puerta abierta no avanza aunque se acelere y el testigo 12 enciende; al cerrar avanza
+       medido:   puerta abierta: 0.0 km/h, testigo encendido; cerrada: 87.2 km/h en 3 s
+  DICTAMEN: RECHAZADO: fallaron L02, L03, L04 (6/9 aprobadas)
+
+Unidad: velocimetro
+  L01 APROBADA  Arranque, ralenti y presion de aceite  [Fin de linea (criterio del equipo)]
+       criterio: Arranca; tras 30 s de ralenti: 950-1050 rpm, aceite >= 1.2 bar (testigo 9 apagado, R02)
+       medido:   1000 rpm, aceite 1.50 bar
+  L02 APROBADA  Prueba de testigos al dar contacto  [UN R13-H 5.2.21.4]
+       criterio: Todos encienden 2 s y se apagan si no hay falla (9, 10, 13 y 15 apagados)
+       medido:   encendidos en la prueba: 9/9; despues de 2 s: ninguno
+  L03 APROBADA  Frenado tipo 0 (en frio)  [UN R13-H anexo 3, 2.1.1 A]
+       criterio: Desde 100 km/h: s <= 70 m y dm >= 6.43 m/s2
+       medido:   s = 30.2 m, dm = 12.77 m/s2
+  L04 APROBADA  Frenado tipo I (perdida de eficiencia en caliente)  [UN R13-H anexo 3, 1.5]
+       criterio: 15 frenadas 120->60 km/h cada 45 s; en caliente dm >= 75 % de 6.43 y >= 60 % del valor en frio
+       medido:   frenos a 438 C; dm caliente 10.99 m/s2 (frio 12.77; minimo 7.66)
+  L05 RECHAZADA Exactitud del velocimetro  [UN R39 5.2.5, 5.3 y anexo 3]
+       criterio: A 40, 80 y 120 km/h: 0 <= V1 - V2 <= 0.1 V2 + 4 km/h (nunca indica menos)
+       medido:   V1 - V2 en km/h: 40: -2.00 a -2.00; 80: -4.00 a -4.00; 120: -6.00 a -6.00
+  L06 RECHAZADA Ciclo urbano ECE-15 y odometro  [ECE-15 (prueba tipo I de emisiones)]
+       criterio: 195 s y 0.99403 km (+-2 %); seguimiento <= 2 km/h; odometro del cuadro a <= 1 % de la distancia real
+       medido:   error maximo 1.21 km/h; distancia real 0.9860 km; odometro del cuadro 0.9382 km (4.85 %); consumo 17.9 L/100 km (informativo)
+  L07 APROBADA  Enfriamiento a carga sostenida  [Criterio del equipo (no es una norma)]
+       criterio: 300 s a 250 km/h sin pasar de 110 C (R04) ni detener el motor
+       medido:   agua maxima 96.2 C en 300 s a 250 km/h
+  L08 APROBADA  Turbo y valvula de descarga a plena carga  [Criterio del equipo (umbral de R05)]
+       criterio: 6 s a fondo en 3a desde 100 km/h: presion <= 1.5 bar sin corte
+       medido:   presion maxima 1.10 bar
+  L09 APROBADA  Interbloqueo de puertas  [Medida de seguridad agregada (el F40 de 1987 no la tenia)]
+       criterio: Con la puerta abierta no avanza aunque se acelere y el testigo 12 enciende; al cerrar avanza
+       medido:   puerta abierta: 0.0 km/h, testigo encendido; cerrada: 87.2 km/h en 3 s
+  DICTAMEN: RECHAZADO: fallaron L05, L06 (7/9 aprobadas)
+
+MATRIZ: falla inyectada -> pruebas que la detectan -> dictamen
+  sin fallas           -                APTO PARA PRODUCCION (9/9 pruebas aprobadas)
+  fuga_aceite          L01, L06, L07    RECHAZADO: fallaron L01, L06, L07 (6/9 aprobadas)
+  radiador             L06, L07         RECHAZADO: fallaron L06, L07 (7/9 aprobadas)
+  sobrepresion_turbo   L08              RECHAZADO: fallaron L08 (8/9 aprobadas)
+  frenos               L02, L03, L04    RECHAZADO: fallaron L02, L03, L04 (6/9 aprobadas)
+  velocimetro          L05, L06         RECHAZADO: fallaron L05, L06 (7/9 aprobadas)
+
+Resultado: el banco distingue: la unidad sana es APTA y cada falla es RECHAZADA (2.8 s de simulacion acelerada).

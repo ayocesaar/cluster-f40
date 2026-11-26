@@ -88,6 +88,69 @@ FICHAS = (
      "evento": "INFO odometro_cargado, odometro_actualizado (cada km) y odometro_guardado; ERROR odometro_no_guardado",
      "just": "distancia = velocidad × tiempo se integra con el tiempo real del reloj, no contando ciclos; la fracción se "
              "conserva para no perder distancia entre ciclos y la escritura atómica con respaldo evita perder el kilometraje."},
+    # Elementos adicionales de seguridad y consumo (Etapa 18): se agregan a los diez aprobados.
+    {"n": "12", "nombre": "Puerta abierta (adicional)", "cat": "Testigo informativo", "clave": "puertas",
+     "fuente": "datos/vehiculo.conf, clave opcional puertas (la escribe el panel desde los interruptores de puerta)",
+     "tipo": "Bits de estado en un entero: bit 0 = conductor, bit 1 = pasajero (0 a 3)",
+     "rango": "Sin unidad; 0 a 3; sin dato hasta que el productor la envía", "ciclo": "Cada ciclo; parpadeo de 500 ms en movimiento",
+     "visual": "Lente redonda con el contorno de una puerta: ámbar fija con el auto detenido, roja parpadeante desde 3 km/h; "
+               "texto PUERTA CONDUCTOR / PASAJERO",
+     "adv": "R09. En movimiento es advertencia crítica: WARN prioritario puerta_abierta_en_movimiento.",
+     "invalido": "Fuera de 0-3 o no entero: ERROR y se conserva el último válido. Si nunca llega queda sin dato (gris) sin error; "
+                 "si deja de llegar, INFO clave_opcional_retirada.",
+     "evento": "INFO puerta_abierta / puertas_cerradas; WARN puerta_abierta_en_movimiento (eventos.log)",
+     "just": "Dos puertas caben en dos bits: un solo entero representa las cuatro combinaciones sin claves extra (caso de "
+             "codificación con bits de estado, bloque 4.1)."},
+    {"n": "13", "nombre": "Cinturón del conductor (adicional)", "cat": "Testigo de seguridad", "clave": "cinturon",
+     "fuente": "datos/vehiculo.conf, clave opcional cinturon (1 = abrochado)", "tipo": "Booleano 0/1",
+     "rango": "Sin dato hasta que el productor la envía", "ciclo": "Cada ciclo; parpadeo de 500 ms sobre 10 km/h",
+     "visual": "Rectángulo rojo con la figura de una persona y la banda cruzada",
+     "adv": "R10. Fijo con contacto y sin abrochar; WARN prioritario cinturon_desabrochado_en_movimiento sobre 10 km/h. "
+            "Cumple la parte visual de FMVSS 208 S7.3 (luz de al menos 60 s; texto actual).",
+     "invalido": "Distinto de 0 o 1: ERROR y se conserva el último válido; ausente igual que el elemento 12.",
+     "evento": "INFO cinturon_desabrochado / cinturon_abrochado; WARN cinturon_desabrochado_en_movimiento",
+     "just": "Dos estados; la guía lo pone como ejemplo de testigo de seguridad y su ejemplo de archivo trae cinturon=1."},
+    {"n": "14", "nombre": "Combustible (adicional)", "cat": "Información en línea", "clave": "combustible",
+     "fuente": "datos/vehiculo.conf, clave opcional combustible (el panel la calcula con el consumo)",
+     "tipo": "Decimal (porcentaje del tanque)", "rango": "%; 0 a 100 (tanque de 120 L); sin dato hasta que llega",
+     "ciclo": "500 ms (el nivel cambia despacio)",
+     "visual": "Barra horizontal con marcas E, 1/2 y F, zona de reserva pintada, porcentaje y litros; testigo de reserva ámbar",
+     "adv": "R11. Reserva con histéresis: enciende con 12 % o menos y se apaga con 15 % o más; WARN combustible_reserva.",
+     "invalido": "Fuera de 0-100 o texto: ERROR y se conserva el último válido; ausente igual que el elemento 12.",
+     "evento": "WARN combustible_reserva; INFO combustible_sobre_reserva",
+     "just": "La guía usa combustible=48 en su ejemplo de archivo; el porcentaje no depende del tamaño del tanque y la "
+             "histéresis evita que el testigo parpadee cuando el nivel oscila cerca del umbral."},
+    {"n": "15", "nombre": "Protección del motor (adicional)", "cat": "Testigo de seguridad", "clave": "falla_motor",
+     "fuente": "datos/vehiculo.conf, clave opcional falla_motor (la decide la ECU simulada del panel, panel/ecu.py)",
+     "tipo": "Enumeración: ninguna, sobretemperatura, sobrepresion_turbo, aceite, combustible",
+     "rango": "Sin unidad; sin dato hasta que llega", "ciclo": "Cada ciclo",
+     "visual": "Rectángulo rojo con la palabra STOP y la causa en texto (SOBRETEMPERATURA, ACEITE...)",
+     "adv": "R12. CRÍTICO: WARN prioritario motor_detenido_por_proteccion causa=...; INFO proteccion_motor_liberada.",
+     "invalido": "Otra palabra: ERROR y se conserva el último válido; ausente igual que el elemento 12.",
+     "evento": "WARN motor_detenido_por_proteccion; INFO proteccion_motor_liberada",
+     "just": "El cuadro no decide si el motor puede funcionar: solo muestra la causa que envía la ECU. Una enumeración "
+             "cerrada impide causas inventadas."},
+)
+
+REGLAS_AGREGADAS = (
+    ("Contacto", "Clave opcional contacto: separa Encendido (elementos 1 y 4, odómetro y testigos) de Motor activo (2, 3 y 5), "
+                 "como distingue la especificación (D3). Al pasar a contacto, prueba de testigos de 2 s (R13-H 5.2.21.4)."),
+    ("R09", "puertas ≠ 0: testigo 12 ámbar fijo detenido; rojo parpadeante (500 ms) desde 3 km/h con WARN prioritario."),
+    ("R10", "Contacto y cinturon = 0: testigo 13 rojo fijo; sobre 10 km/h parpadea (500 ms) con WARN prioritario."),
+    ("R11", "combustible ≤ 12 %: testigo de reserva ámbar; se apaga con ≥ 15 % (histéresis). Ciclo de 500 ms."),
+    ("R12", "falla_motor ≠ ninguna con el cuadro energizado: testigo 15 rojo con la causa y WARN prioritario."),
+)
+
+DECISIONES_AGREGADAS = (
+    ("D8", "Las cinco claves nuevas son opcionales: un productor de diez claves sigue funcionando igual. Si una opcional "
+           "nunca llega no hay error (sin dato); si deja de llegar se registra INFO clave_opcional_retirada."),
+    ("D9", "El validador comprueba consistencia entre claves: motor=1 con contacto=0 es dato_inconsistente; se descarta "
+           "el contacto y el cuadro sigue al motor (R01)."),
+    ("D10", "La prueba de testigos es solo de presentación: no cambia reglas ni registra advertencias falsas."),
+    ("D11", "Los interbloqueos y protecciones viven en el panel (panel/ecu.py, el lado del vehículo), no en el cuadro: "
+            "el cuadro muestra, la ECU decide. Son medidas del equipo; el F40 de 1987 no las tenía todas."),
+    ("D12", "El sensor de velocidad del panel redondea hacia arriba a la décima para no indicar nunca menos que la "
+            "velocidad real (UN R39 5.3); antes redondeaba al más cercano (DEF-16)."),
 )
 
 PRUEBAS = (
@@ -171,6 +234,23 @@ AMENAZAS = (
      "ERROR ruta_rechazada", "Se usa la ruta por defecto", "CP-106"),
     ("Inyección de comandos", "El programa no arma comandos de sistema con datos; ps se llama con lista de argumentos",
      "No aplica", "No aplica", "Revisión de código (subprocess sin shell)"),
+    ("Datos contradictorios entre claves (motor sin contacto)", "Regla de consistencia en el validador (D9)",
+     "ERROR dato_inconsistente", "Se descarta el contacto y el cuadro sigue al motor", "CP-164"),
+)
+
+SEGURIDAD_VEHICULO = (
+    ("Puerta abierta", "La ECU bloquea la tracción (el acelerador no tiene efecto)", "Testigo 12; WARN en movimiento",
+     "Al cerrar la puerta se puede avanzar", "CP-167, CP-176, L09"),
+    ("Fuga o nivel bajo de aceite", "No arranca (nivel < 50 % o fuga); en marcha, corte con < 0.5 bar durante 3 s",
+     "Testigo 9 (R02) y testigo 15 ACEITE", "Reparar y rellenar en TALLER", "CP-172, L01"),
+    ("Sobrecalentamiento", "Corte del motor a 120 °C; no arranca hasta reparar y enfriar bajo 100 °C",
+     "Elemento 4 en rojo desde 110 °C (R04) y testigo 15", "Reparar el radiador; esperar a que enfríe", "CP-173, L07"),
+    ("Sobrepresión del turbo", "Corte del motor con más de 1.5 bar durante 1 s; protección enclavada",
+     "Contorno ámbar (R05) y testigo 15", "Reparar la válvula de descarga", "CP-174, L08"),
+    ("Falla de frenos", "No hay corte: el auto frena al 30 % (un circuito perdido)", "Testigo 10 (R08)",
+     "Reparar; el banco la rechaza (tipo 0 y tipo I)", "CP-175, L03, L04"),
+    ("Sin combustible", "El motor se apaga solo; no arranca hasta cargar", "Reserva (R11) y testigo 15",
+     "Llenar el tanque", "CP-177"),
 )
 
 
@@ -186,6 +266,7 @@ def construir():
     casos, fecha = cargar_junit()
     cov = json.loads(leer(EVID / "coverage.json"))
     metricas = leer(EVID / "metricas.txt").splitlines()
+    banco = leer(EVID / "banco_liberacion.txt").splitlines()
     config = leer(RAIZ / "config" / "cluster.ini").splitlines()
     datos = leer(RAIZ / "datos" / "vehiculo.conf").splitlines()
     ejemplos = {c: {n: leer(EVID / "bitacoras" / c / n).splitlines() if (EVID / "bitacoras" / c / n).exists() else []
@@ -235,16 +316,21 @@ def construir():
     vinetas(doc, [
         "Dentro del alcance: entrada por archivo, configuración externa, validación, modelo con reglas R01–R08, interfaz "
         "Tkinter estilo F40, bitácoras, pruebas P01–P12 y métricas.",
+        "Ampliación (Etapa 18): cuatro elementos adicionales de seguridad y consumo (12-15), llave de contacto, ECU "
+        "simulada con interbloqueos y protecciones, y un banco de liberación de producción con pruebas normalizadas de "
+        "la época (frenado UN R13-H, velocímetro UN R39 y ciclo urbano ECE-15).",
         "Fuera del alcance: hardware, ECU y sensores reales; calibraciones del F40; plataformas distintas de Linux y Windows.",
         "La interfaz sigue la distribución del tablero del F40: velocímetro y tacómetro grandes al centro, medidores chicos "
         "a los lados y los testigos críticos arriba, entre las esferas."])
     figura(doc, EVID / "capturas" / "03_umbrales_de_lecturas.png", "Figura 1. Tablero con advertencias activas (captura real).")
 
     # 3. Diez elementos
-    doc.add_heading("3. Descripción y ficha de los once elementos", level=1)
+    doc.add_heading("3. Descripción y ficha de los elementos", level=1)
     doc.add_paragraph("Categorías según la guía: 2 indicadores principales (1 y 4), 3 de información en línea (2, 3 y 5), "
                       "3 testigos informativos (6, 7 y 8) y 2 testigos de seguridad (9 y 10). El odómetro (11, información "
-                      "en línea) se agregó después de la práctica en clase, donde el profesor lo asignó como tema de prueba.")
+                      "en línea) se agregó después de la práctica en clase, donde el profesor lo asignó como tema de prueba. "
+                      "Los elementos 12 a 15 (puerta, cinturón, combustible y protección del motor) son adicionales: no "
+                      "sustituyen a los diez aprobados y llegan en claves opcionales del mismo archivo (decisión D8).")
     tabla(doc, ["N.º", "Elemento", "Categoría", "Clave en datos/vehiculo.conf", "Tipo", "Unidad, rango e inicial"],
           [(f["n"], f["nombre"], f["cat"], f["clave"], f["tipo"], f["rango"]) for f in FICHAS])
     for f in FICHAS:
@@ -258,6 +344,12 @@ def construir():
                     ("Evento y archivo de destino", f["evento"]), ("Justificación", f["just"])])
     doc.add_heading("Reglas de funcionamiento", level=2)
     tabla(doc, ["Regla", "Descripción"], REGLAS, anchos=[1.8, 14.7])
+    doc.add_heading("Reglas agregadas por el equipo (Etapa 18)", level=2)
+    tabla(doc, ["Regla", "Descripción"], REGLAS_AGREGADAS, anchos=[1.8, 14.7])
+    doc.add_heading("Decisiones de la Etapa 18", level=2)
+    tabla(doc, ["Decisión", "Descripción"], DECISIONES_AGREGADAS, anchos=[1.8, 14.7])
+    figura(doc, EVID / "capturas" / "11_proteccion_por_sobretemperatura.png",
+           "Figura 1b. Elementos adicionales: motor detenido por la ECU, cinturón y reserva (captura real).")
 
     # 4. Arquitectura
     doc.add_heading("4. Arquitectura y estructura de archivos", level=1)
@@ -271,6 +363,8 @@ def construir():
         ("Interfaz", "ui/presentacion.py, ui/tablero.py", "Representar indicadores y testigos", "Modificar archivos de configuración"),
         ("Registrador", "sistema/bitacora.py, sistema/monitor.py", "Eventos, advertencias y errores con fecha y nivel", "Mezclar niveles en un archivo"),
         ("Configuración", "sistema/config.py, config/cluster.ini", "Rutas, intervalos, rangos y rotación", "Obligar a recompilar"),
+        ("Panel, ECU y banco (otro proceso)", "panel/ventana.py, panel/fisica.py, panel/ecu.py, panel/liberacion.py",
+         "Simular el vehículo, decidir protecciones y correr las pruebas de liberación", "Tocar el cuadro: solo escribe el archivo"),
     ], anchos=[3, 4, 5.5, 4])
     codigo(doc, ["cluster-f40/", "├── main.py, iniciar.sh, abrir_cluster.bat   # arranque",
                  "├── logic/       # modelo (estado.py) y reloj", "├── sistema/     # config, lector, bitácora, monitor",
@@ -334,6 +428,11 @@ def construir():
     tabla(doc, ["Amenaza", "Preventivo", "Detección", "Recuperación", "Evidencia"], AMENAZAS)
     doc.add_paragraph("No hay contraseñas, tokens ni datos sensibles en el código. Las rutas son relativas al proyecto. "
                       "El programa no ejecuta comandos construidos con datos de entrada.")
+    doc.add_heading("Seguridad del vehículo simulado (Etapa 18)", level=2)
+    doc.add_paragraph("Además de la seguridad informática, el panel simula la seguridad funcional del auto. Las decisiones "
+                      "las toma la ECU simulada (panel/ecu.py); el cuadro solo las muestra. Son medidas del equipo: el F40 "
+                      "de 1987 no tenía interbloqueo de puertas ni todas estas protecciones.")
+    tabla(doc, ["Riesgo", "Control preventivo", "Detección en el cuadro", "Recuperación", "Evidencia"], SEGURIDAD_VEHICULO)
 
     # 9. Errores y bitacoras
     doc.add_heading("9. Manejo de errores y bitácoras", level=1)
@@ -366,8 +465,20 @@ def construir():
         ("Cobertura total (líneas y ramas)", f"{cob['percent_covered']:.1f}%"),
         ("Plataforma", f"{sistema_operativo()}; Python {platform.python_version()}"),
     ], anchos=[6, 10.5])
+    doc.add_heading("Banco de liberación de producción (pruebas de la época)", level=2)
+    doc.add_paragraph("Antes de mandar un auto a producción se corren pruebas normalizadas. tools/banco_liberacion.py las "
+                      "reproduce sobre el modelo del panel con la misma ECU y, para las del cuadro, con el código real del "
+                      "tablero: frenado tipo 0 y tipo I (UN R13-H anexo 3), exactitud del velocímetro (UN R39 5.3 y anexo 3), "
+                      "ciclo urbano ECE-15 de 195 s con el odómetro, prueba de testigos (R13-H 5.2.21.4) y tres criterios del "
+                      "equipo (enfriamiento, turbo y puertas). Resultado real (docs/evidencias/banco_liberacion.txt):")
+    codigo(doc, [l for l in banco if l.startswith(("MATRIZ", "  ", "Resultado"))][-8:])
+    doc.add_paragraph("Detalle de la unidad sin fallas:")
+    codigo(doc, banco[4:4 + 1 + 9 * 3 + 1])
     doc.add_heading("Limitaciones", level=2)
     vinetas(doc, [
+        "Las cifras del vehículo (frenado, consumo, temperaturas, turbo) son aproximadas; los criterios R13-H y R39 son los "
+        "del texto verificado (ADR 31/01 y ADR 18/03); los valores de la Directiva 71/320/CEE vigentes en 1987 quedan "
+        "pendientes de verificar. El banco no mide emisiones: del ciclo ECE-15 solo usa el perfil de velocidad.",
         "Durante un error de entrada el tablero muestra el último valor válido, que puede estar desactualizado.",
         "La interfaz se probó con Tkinter real sobre una pantalla virtual (Xvfb) y en Windows; no en otras plataformas.",
         "El editor de texto que guarde sobre el mismo archivo puede producir una lectura incompleta; la validación la "

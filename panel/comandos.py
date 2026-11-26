@@ -64,17 +64,40 @@ def estado_tablero():
     return "\n".join(lineas + ["Archivos abiertos:"] + descriptores)
 
 
+def observar_proceso():
+    """Comandos de observacion de la guia (seccion 6) sobre el tablero en ejecucion. El PID sale de
+    /proc (un entero), y cada orden va como lista de argumentos: nada se concatena en un shell."""
+    pid = pid_tablero()
+    salida = []
+    if pid is None:
+        salida.append("El tablero no esta en ejecucion: ps no tiene PID que observar.")
+    else:
+        salida.append(f"$ ps -o pid,ppid,stat,%cpu,%mem,rss,vsz,cmd -p {pid}")
+        salida.append(subprocess.run(["ps", "-o", "pid,ppid,stat,%cpu,%mem,rss,vsz,cmd", "-p", str(pid)],
+                                     capture_output=True, text=True, timeout=10).stdout.rstrip())
+    logs = sorted(str(p.relative_to(RAIZ)) for p in (RAIZ / "logs").glob("*.log"))
+    if logs:
+        for argv in (["du", "-h", *logs], ["wc", "-l", *logs]):
+            salida.append("$ " + " ".join(argv))
+            salida.append(subprocess.run(argv, cwd=RAIZ, capture_output=True, text=True, timeout=10).stdout.rstrip())
+    else:
+        salida.append("Sin bitacoras en logs/ todavia.")
+    return "\n".join(salida)
+
+
 # (grupo, [(etiqueta, ayuda, comando)]); comando = lista de argumentos o funcion sin argumentos.
 REPORTE = TEMPORAL / "reporte_panel.txt"
 ATAJOS = (
     ("Pruebas", [
-        ("Todas las pruebas", "pytest completo", con_pantalla([PY, "-m", "pytest", "-q", "-p", "no:cacheprovider"])),
+        ("Todas", "pytest completo", con_pantalla([PY, "-m", "pytest", "-q", "-p", "no:cacheprovider"])),
         ("Odometro", "CP-120 a CP-137", con_pantalla([PY, "-m", "pytest", "-q", "-p", "no:cacheprovider",
                                                       "tests/test_odometro.py"])),
         ("Robustez", "CP-138 a CP-151", con_pantalla([PY, "-m", "pytest", "-q", "-p", "no:cacheprovider",
                                                       "tests/test_robustez.py"])),
         ("Panel", "CP-155 a CP-162", con_pantalla([PY, "-m", "pytest", "-q", "-p", "no:cacheprovider",
                                                    "tests/test_panel.py"])),
+        ("Realismo", "CP-163 a CP-183", con_pantalla([PY, "-m", "pytest", "-q", "-p", "no:cacheprovider",
+                                                      "tests/test_realismo.py", "tests/test_liberacion.py"])),
         ("Aceptacion", "CA-01 a CA-10 sobre la interfaz", con_pantalla([PY, "-m", "aceptacion.escenarios",
                                                                          "tests/datos/escenarios_aceptacion.csv"])),
     ]),
@@ -88,7 +111,13 @@ ATAJOS = (
         ("Diagnostico", "tools/diagnostico.sh sobre logs/",
          ["bash", "-c", 'bash tools/diagnostico.sh logs "$1" && cat "$1"', "diagnostico", str(REPORTE)]),
         ("Hilos y memoria", "/proc del tablero en ejecucion", estado_tablero),
-        ("Errores recientes", "ultimas lineas de errores.log", ["tail", "-n", "15", "logs/errores.log"]),
+        ("ps du wc", "comandos de observacion de la guia, seccion 6", observar_proceso),
+        ("Errores", "ultimas lineas de errores.log", ["tail", "-n", "15", "logs/errores.log"]),
+    ]),
+    ("Liberacion de produccion", [
+        ("Banco sano", "9 pruebas de la epoca", [PY, "tools/banco_liberacion.py"]),
+        ("Matriz de fallas", "cada falla debe salir RECHAZADA",
+         [PY, "tools/banco_liberacion.py", "--evidencia", "--salida", str(TEMPORAL / "banco_panel.txt")]),
     ]),
 )
 

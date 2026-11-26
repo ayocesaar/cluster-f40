@@ -2,40 +2,45 @@ Name                            Stmts   Miss Branch BrPart  Cover   Missing
 ---------------------------------------------------------------------------
 aceptacion/__init__.py              0      0      0      0   100%
 aceptacion/escenarios.py          139      0     44      0   100%
-logic/estado.py                   198      0     64      0   100%
+logic/estado.py                   312      0     98      3    99%   181->183, 186->188, 200->205
 logic/odometro.py                  27      0      8      0   100%
 logic/reloj.py                     18      0      4      0   100%
 main.py                           103      3     18      2    96%   95, 116-117, 132->134
 panel/__init__.py                   0      0      0      0   100%
-panel/comandos.py                  96     36     24      5    59%   31, 37-38, 41, 50-64, 115, 118-126, 131-134, 144-147
-panel/fisica.py                    94      2     20      2    96%   68, 83
-panel/ventana.py                  532    105    136     18    76%   112-113, 283, 321, 324, 329-345, 348-350, 355->358, 360-362, 369, 382-391, 410-420, 431-432, 456, 465-470, 474, 477, 484-490, 493-502, 506-509, 513-519, 536-538, 553-554, 562-566, 573->571, 588, 590, 592, 600->exit, 645, 649, 650->652, 659, 671-675
+panel/comandos.py                 110     37     30      8    64%   31, 37-38, 41, 50-64, 75-76, 84, 144, 147-155, 160-163, 174-175
+panel/ecu.py                       73      3     34      3    94%   55, 57, 74
+panel/fisica.py                   146      2     26      2    98%   98, 113
+panel/liberacion.py               269      2     78      1    99%   118-119, 228->239
+panel/ventana.py                  667    124    182     22    78%   123-124, 323, 367, 370, 375-400, 403-405, 410->413, 415-417, 427-429, 443-444, 486-496, 516-526, 537-538, 564, 573-578, 585, 592-593, 606-610, 616, 628-634, 637-646, 651-652, 657-663, 686-688, 708-709, 717-721, 728->726, 760, 762, 764, 772->exit, 817, 821, 822->824, 831, 843-847
 sistema/__init__.py                 0      0      0      0   100%
 sistema/bitacora.py                62      0      8      2    97%   47->49, 56->58
 sistema/config.py                  72      0     16      0   100%
-sistema/lector.py                 224      4     74      6    97%   138->140, 140->exit, 149->151, 196, 212->exit, 219, 228->232, 257-258
-sistema/monitor.py                 39      0     22      0   100%
+sistema/lector.py                 269      6     92      8    96%   170->172, 172->exit, 181->183, 229, 245->exit, 252, 261->265, 284->exit, 327-328, 382-383
+sistema/monitor.py                 80      0     54      4    97%   81->83, 102->104, 109->111, 115->exit
 sistema/odometro_archivo.py        81      2     18      0    98%   99-100
 tests/conftest.py                  17      0      0      0   100%
 tests/test_aceptacion.py           81      2      0      0    98%   20-21
 tests/test_complementarias.py      53      0      6      0   100%
 tests/test_invalidas.py            50      0      0      0   100%
+tests/test_liberacion.py           41      0      0      0   100%
 tests/test_limites.py              98      0      0      0   100%
 tests/test_materia.py              66      1      8      1    97%   36
 tests/test_odometro.py            214      2     14      1    99%   55-56, 145->exit
 tests/test_panel.py               177      3     36      2    98%   121-122, 146, 201->206
 tests/test_particiones.py          46      0      0      0   100%
 tests/test_presentacion.py         49      0      0      0   100%
+tests/test_realismo.py            391      4     40      3    98%   265-266, 308->313, 321->327, 348->354, 416-417
 tests/test_requisitos.py           17      0      4      0   100%
 tests/test_robustez.py            215      2     12      1    99%   50-51, 118->exit
 tests/test_sistema.py             382      4     38      0    99%   174-175, 416-417
 tests/test_tablero.py              50      2      0      0    96%   15-16
 tests/test_transiciones.py        101      0      6      0   100%
+tools/banco_liberacion.py          46      0      6      0   100%
 tools/ejecucion_prolongada.py      98     73      8      0    24%   42-46, 53-57, 71, 75-188
-tools/escribir_dato.py             50      0     10      0   100%
+tools/escribir_dato.py             51      0     10      0   100%
 tools/simulador.py                 42      0      6      0   100%
 ui/__init__.py                      0      0      0      0   100%
-ui/presentacion.py                 21      0      0      0   100%
-ui/tablero.py                     287      0     58      1    99%   246->253
+ui/presentacion.py                 36      0      4      0   100%
+ui/tablero.py                     368      1     88      2    99%   255->262, 508
 ---------------------------------------------------------------------------
-TOTAL                            3799    241    662     41    93%
+TOTAL                            5117    273    996     65    94%

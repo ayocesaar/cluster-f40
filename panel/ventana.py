@@ -12,8 +12,14 @@ externa. El panel reemplaza los comandos de la terminal por mandos de cabina:
 - Atajos de comandos (pruebas, aceptacion, ataque QA, P12, diagnostico) con su salida
   en una consola, y los escenarios de aceptacion reproducidos en vivo sobre el tablero.
 
+- Etapa 18: llave de contacto y arranque separados, puertas y cinturon, una ECU simulada
+  (panel/ecu.py) que no deja arrancar con fuga de aceite y detiene el motor ante
+  sobretemperatura, sobrepresion o falta de aceite, un TALLER para reparar, y el banco de
+  liberacion de produccion (panel/liberacion.py) con el ciclo ECE-15 en vivo.
+
 Teclas: W/flecha arriba acelerador, S/flecha abajo freno, C embrague, 1-5/R/N marchas,
-M contacto, L luces altas, Z/X direccional, H intermitentes."""
+K llave (contacto), M arranque/paro, P/O puerta conductor/pasajero, B cinturon,
+L luces altas, Z/X direccional, H intermitentes."""
 
 import os
 import pathlib
@@ -28,10 +34,11 @@ sys.path.insert(0, str(RAIZ / "tools"))
 
 from aceptacion.escenarios import cargar as cargar_escenarios  # noqa: E402
 from escribir_dato import exclusivo  # noqa: E402
-from panel import comandos  # noqa: E402
-from panel.fisica import Vehiculo, velocidad_maxima  # noqa: E402
+from panel import comandos, liberacion  # noqa: E402
+from panel.ecu import Ecu  # noqa: E402
+from panel.fisica import TANQUE_L, Vehiculo, velocidad_maxima  # noqa: E402
 from sistema import config as configuracion  # noqa: E402
-from sistema.lector import CLAVES, escribir_atomico, escribir_texto_atomico, formatear  # noqa: E402
+from sistema.lector import CLAVES, CLAVES_EXTRA, escribir_atomico, escribir_texto_atomico, formatear  # noqa: E402
 
 FUENTE = "Courier New"
 FONDO = "#121214"
@@ -93,8 +100,12 @@ class Panel:
         self.ruta = pathlib.Path(ruta_datos) if ruta_datos else cfg.archivo_datos
         self.dir_logs = pathlib.Path(dir_logs) if dir_logs else cfg.dir_logs
         self.vehiculo = Vehiculo()
+        self.ecu = Ecu()
+        self.conductor = None                # robot del ciclo ECE-15 en vivo
+        self.t_ciclo = 0.0
+        self.km_ciclo = 0.0
         self.pisando = {"embrague": False, "freno": False, "acelerador": False}
-        self.modo = "fisica"                 # fisica | escenario | recorrido
+        self.modo = "fisica"                 # fisica | escenario | recorrido | ciclo
         self.ultimo_escrito = None
         self.escrituras = 0
         self._proxima_escritura = 0.0
@@ -121,7 +132,7 @@ class Panel:
         raiz.bind_all("<KeyRelease>", self._tecla_arriba)
         raiz.protocol("WM_DELETE_WINDOW", self.cerrar)
         self.registrar(f"Panel listo. Escribe en {self.ruta}. Teclas: W acelerador, S freno, C embrague, "
-                       "1-5/R/N marchas, M contacto.")
+                       "1-5/R/N marchas, K llave, M arranque, P/O puertas, B cinturon.")
         self._id_after = raiz.after(self.PERIODO_MS, self._ciclo)
 
     # ================================================================ construccion
@@ -172,24 +183,44 @@ class Panel:
         self._dibujar_compuerta()
         lado = tk.Frame(abajo, bg=SECCION)
         lado.pack(side="left", fill="both", expand=True)
-        self.btn_contacto = tk.Button(lado, text="CONTACTO\n[M]", command=self.alternar_motor, width=12, height=3,
+        self.btn_llave = tk.Button(lado, text="LLAVE\n[K]", command=self.alternar_contacto, width=12, height=2,
+                                   bg="#2b1414", fg=TEXTO, activebackground="#4a1c1c", relief="ridge", bd=3,
+                                   font=(FUENTE, 10, "bold"))
+        self.btn_llave.pack(pady=(6, 3))
+        self.btn_contacto = tk.Button(lado, text="ARRANQUE\n[M]", command=self.alternar_motor, width=12, height=2,
                                       bg="#2b1414", fg=TEXTO, activebackground="#4a1c1c", relief="ridge", bd=3,
-                                      font=(FUENTE, 11, "bold"))
-        self.btn_contacto.pack(pady=(10, 6))
+                                      font=(FUENTE, 10, "bold"))
+        self.btn_contacto.pack(pady=(0, 4))
         self.var_embrague_auto = tk.BooleanVar(value=True)
         tk.Checkbutton(lado, text="Embrague automatico\nal cambiar", variable=self.var_embrague_auto, bg=SECCION,
                        fg=TEXTO, selectcolor=BOTON, activebackground=SECCION, activeforeground=TEXTO,
                        font=(FUENTE, 9), justify="left").pack()
-        tk.Label(lado, text="Compuerta: patron\nilustrativo", bg=SECCION, fg=TENUE, font=(FUENTE, 8),
-                 justify="left").pack(pady=4)
+
+        seguridad = _seccion(padre, "SEGURIDAD Y TALLER")
+        seguridad.pack(fill="x", pady=6)
+        fila = tk.Frame(seguridad, bg=SECCION)
+        fila.pack(fill="x", pady=3)
+        estilo = dict(bg=BOTON, fg=TEXTO, selectcolor="#7a3b10", activebackground=BOTON_ACTIVO, indicatoron=False,
+                      font=(FUENTE, 9, "bold"), relief="raised", bd=2, padx=5, pady=3)
+        self.var_puertas = {1: tk.BooleanVar(), 2: tk.BooleanVar()}
+        self.var_cinturon = tk.BooleanVar()
+        tk.Checkbutton(fila, text="Puerta cond. [P]", variable=self.var_puertas[1], command=self._seguridad,
+                       **estilo).pack(side="left", padx=2)
+        tk.Checkbutton(fila, text="Puerta pas. [O]", variable=self.var_puertas[2], command=self._seguridad,
+                       **estilo).pack(side="left", padx=2)
+        tk.Checkbutton(fila, text="Cinturon [B]", variable=self.var_cinturon, command=self._seguridad,
+                       **dict(estilo, selectcolor="#1f5a2c")).pack(side="left", padx=2)
+        fila = tk.Frame(seguridad, bg=SECCION)
+        fila.pack(fill="x", pady=(0, 4))
+        for texto, accion in (("Reparar fallas", "reparar"), ("Rellenar aceite", "aceite"),
+                              ("Llenar tanque", "tanque"), ("Reserva 10 L", "reserva")):
+            _boton(fila, texto, lambda a=accion: self.taller(a)).pack(side="left", padx=2)
 
         teclas = _seccion(padre, "TECLAS")
-        teclas.pack(fill="x", pady=6)
-        for linea in ("W / flecha arriba  acelerador     S / flecha abajo  freno",
-                      "C  embrague (mantener)           1-5, R, N  marchas",
-                      "M  contacto (motor)              L  luces altas",
-                      "Z / X  direccional izq / der     H  intermitentes",
-                      "Los pedales tambien se pisan con el raton (mantener)."):
+        teclas.pack(fill="x")
+        for linea in ("W/arriba acelerador  S/abajo freno  C embrague  1-5 R N",
+                      "K llave  M arranque  P/O puertas  B cinturon  L altas",
+                      "Z/X direccional  H intermitentes (pedales: tambien raton)"):
             tk.Label(teclas, text=linea, bg=SECCION, fg=TEXTO, font=(FUENTE, 9), anchor="w").pack(fill="x", padx=6)
 
     def _dibujar_compuerta(self):
@@ -230,13 +261,14 @@ class Panel:
             tk.Radiobutton(fila2, text=texto, value=valor, variable=self.var_direccional, command=self._luces,
                            **dict(estilo, selectcolor="#1f5a2c")).pack(side="left", padx=2)
 
-        fallas = _seccion(padre, "FALLAS DE SENSORES")
+        fallas = _seccion(padre, "FALLAS (con su consecuencia real)")
         fallas.pack(fill="x", pady=6)
         self.var_fallas = {}
-        for clave, texto in (("fuga_aceite", "Fuga de aceite -> testigo 9 (R02)"),
-                             ("radiador", "Radiador -> temperatura roja (R04)"),
-                             ("sobrepresion_turbo", "Sobrepresion -> turbo ambar (R05)"),
-                             ("frenos", "Falla de frenos -> testigo 10 (R08)")):
+        for clave, texto in (("fuga_aceite", "Fuga de aceite: testigo 9 y no arranca"),
+                             ("radiador", "Radiador: se calienta y la ECU lo detiene"),
+                             ("sobrepresion_turbo", "Turbo: > 1.5 bar y corte del motor"),
+                             ("frenos", "Frenos: testigo 10 y frena al 30 %"),
+                             ("velocimetro", "Velocimetro: indica 5 % menos (R39)")):
             var = tk.BooleanVar()
             self.var_fallas[clave] = var
             tk.Checkbutton(fallas, text=texto, variable=var, command=self._fallas, bg=SECCION, fg=TEXTO,
@@ -265,6 +297,14 @@ class Panel:
             lbl = tk.Label(fila, text="-", bg=SECCION, fg=TEXTO, font=(FUENTE, 10, "bold"), anchor="w")
             lbl.pack(side="left")
             self.lbl_lecturas[clave] = lbl
+        self.lbl_extra = {}
+        for clave in (*CLAVES_EXTRA, "nivel_aceite", "temp_frenos"):
+            fila = tk.Frame(lecturas, bg=SECCION)
+            fila.pack(fill="x", padx=4)
+            tk.Label(fila, text=clave, bg=SECCION, fg=TENUE, font=(FUENTE, 9), width=15, anchor="w").pack(side="left")
+            lbl = tk.Label(fila, text="-", bg=SECCION, fg=TEXTO, font=(FUENTE, 10, "bold"), anchor="w")
+            lbl.pack(side="left")
+            self.lbl_extra[clave] = lbl
         self.lbl_escritura = tk.Label(lecturas, text="", bg=SECCION, fg=TENUE, font=(FUENTE, 8), anchor="w",
                                       justify="left")
         self.lbl_escritura.pack(fill="x", padx=4, pady=(2, 4))
@@ -295,6 +335,12 @@ class Panel:
         _boton(fila, "Reproducir en el tablero", self.reproducir_escenario, color="#1f3d27").pack(side="left", padx=2)
         _boton(fila, "Recorrido 22 s", self.recorrido_automatico).pack(side="left", padx=2)
         _boton(fila, "Detener", self.detener_todo, color="#4a1c1c").pack(side="left", padx=2)
+        tk.Label(atajos, text="Liberacion de produccion: pruebas de la epoca (R13-H, R39, ECE-15)", bg=SECCION,
+                 fg=TENUE, font=(FUENTE, 8, "bold"), anchor="w").pack(fill="x", padx=4, pady=(3, 0))
+        fila = tk.Frame(atajos, bg=SECCION)
+        fila.pack(fill="x", padx=4, pady=(0, 6))
+        _boton(fila, "Banco con las fallas actuales", self.banco_actual, color="#1f3d27").pack(side="left", padx=2)
+        _boton(fila, "Ciclo ECE-15 en vivo (195 s)", self.ciclo_ece15).pack(side="left", padx=2)
 
         salida = _seccion(padre, "CONSOLA")
         salida.pack(fill="both", expand=True, pady=6)
@@ -333,6 +379,15 @@ class Panel:
             self.cambiar(k.upper())
         elif k == "m":
             self.alternar_motor()
+        elif k == "k":
+            self.alternar_contacto()
+        elif k in ("p", "o"):
+            var = self.var_puertas[1 if k == "p" else 2]
+            var.set(not var.get())
+            self._seguridad()
+        elif k == "b":
+            self.var_cinturon.set(not self.var_cinturon.get())
+            self._seguridad()
         elif k == "l":
             self.var_altas.set(not self.var_altas.get())
             self._luces()
@@ -364,10 +419,59 @@ class Panel:
         return True
 
     def alternar_motor(self):
-        self.vehiculo.motor = not self.vehiculo.motor
-        if not self.vehiculo.motor:
-            self.vehiculo.marcha = "N"            # al apagar, la caja queda en neutral
-        self.registrar(f"Contacto: motor {'ENCENDIDO' if self.vehiculo.motor else 'APAGADO'} (R01)")
+        """M: arranca (pone la llave en contacto si hacia falta) o apaga el motor y quita la llave.
+        La ECU decide si puede arrancar: con fuga de aceite, sin combustible o con una proteccion
+        enclavada no arranca y la causa llega al tablero (testigo 15)."""
+        v = self.vehiculo
+        if v.motor:
+            v.motor, v.contacto, v.marcha = False, False, "N"     # al apagar, la caja queda en neutral
+            self.registrar("Contacto: motor APAGADO (R01)")
+            return True
+        v.contacto = True
+        motivo = self.ecu.motivo_sin_arranque(v)
+        if motivo:
+            self.registrar(f"No arranca: {motivo}", "mal")
+            return False
+        v.motor = True
+        self.registrar("Contacto: motor ENCENDIDO (R01)")
+        return True
+
+    def alternar_contacto(self):
+        """K: llave entre OFF y contacto. Con contacto el tablero hace la prueba de testigos (2 s)."""
+        v = self.vehiculo
+        if v.contacto or v.motor:
+            v.motor, v.contacto, v.marcha = False, False, "N"
+            self.registrar("Llave en OFF: sin contacto (R01)")
+        else:
+            v.contacto = True
+            self.registrar("Llave en contacto: el tablero hace la prueba de testigos (2 s); M para arrancar")
+        return v.contacto
+
+    def _seguridad(self):
+        self.vehiculo.puertas = sum(bit for bit, var in self.var_puertas.items() if var.get())
+        self.vehiculo.cinturon = self.var_cinturon.get()
+
+    def taller(self, accion):
+        """Reparaciones del TALLER: la ECU libera su proteccion cuando la causa esta resuelta."""
+        v = self.vehiculo
+        if accion == "reparar":
+            for var in self.var_fallas.values():
+                var.set(False)
+            self._fallas()
+            texto = "fallas reparadas (aceite, radiador, turbo, frenos y velocimetro)"
+        elif accion == "aceite":
+            v.nivel_aceite = 100.0
+            texto = "deposito de aceite al 100 %"
+        elif accion == "tanque":
+            v.combustible_l = TANQUE_L
+            texto = f"tanque lleno ({TANQUE_L:g} L)"
+        elif accion == "reserva":
+            v.combustible_l = 10.0
+            texto = "combustible en reserva (10 L, 8 %)"
+        else:
+            raise ValueError(f"accion de taller desconocida: {accion}")
+        self.registrar(f"Taller: {texto}", "ok")
+        return True
 
     def _luces(self):
         self.vehiculo.luces_altas = self.var_altas.get()
@@ -381,10 +485,11 @@ class Panel:
     def estado_seguro(self):
         self.detener_todo()
         self.vehiculo = Vehiculo()
+        self.ecu = Ecu()
         self.var_altas.set(False)
         self.var_emergencia.set(False)
         self.var_direccional.set("OFF")
-        for var in self.var_fallas.values():
+        for var in (*self.var_fallas.values(), *self.var_puertas.values(), self.var_cinturon):
             var.set(False)
         self.pausa_hasta = 0.0
         self.ultimo_escrito = None
@@ -393,7 +498,8 @@ class Panel:
     # ================================================================ entradas invalidas
     def inyectar(self, tipo):
         """Escribe una entrada invalida y deja de escribir unos segundos para que el tablero la vea."""
-        valores = {c: formatear(c, v) for c, v in self.valores_actuales().items()}
+        todos = dict(self.valores_actuales(), **self.valores_extra())
+        valores = {c: formatear(c, v) for c, v in todos.items()}
         try:
             with exclusivo(self.ruta):
                 if tipo == "corrupto":
@@ -445,8 +551,10 @@ class Panel:
         if not self.pasos_pendientes:
             self.modo = "fisica"
             self.vehiculo = Vehiculo()
+            self.ecu = Ecu()
             self._luces()
             self._fallas()
+            self._seguridad()
             self.registrar("Escenario terminado; el panel vuelve a los pedales.", "ok")
             return
         paso = self.pasos_pendientes.pop(0)
@@ -469,10 +577,46 @@ class Panel:
         self.modo = "recorrido"
         self.registrar("Recorrido automatico de 22 s (tools/simulador.py) en curso...", "cmd")
 
+    def banco_actual(self):
+        """Corre el banco de liberacion (proceso hijo) con las fallas marcadas en el panel."""
+        argv = [comandos.PY, "tools/banco_liberacion.py"]
+        for clave, var in self.var_fallas.items():
+            if var.get():
+                argv += ["--falla", clave]          # nombres fijos del panel, no texto del usuario
+        return self.ejecutar(argv, "banco de liberacion " + " ".join(argv[2:]))
+
+    def ciclo_ece15(self):
+        """El robot del banco conduce el ciclo urbano ECE-15 en el tablero real (195 s, 0.994 km)."""
+        self.detener_todo()
+        if not self.vehiculo.motor and not self.alternar_motor():
+            self.registrar("El ciclo ECE-15 necesita el motor en marcha.", "mal")
+            return False
+        self.modo = "ciclo"
+        self.conductor = liberacion.Conductor(liberacion.ECE15, liberacion.marcha_ece15)
+        self.t_ciclo = self.km_ciclo = 0.0
+        self.registrar("Ciclo urbano ECE-15 en vivo: 195 s, 0.994 km y maximo 50 km/h. Mira el velocimetro "
+                       "y el odometro del tablero.", "cmd")
+        return True
+
+    def _avanzar_ciclo(self, dt):
+        self.conductor.aplicar(self.vehiculo, self.t_ciclo)
+        self.t_ciclo += dt
+        self.km_ciclo += self.vehiculo.velocidad * dt / 3600
+        if self.t_ciclo >= liberacion.DURACION_ECE15_S or not self.vehiculo.motor:
+            v = self.vehiculo
+            v.acelerador = v.freno = 0.0
+            self.modo = "fisica"
+            completo = self.t_ciclo >= liberacion.DURACION_ECE15_S
+            self.registrar(f"Ciclo ECE-15 {'terminado' if completo else 'interrumpido: el motor se detuvo'}: "
+                           f"{self.km_ciclo:.3f} km en {self.t_ciclo:.0f} s (norma: "
+                           f"{liberacion.DISTANCIA_ECE15_KM:g} km en 195 s).", "ok" if completo else "mal")
+
     def detener_todo(self):
         if self.recorrido is not None and self.recorrido.poll() is None:
             self.recorrido.terminate()
         self.recorrido = None
+        if self.modo == "ciclo":
+            self.vehiculo.acelerador = self.vehiculo.freno = 0.0
         if self.modo != "fisica":
             self.registrar("Detenido; el panel vuelve a los pedales.")
         self.modo = "fisica"
@@ -523,11 +667,17 @@ class Panel:
     def valores_actuales(self):
         return dict(self.valores_escenario) if self.modo == "escenario" else self.vehiculo.lecturas()
 
+    def valores_extra(self):
+        """Claves opcionales (Etapa 18). Los escenarios de aceptacion usan el formato de diez claves."""
+        if self.modo == "escenario":
+            return {}
+        return self.vehiculo.lecturas_extra(self.ecu.proteccion)
+
     def escribir(self):
         """Publica las lecturas con escritura atomica bajo el candado de escritura (como escribir_dato.py)."""
         if self.modo == "recorrido" or self.reloj() < self.pausa_hasta:
             return False
-        valores = self.valores_actuales()
+        valores = dict(self.valores_actuales(), **self.valores_extra())
         if valores == self.ultimo_escrito:
             return False
         try:
@@ -542,12 +692,17 @@ class Panel:
 
     def paso(self, dt):
         ahora = self.reloj()
-        for nombre, pisado in self.pisando.items():
-            actual = getattr(self.vehiculo, nombre)
-            objetivo = 1.0 if pisado else 0.0
-            ritmo = (SUBIDA if objetivo > actual else BAJADA) * dt
-            setattr(self.vehiculo, nombre, actual + max(-ritmo, min(ritmo, objetivo - actual)))
-        if self.modo == "fisica":
+        if self.modo == "ciclo":                  # el robot del banco maneja los pedales
+            self._avanzar_ciclo(dt)
+        else:
+            for nombre, pisado in self.pisando.items():
+                actual = getattr(self.vehiculo, nombre)
+                objetivo = 1.0 if pisado else 0.0
+                ritmo = (SUBIDA if objetivo > actual else BAJADA) * dt
+                setattr(self.vehiculo, nombre, actual + max(-ritmo, min(ritmo, objetivo - actual)))
+        if self.modo in ("fisica", "ciclo"):
+            for aviso in self.ecu.vigilar(self.vehiculo, dt):
+                self.registrar(aviso, "mal" if "detenido" in aviso or "Interbloqueo" in aviso else "ok")
             self.vehiculo.avanzar(dt)
         elif self.modo == "recorrido" and (self.recorrido is None or self.recorrido.poll() is not None):
             self.registrar("Recorrido terminado.", "ok")
@@ -578,7 +733,24 @@ class Panel:
         self.cv_cambios.coords(self.pomo_txt, x, y)
         self.cv_cambios.itemconfigure(self.pomo_txt, text=v.marcha)
         self.btn_contacto.configure(bg="#1f5a2c" if v.motor else "#2b1414",
-                                    text=f"CONTACTO\n{'MOTOR ON' if v.motor else 'MOTOR OFF'}  [M]")
+                                    text=f"ARRANQUE [M]\n{'MOTOR ON' if v.motor else 'MOTOR OFF'}")
+        llave = "MOTOR" if v.motor else ("CONTACTO" if v.contacto else "OFF")
+        self.btn_llave.configure(bg="#5a4a12" if llave == "CONTACTO" else ("#1f5a2c" if v.motor else "#2b1414"),
+                                 text=f"LLAVE [K]\n{llave}")
+        extra = self.valores_extra() or v.lecturas_extra(self.ecu.proteccion)
+        for clave, lbl in self.lbl_extra.items():
+            if clave == "nivel_aceite":
+                texto, color = f"{v.nivel_aceite:.0f} %", ROJO if v.nivel_aceite < 50 else TEXTO
+            elif clave == "temp_frenos":
+                texto = f"{v.temp_frenos:.0f} C  (eficiencia {v.eficiencia_frenos * 100:.0f} %)"
+                color = ROJO if v.eficiencia_frenos < 0.9 else TEXTO
+            else:
+                valor = extra[clave]
+                texto = formatear(clave, valor)
+                malo = (clave == "falla_motor" and valor != "ninguna" or clave == "puertas" and valor
+                        or clave == "cinturon" and not valor and v.contacto or clave == "combustible" and valor <= 12)
+                color = AMBAR if malo else TEXTO
+            lbl.configure(text=texto, fg=color)
 
         valores = self.valores_actuales()
         for clave, lbl in self.lbl_lecturas.items():

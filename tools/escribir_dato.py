@@ -3,6 +3,7 @@
 Uso:
     python3 tools/escribir_dato.py motor=1 velocidad=120 direccional=izquierda
     python3 tools/escribir_dato.py --sin-validar temp_agua=abc     # para demostrar un error
+    python3 tools/escribir_dato.py contacto=1 puertas=1 cinturon=0 combustible=8   # claves opcionales
 
 Por defecto valida cada valor y no escribe nada si alguno es invalido (codigo 2).
 Con --sin-validar escribe el texto tal cual, para provocar a proposito los
@@ -17,8 +18,8 @@ import sys
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent))
 
 from sistema import config as configuracion
-from sistema.lector import (CLAVES, VALORES_INICIALES, DatoInvalido, convertir, escribir_texto_atomico, formatear,
-                            parsear)
+from sistema.lector import (CLAVES, CLAVES_EXTRA, VALORES_INICIALES, DatoInvalido, convertir, escribir_texto_atomico,
+                            formatear, parsear)
 
 
 @contextlib.contextmanager
@@ -59,8 +60,9 @@ def _escribir(ruta, args, cfg):
     for par in args.pares:
         clave, signo, texto = par.partition("=")
         clave = clave.strip().lower()
-        if not signo or clave not in CLAVES:
-            print(f"ERROR: '{par}' no es clave=valor de una clave conocida: {', '.join(CLAVES)}", file=sys.stderr)
+        if not signo or (clave not in CLAVES and clave not in CLAVES_EXTRA):
+            print(f"ERROR: '{par}' no es clave=valor de una clave conocida: {', '.join((*CLAVES, *CLAVES_EXTRA))}",
+                  file=sys.stderr)
             return 2
         if not args.sin_validar:
             try:
@@ -73,6 +75,8 @@ def _escribir(ruta, args, cfg):
     lineas = ["# Datos de entrada del cluster F40 (clave=valor). Escrito por tools/escribir_dato.py."]
     for clave in CLAVES:
         lineas.append(f"{clave}={actuales.get(clave, formatear(clave, VALORES_INICIALES[clave]))}")
+    # Las claves opcionales (Etapa 18) se conservan si ya estaban o si se escriben ahora; no se inventan.
+    lineas += [f"{clave}={actuales[clave]}" for clave in CLAVES_EXTRA if clave in actuales]
     escribir_texto_atomico(ruta, "\n".join(lineas) + "\n")
     print(f"OK {ruta.name}: " + " ".join(args.pares))
     return 0

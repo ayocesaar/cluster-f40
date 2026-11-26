@@ -174,11 +174,32 @@
 | CP-160 | Panel de control (mandos y atajos) | - | contacto, marcha, acelerador y luces del panel quedan en datos/vehiculo.conf y el lector del tablero los acepta. | `test_panel.py::test_cp160_pedales_y_luces_llegan_al_archivo` | PASS |
 | CP-161 | Panel de control (mandos y atajos) | - | el panel escribe la entrada invalida, deja de escribir 3 s y luego restaura datos validos. | `test_panel.py::test_cp161_entradas_invalidas_y_restauracion` | PASS |
 | CP-162 | Panel de control (mandos y atajos) | - | un escenario de aceptacion se reproduce en el archivo paso a paso; los atajos existen y el ejecutor reporta su codigo. | `test_panel.py::test_cp162_escenarios_en_vivo_y_atajos` | PASS |
+| CP-163 | Realismo y seguridad (elementos 12-15, ECU) | - | las claves opcionales se codifican y decodifican sin perdida (booleano, bits de estado, decimal y causa) y se rechazan fuera de tipo o de rango. | `test_realismo.py::test_cp163_claves_opcionales_tipos_y_rangos` | PASS |
+| CP-164 | Realismo y seguridad (elementos 12-15, ECU) | - | un archivo de diez claves no genera errores ni claves opcionales; una opcional invalida conserva su ultimo valor (ERROR); la que deja de llegar vuelve a sin dato (INFO); motor=1 con contacto=0 es un dato_inconsistente. | `test_realismo.py::test_cp164_formato_de_diez_claves_compatible_y_consistencia` | PASS |
+| CP-165 | Realismo y seguridad (elementos 12-15, ECU) | R01, R02 | con contacto y motor apagado, velocidad y temperatura se actualizan y el odometro avanza; RPM, aceite y turbo quedan en 0 y el testigo 9 apagado (D3, R01, R02); sin dato de contacto el cuadro sigue al motor como antes. | `test_realismo.py::test_cp165_contacto_separa_encendido_de_motor_activo` | PASS |
+| CP-166 | Realismo y seguridad (elementos 12-15, ECU) | R08, R13 | al pasar la llave a contacto todos los testigos encienden 2 s y despues solo queda el de una falla real (R08); el monitor registra la prueba y ningun WARN por ella (R13-H 5.2.21.4). | `test_realismo.py::test_cp166_prueba_de_testigos_al_dar_contacto` | PASS |
+| CP-167 | Realismo y seguridad (elementos 12-15, ECU) | R09 | puertas=1 enciende el testigo 12 ambar fijo con el auto detenido; en movimiento parpadea en rojo y se registra WARN prioritario puerta_abierta_en_movimiento (R09); los bits 1 y 2 nombran las puertas. | `test_realismo.py::test_cp167_puerta_abierta_fija_detenido_y_critica_en_movimiento` | PASS |
+| CP-168 | Realismo y seguridad (elementos 12-15, ECU) | R10 | con contacto y cinturon sin abrochar el testigo 13 enciende fijo; sobre 10 km/h parpadea y se registra WARN cinturon_desabrochado_en_movimiento (R10); sin dato o abrochado queda apagado. | `test_realismo.py::test_cp168_cinturon_desabrochado` | PASS |
+| CP-169 | Realismo y seguridad (elementos 12-15, ECU) | R11 | el combustible se muestra con el ciclo de 500 ms y en litros del tanque de 120 L; la reserva enciende con <= 12 % y se apaga con >= 15 % (histeresis) y se registra WARN combustible_reserva (R11). | `test_realismo.py::test_cp169_combustible_y_reserva_con_histeresis` | PASS |
+| CP-170 | Realismo y seguridad (elementos 12-15, ECU) | R12 | falla_motor con una causa enciende el testigo 15 con su texto y registra WARN motor_detenido_por_proteccion; al volver a ninguna se registra INFO proteccion_motor_liberada (R12); el modelo rechaza tipos y rangos invalidos. | `test_realismo.py::test_cp170_proteccion_del_motor_y_validacion_del_modelo` | PASS |
+| CP-171 | Realismo y seguridad (elementos 12-15, ECU) | - | la franja inferior del tablero dibuja la llave, el combustible con su reserva, la puerta, el cinturon y la proteccion; sin dato quedan apagados; aplicar_externo acepta claves sin control manual y None. | `test_realismo.py::test_cp171_tablero_dibuja_los_elementos_adicionales` | PASS |
+| CP-172 | Realismo y seguridad (elementos 12-15, ECU) | R02, R12 | con fuga de aceite la ECU no deja arrancar y enclava la causa aceite (R02, R12); reparar no basta si el deposito quedo bajo 50 %; una fuga en marcha vacia el deposito y la ECU detiene el motor por falta de presion. | `test_realismo.py::test_cp172_fuga_de_aceite_no_deja_arrancar` | PASS |
+| CP-173 | Realismo y seguridad (elementos 12-15, ECU) | R04, R12 | con el radiador danado el agua llega a 120 C, la ECU detiene el motor (R04, R12) y no deja arrancar hasta reparar y enfriar bajo 100 C; sin motor el auto no avanza aunque se acelere. | `test_realismo.py::test_cp173_sobrecalentamiento_detiene_el_motor_y_no_deja_moverse` | PASS |
+| CP-174 | Realismo y seguridad (elementos 12-15, ECU) | R05, R12 | con la valvula de descarga fallando el turbo pasa de 1.5 bar; tras 1 s la ECU corta el motor y la proteccion queda enclavada hasta reparar (R05, R12). | `test_realismo.py::test_cp174_sobrepresion_del_turbo_corta_el_motor` | PASS |
+| CP-175 | Realismo y seguridad (elementos 12-15, ECU) | R08 | con falla de frenos la eficiencia baja al 30 % y desde 100 km/h el auto tarda mas de 2.5 veces en detenerse (R08); cada frenada calienta los discos y en caliente la eficiencia baja hasta 60 % (fading). | `test_realismo.py::test_cp175_falla_de_frenos_frena_mal_y_los_frenos_calientes_pierden_eficiencia` | PASS |
+| CP-176 | Realismo y seguridad (elementos 12-15, ECU) | R09 | con una puerta abierta la ECU bloquea la traccion: el auto no avanza aunque se acelere y se avisa una vez; al cerrar la puerta avanza (R09). | `test_realismo.py::test_cp176_puerta_abierta_impide_avanzar` | PASS |
+| CP-177 | Realismo y seguridad (elementos 12-15, ECU) | R11, R12 | el consumo vacia el tanque (2 L/h en ralenti); sin combustible el motor se apaga, la ECU informa la causa combustible y no arranca hasta cargar (R11, R12). | `test_realismo.py::test_cp177_sin_combustible_el_motor_se_apaga_y_no_arranca` | PASS |
+| CP-178 | Realismo y seguridad (elementos 12-15, ECU) | - | el panel separa llave y arranque, no arranca con fuga de aceite y lo avisa, escribe las claves opcionales que acepta el lector, la puerta abierta impide avanzar, el taller repara y el banco y el ciclo ECE-15 corren desde el panel. | `test_realismo.py::test_cp178_panel_llave_arranque_puertas_y_taller` | PASS |
+| CP-179 | Banco de liberacion (normas de la epoca) | R13, R39 | las formulas de R13-H y R39 dan los valores del texto de la norma: tipo 0 a 100 km/h <= 70 m, dm de un caso calculado a mano, v1 = 120 y v2 = 60 km/h en el tipo I y los limites del velocimetro a 40, 80 y 120 km/h. | `test_liberacion.py::test_cp179_formulas_de_las_normas` | PASS |
+| CP-180 | Banco de liberacion (normas de la epoca) | - | el perfil del ciclo urbano ECE-15 dura 195 s, llega a 50 km/h y su distancia integrada es 994.03 m. | `test_liberacion.py::test_cp180_perfil_del_ciclo_ece15` | PASS |
+| CP-181 | Banco de liberacion (normas de la epoca) | - | la unidad sin fallas aprueba las 9 pruebas del banco y el odometro del cuadro mide el ciclo ECE-15 con menos de 1 % de error: APTO PARA PRODUCCION. | `test_liberacion.py::test_cp181_unidad_sana_apta_para_produccion` | PASS |
+| CP-182 | Banco de liberacion (normas de la epoca) | R39 | cada falla del panel deja la unidad RECHAZADA y la detecta la prueba de su sistema: aceite en el arranque, radiador en el enfriamiento, turbo a plena carga, frenos en testigos, tipo 0 y tipo I, y velocimetro en R39 y el odometro. | `test_liberacion.py::test_cp182_cada_falla_la_rechaza_la_prueba_de_su_sistema` | PASS |
+| CP-183 | Banco de liberacion (normas de la epoca) | - | tools/banco_liberacion.py --evidencia escribe el reporte con la matriz falla -> prueba y termina con 0 porque el banco distingue la unidad sana de cada falla; con una falla termina con 1. | `test_liberacion.py::test_cp183_herramienta_del_banco_deja_evidencia` | PASS |
 
 ## Resumen
 
-- Casos de prueba: 172
-- Pasaron: 172
+- Casos de prueba: 193
+- Pasaron: 193
 - Fallo esperado por defecto abierto (XFAIL): 0
 - Fallaron / otros: 0
 
@@ -186,13 +207,19 @@
 
 | Requisito | Casos |
 |-----------|-------|
-| R01 | CA-01, CA-02, CA-03, CA-07, CA-09, CA-10, CP-35, CP-36, CP-37, CP-51, CP-53, CP-54, CP-65, CP-66, CP-68, CP-73, CP-74, CP-91, CP-92, CP-93, CP-94, CP-96, CP-115, CP-117, CP-123, CP-155 |
-| R02 | CA-09, CP-03, CP-17, CP-18, CP-19, CP-20, CP-37, CP-43, CP-44, CP-70, CP-92, CP-93, CP-99, CP-117, CP-138, CP-158 |
+| R01 | CA-01, CA-02, CA-03, CA-07, CA-09, CA-10, CP-35, CP-36, CP-37, CP-51, CP-53, CP-54, CP-65, CP-66, CP-68, CP-73, CP-74, CP-91, CP-92, CP-93, CP-94, CP-96, CP-115, CP-117, CP-123, CP-155, CP-165 |
+| R02 | CA-09, CP-03, CP-17, CP-18, CP-19, CP-20, CP-37, CP-43, CP-44, CP-70, CP-92, CP-93, CP-99, CP-117, CP-138, CP-158, CP-165, CP-172 |
 | R03 | CA-03, CP-02, CP-13, CP-14, CP-15, CP-16, CP-27, CP-40, CP-41, CP-42, CP-69, CP-75, CP-92, CP-93, CP-94, CP-115, CP-117 |
-| R04 | CA-04, CP-04, CP-21, CP-22, CP-23, CP-28, CP-45, CP-46, CP-69, CP-92, CP-93, CP-94, CP-117, CP-138, CP-158 |
-| R05 | CA-05, CP-05, CP-24, CP-25, CP-26, CP-29, CP-47, CP-48, CP-69, CP-92, CP-93, CP-94, CP-117, CP-138, CP-158 |
+| R04 | CA-04, CP-04, CP-21, CP-22, CP-23, CP-28, CP-45, CP-46, CP-69, CP-92, CP-93, CP-94, CP-117, CP-138, CP-158, CP-173 |
+| R05 | CA-05, CP-05, CP-24, CP-25, CP-26, CP-29, CP-47, CP-48, CP-69, CP-92, CP-93, CP-94, CP-117, CP-138, CP-158, CP-174 |
 | R06 | CA-06, CA-08, CP-06, CP-07, CP-08, CP-30, CP-49, CP-50, CP-57, CP-71, CP-141 |
 | R07 | CA-07, CA-08, CP-09, CP-31, CP-33, CP-34, CP-58, CP-64, CP-65, CP-71, CP-72, CP-117 |
-| R08 | CA-10, CP-09, CP-32, CP-59, CP-66, CP-72, CP-76, CP-99, CP-115, CP-117 |
+| R08 | CA-10, CP-09, CP-32, CP-59, CP-66, CP-72, CP-76, CP-99, CP-115, CP-117, CP-166, CP-175 |
+| R09 | CP-167, CP-176 |
+| R10 | CP-168 |
+| R11 | CP-169, CP-177 |
+| R12 | CP-170, CP-172, CP-173, CP-174, CP-177 |
+| R13 | CP-166, CP-179 |
+| R39 | CP-179, CP-182 |
 
 Requisitos sin casos: ninguno

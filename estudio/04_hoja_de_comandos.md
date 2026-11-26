@@ -13,7 +13,7 @@ $env:DISPLAY = "127.0.0.1:0.0"
 ssh -Y -p 2222 ayocesaar@127.0.0.1 "cd ~/cluster-f40 && ./abrir_panel.sh"
 ```
 
-En el panel: **Abrir tablero**, **CONTACTO** (M), marcha (1-5), acelerador (W) y freno (S). Las fallas, las entradas inválidas, los escenarios CA-01 a CA-10 y las pruebas también tienen botones.
+En el panel: **Abrir tablero**, **LLAVE** (K: contacto y prueba de testigos), **ARRANQUE** (M), marcha (1-5), acelerador (W) y freno (S). Puertas (P y O), cinturón (B), fallas, **TALLER**, entradas inválidas, escenarios CA-01 a CA-10, el **banco de liberación**, el **ciclo ECE-15 en vivo** y las pruebas también tienen botones.
 
 ## 1. Conexión y arranque
 
@@ -142,6 +142,31 @@ tail -n 20 logs/eventos.log                  # últimos eventos
 cat logs/errores.log                         # errores
 grep odometro logs/eventos.log               # solo el odómetro
 ls -l logs/                                  # permisos 640 y rotación
+```
+
+Comandos de observación de la guía (sección 6), con el tablero abierto:
+
+```
+ps -o pid,ppid,stat,%cpu,%mem,rss,vsz,cmd -p $(pgrep -f main.py)   # proceso: estado, CPU, memoria
+watch -n 1 "du -h logs/*.log"                                         # tamaño de bitácoras cada segundo
+wc -l logs/eventos.log logs/errores.log                               # líneas de eventos y de errores
+grep WARN logs/eventos.log                                            # advertencias prioritarias
+```
+
+## 5b. Realismo, seguridad y banco de liberación (VM)
+
+```
+python tools/escribir_dato.py contacto=1                     # llave: prueba de testigos de 2 s
+python tools/escribir_dato.py motor=1 puertas=1              # testigo 12 (puerta del conductor)
+python tools/escribir_dato.py velocidad=40                   # puerta abierta en movimiento: WARN
+python tools/escribir_dato.py puertas=0 cinturon=0           # testigo 13 (cinturón sin abrochar)
+python tools/escribir_dato.py combustible=8                  # reserva (R11): WARN combustible_reserva
+python tools/escribir_dato.py falla_motor=sobretemperatura   # testigo 15 STOP (R12)
+python tools/escribir_dato.py motor=1 contacto=0             # dato_inconsistente en errores.log
+python tools/banco_liberacion.py                             # 9 pruebas: APTO PARA PRODUCCION
+python tools/banco_liberacion.py --falla frenos              # RECHAZADO: L02, L03 y L04
+python tools/banco_liberacion.py --evidencia                 # matriz falla -> prueba (docs/evidencias)
+xvfb-run -a python -m pytest -q tests/test_realismo.py tests/test_liberacion.py   # CP-163 a CP-183
 ```
 
 ## 6. Odómetro (VM)

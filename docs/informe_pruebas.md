@@ -22,7 +22,7 @@ pruebas automatizadas con pytest y medicion de cobertura con coverage.
 
 ## 3. Entorno
 
-- Sistema: Linux 5.15.0-203-generic
+- Sistema: Linux 5.15.0-204-generic
 - Python: 3.10.12
 - pytest: 9.2.0
 - coverage: 7.16.2
@@ -34,18 +34,20 @@ pruebas automatizadas con pytest y medicion de cobertura con coverage.
 | Aceptacion (dirigida por datos) | 27 | 27 | 0 | 0 |
 | Caja blanca (cobertura) | 13 | 13 | 0 | 0 |
 | Entradas invalidas | 15 | 15 | 0 | 0 |
+| test_liberacion | 9 | 9 | 0 | 0 |
 | Valores limite | 16 | 16 | 0 | 0 |
 | Temas de la materia (senales, shell) | 6 | 6 | 0 | 0 |
 | Odometro (elemento 11) | 20 | 20 | 0 | 0 |
 | Panel de control (mandos y atajos) | 10 | 10 | 0 | 0 |
 | Particion de equivalencia | 10 | 10 | 0 | 0 |
 | Presentacion (caja negra) | 7 | 7 | 0 | 0 |
+| test_realismo | 16 | 16 | 0 | 0 |
 | Basada en requisitos | 3 | 3 | 0 | 0 |
 | Robustez (auditoria y ataque QA) | 27 | 27 | 0 | 0 |
 | Sistema (archivos, bitacoras, concurrencia) | 37 | 37 | 0 | 0 |
 | Integracion UI (Tkinter) | 6 | 6 | 0 | 0 |
 | Transicion de estados | 11 | 11 | 0 | 0 |
-| **Total** | **208** | **208** | **0** | **0** |
+| **Total** | **233** | **233** | **0** | **0** |
 
 Las ejecuciones cuentan cada variante parametrizada por separado; la matriz de
 trazabilidad agrupa por caso de prueba (CP).
@@ -54,11 +56,11 @@ trazabilidad agrupa por caso de prueba (CP).
 
 | Modulo | Lineas | Ramas | Cobertura |
 |--------|--------|-------|-----------|
-| `logic/estado.py` | 198/198 | 64/64 | 100.0% |
+| `logic/estado.py` | 312/312 | 95/98 | 99.3% |
 | `logic/reloj.py` | 18/18 | 4/4 | 100.0% |
 | `logic/odometro.py` | 27/27 | 8/8 | 100.0% |
-| `ui/presentacion.py` | 21/21 | 0/0 | 100.0% |
-| `ui/tablero.py` | 287/287 | 57/58 | 99.7% |
+| `ui/presentacion.py` | 36/36 | 4/4 | 100.0% |
+| `ui/tablero.py` | 367/368 | 86/88 | 99.3% |
 | `main.py` | 100/103 | 16/18 | 95.9% |
 | `aceptacion/escenarios.py` | 139/139 | 44/44 | 100.0% |
 
@@ -72,7 +74,7 @@ de las pruebas y el resultado de junit.
 
 ## 7. Defectos
 
-- Defectos registrados: 15
+- Defectos registrados: 16
 - Defectos abiertos: 0
 - DEF-01 (testigo 10 parpadeando con el motor apagado) fue rechazado: R08
   no condiciona el testigo al motor. Se revirtio la correccion de la Etapa 7
@@ -111,4 +113,4 @@ de las pruebas y el resultado de junit.
 
 ## 10. Conclusion
 
-Las 208 ejecuciones pasan, la cobertura de la logica es completa y no quedan defectos abiertos: la logica cumple R01-R08 segun las pruebas definidas.
+Las 233 ejecuciones pasan, la cobertura de la logica es completa y no quedan defectos abiertos: la logica cumple R01-R08 segun las pruebas definidas.

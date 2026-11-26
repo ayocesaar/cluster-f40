@@ -20,7 +20,7 @@ from PIL import ImageGrab, features
 from aceptacion.escenarios import NOMBRES_COLOR
 from logic.estado import EstadoCluster
 from logic.reloj import RelojSimulado
-from ui.presentacion import vista
+from ui.presentacion import vista, vista_extra
 from ui.tablero import Tablero
 
 DESTINO = pathlib.Path("docs/evidencias/capturas")
@@ -80,6 +80,35 @@ def entrada_rechazada(tablero, reloj):
     tablero.enviar("set_rpm", 9001)
 
 
+def _externo(tablero, **valores):
+    """Claves opcionales (Etapa 18): no tienen control manual, llegan como del archivo de datos."""
+    for setter, valor in valores.items():
+        tablero.aplicar_externo(setter, valor)
+
+
+def prueba_de_testigos(tablero, reloj):
+    _externo(tablero, set_contacto=True, set_puertas=0, set_cinturon=True, set_combustible=62.0,
+             set_falla_motor="ninguna")
+    reloj.avanzar(300)
+    tablero.ciclo()
+
+
+def proteccion_por_sobretemperatura(tablero, reloj):
+    _externo(tablero, set_contacto=True, set_puertas=0, set_cinturon=False, set_combustible=9.0,
+             set_falla_motor="sobretemperatura")
+    _ajustar(tablero, set_velocidad=40, set_temp_agua=121)
+    reloj.avanzar(3000)            # termino la prueba de testigos; fase encendida del parpadeo
+    tablero.ciclo()
+
+
+def puerta_abierta_detenido(tablero, reloj):
+    _externo(tablero, set_contacto=True, set_puertas=1, set_cinturon=True, set_combustible=62.0,
+             set_falla_motor="ninguna")
+    _ajustar(tablero, set_motor=True, set_rpm=1000, set_presion_aceite=1.5, set_temp_agua=88)
+    reloj.avanzar(2600)
+    tablero.ciclo()
+
+
 # (archivo, descripcion, casos relacionados, requisitos, preparacion)
 CAPTURAS = (
     ("01_estado_inicial_seguro.png", "Estado inicial seguro: motor apagado, agujas en su minimo y testigos apagados",
@@ -98,12 +127,28 @@ CAPTURAS = (
      "CA-10, CP-76", "R08", falla_frenos_motor_apagado),
     ("08_entrada_rechazada.png", "Valor fuera de rango (9001 RPM) enviado por programa: mensaje en pantalla",
      "CP-77", "-", entrada_rechazada),
+    ("10_prueba_de_testigos.png", "Llave en contacto: prueba de testigos, todos encendidos durante 2 s",
+     "CP-166", "R13-H 5.2.21.4", prueba_de_testigos),
+    ("11_proteccion_por_sobretemperatura.png", "Motor detenido por la ECU: agua a 121 C, testigo 15 con la causa, "
+     "cinturon sin abrochar en movimiento y combustible en reserva", "CP-165, CP-168, CP-169, CP-170",
+     "R04, R10, R11, R12", proteccion_por_sobretemperatura),
+    ("12_puerta_abierta_detenido.png", "Puerta del conductor abierta con el auto detenido: testigo 12 ambar fijo",
+     "CP-167", "R09", puerta_abierta_detenido),
 )
 
 
 def _resumen(v):
     partes = [f"{n}={v[n]['valor']:g} {NOMBRES_COLOR[v[n]['color']]}" for n in range(1, 6)]
     partes += [f"{n}={NOMBRES_COLOR[v[n]['color']]}" for n in range(6, 11)]
+    return ", ".join(partes)
+
+
+def _resumen_extra(estado):
+    e = vista_extra(estado)
+    partes = [f"llave={e['llave']['estado']}"]
+    partes += [f"{n}={NOMBRES_COLOR[e[n]['color']]}" for n in (12, 13, 15)]
+    partes.append("14=sin dato" if e[14]["sin_dato"] else f"14={e[14]['valor']:g} % reserva="
+                  f"{'si' if e[14]['reserva']['encendido'] else 'no'}")
     return ", ".join(partes)
 
 
@@ -135,7 +180,8 @@ def main():
             tablero.detener()
             tablero.refrescar()
             (ancho, alto), colores = capturar(raiz, DESTINO / archivo)
-            resumen = _resumen(vista(estado)) + f", 11 odometro={estado.odometro.texto}"
+            resumen = (_resumen(vista(estado)) + f", 11 odometro={estado.odometro.texto}, "
+                       + _resumen_extra(estado))
             mensaje = tablero.mensaje.cget("text")
         finally:
             raiz.destroy()

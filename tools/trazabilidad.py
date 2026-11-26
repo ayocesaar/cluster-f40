@@ -21,6 +21,8 @@ TECNICAS = {
     "test_robustez.py": "Robustez (auditoria y ataque QA)",
     "test_materia.py": "Temas de la materia (senales, shell)",
     "test_panel.py": "Panel de control (mandos y atajos)",
+    "test_realismo.py": "Realismo y seguridad (elementos 12-15, ECU)",
+    "test_liberacion.py": "Banco de liberacion (normas de la epoca)",
 }
 
 # Los casos parametrizados llegan como "test_x[param]": se agrupan por funcion
@@ -81,7 +83,7 @@ for f in filas:
 for r in sorted(por_req):
     lineas.append(f"| {r} | {', '.join(por_req[r])} |")
 
-faltan = [f"R0{i}" for i in range(1, 9) if f"R0{i}" not in por_req]
+faltan = [f"R{i:02d}" for i in range(1, 13) if f"R{i:02d}" not in por_req]   # R09-R12: reglas agregadas (Etapa 18)
 lineas += ["", f"Requisitos sin casos: {', '.join(faltan) or 'ninguno'}"]
 
 pathlib.Path("docs/matriz_trazabilidad.md").write_text("\n".join(lineas) + "\n", encoding="utf-8")

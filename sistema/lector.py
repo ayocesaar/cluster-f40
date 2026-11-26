@@ -43,6 +43,22 @@ CLAVES_NO_PERMITIDAS = {"odometro": "el kilometraje lo calcula el sistema; no se
 DIRECCIONALES = {"off": "OFF", "izquierda": "IZQ", "derecha": "DER"}
 DIRECCIONALES_TEXTO = {v: k for k, v in DIRECCIONALES.items()}
 
+# Claves opcionales (Etapa 18): amplian el formato sin romper a los productores de diez claves
+# (simulador, escenarios, escribir_dato de versiones anteriores). Si una clave opcional nunca
+# llega, su elemento queda "sin dato" y no hay error: ese productor no la usa. Si llegaba y deja
+# de llegar, se registra INFO clave_opcional_retirada y el elemento vuelve a "sin dato". Si llega
+# invalida, se registra ERROR y se conserva su ultimo valor valido, igual que las diez claves.
+CLAVES_EXTRA = {
+    "contacto": ("set_contacto", "booleano"),        # llave en contacto (separa Encendido de Motor activo)
+    "puertas": ("set_puertas", "bits"),              # bits de estado: bit 0 conductor, bit 1 pasajero
+    "cinturon": ("set_cinturon", "booleano"),        # 1 = cinturon del conductor abrochado
+    "combustible": ("set_combustible", "decimal"),   # porcentaje del tanque (120 L en el F40)
+    "falla_motor": ("set_falla_motor", "causa"),     # causa de la proteccion del motor (la envia la ECU)
+}
+RANGOS_EXTRA = {"puertas": (0, 3), "combustible": (0.0, 100.0)}
+CAUSAS_MOTOR = ("ninguna", "sobretemperatura", "sobrepresion_turbo", "aceite", "combustible")
+BITS_PUERTAS = ((1, "conductor"), (2, "pasajero"))
+
 # Estado seguro: es el valor que toma una clave que nunca llego valida.
 VALORES_INICIALES = {
     "motor": False, "velocidad": 0.0, "rpm": 0, "presion_aceite": 0.0, "temp_agua": 40.0,
@@ -61,9 +77,14 @@ class DatoInvalido(ValueError):
         self.detalle = detalle
 
 
+def _tipo(clave):
+    """(setter, tipo) de una de las diez claves o de una clave opcional."""
+    return CLAVES[clave] if clave in CLAVES else CLAVES_EXTRA[clave]
+
+
 def convertir(clave, texto, rangos):
     """Convierte el texto de una clave a su tipo y valida su rango; si no, DatoInvalido."""
-    _, tipo = CLAVES[clave]
+    _, tipo = _tipo(clave)
     if len(texto) > LARGO_MAXIMO_VALOR:
         raise DatoInvalido("dato_invalido", f"{clave} entrada demasiado larga ({len(texto)} caracteres)")
     if tipo == "booleano":
@@ -75,12 +96,17 @@ def convertir(clave, texto, rangos):
         if valor is None:
             raise DatoInvalido("dato_invalido", f'{clave} entrada="{texto}" (se espera off, izquierda o derecha)')
         return valor
-    patron = _ENTERO if tipo == "entero" else _DECIMAL
+    if tipo == "causa":
+        if texto not in CAUSAS_MOTOR:
+            raise DatoInvalido("dato_invalido", f'{clave} entrada="{texto}" (se espera {", ".join(CAUSAS_MOTOR)})')
+        return texto
+    patron = _DECIMAL if tipo == "decimal" else _ENTERO
     # Solo digitos ASCII: Python convierte "５" o "٣" a numero y \d los acepta (DEF-14).
     if not texto.isascii() or not patron.fullmatch(texto):
-        raise DatoInvalido("dato_invalido", f'{clave} entrada="{texto}" (se espera un numero {tipo})')
-    valor = int(texto) if tipo == "entero" else float(texto)
-    minimo, maximo = rangos[clave]
+        esperado = "un entero de bits (0-3)" if tipo == "bits" else f"un numero {tipo}"
+        raise DatoInvalido("dato_invalido", f'{clave} entrada="{texto}" (se espera {esperado})')
+    valor = float(texto) if tipo == "decimal" else int(texto)
+    minimo, maximo = rangos[clave] if clave in rangos else RANGOS_EXTRA[clave]
     if not minimo <= valor <= maximo:
         raise DatoInvalido("fuera_de_rango", f"{clave}={texto} (rango {minimo:g}-{maximo:g})")
     return valor
@@ -88,12 +114,18 @@ def convertir(clave, texto, rangos):
 
 def formatear(clave, valor):
     """Texto de un valor en el formato del archivo (inverso de convertir)."""
-    _, tipo = CLAVES[clave]
+    _, tipo = _tipo(clave)
     if tipo == "booleano":
         return "1" if valor else "0"
     if tipo == "enumeracion":
         return DIRECCIONALES_TEXTO[valor]
     return str(valor)
+
+
+def describir_puertas(bits):
+    """Texto de los bits de estado de las puertas: 3 -> 'conductor+pasajero'."""
+    abiertas = [nombre for bit, nombre in BITS_PUERTAS if bits & bit]
+    return "+".join(abiertas) or "cerradas"
 
 
 def parsear(texto):
@@ -109,7 +141,7 @@ def parsear(texto):
             problemas.append(("linea_invalida", f"linea {numero} sin formato clave=valor"))
         elif clave in CLAVES_NO_PERMITIDAS:
             problemas.append(("clave_no_permitida", f"linea {numero} clave={clave} ({CLAVES_NO_PERMITIDAS[clave]})"))
-        elif clave not in CLAVES:
+        elif clave not in CLAVES and clave not in CLAVES_EXTRA:
             problemas.append(("clave_desconocida", f"linea {numero} clave={clave[:LARGO_MAXIMO_VALOR]!r}"))
         elif clave in pares:
             problemas.append(("clave_duplicada", f"linea {numero} clave={clave} (se usa la ultima)"))
@@ -122,7 +154,7 @@ def parsear(texto):
 def escribir_atomico(ruta, valores):
     """Escribe todas las claves (valores ya tipados) de forma atomica."""
     lineas = ["# Datos de entrada del cluster F40 (clave=valor). Escrito de forma atomica."]
-    lineas += [f"{clave}={formatear(clave, valores[clave])}" for clave in CLAVES if clave in valores]
+    lineas += [f"{clave}={formatear(clave, valores[clave])}" for clave in (*CLAVES, *CLAVES_EXTRA) if clave in valores]
     escribir_texto_atomico(ruta, "\n".join(lineas) + "\n")
 
 
@@ -159,6 +191,7 @@ class Lector:
         self.rangos = rangos
         self.bitacora = bitacora
         self.ultimo_valido = dict(VALORES_INICIALES)
+        self.extras = {}            # claves opcionales presentes y validas (Etapa 18)
         self._firma = None          # (inodo, mtime, tamano) de la ultima lectura completa
         self.rechazos = []          # problemas de la ultima lectura (para avisar en la ventana)
         self._problema_archivo = None
@@ -242,7 +275,44 @@ class Lector:
             if valor != self.ultimo_valido[clave]:
                 self.bitacora.info(COMPONENTE, "valor_actualizado", f"{clave}={pares[clave]} resultado=aceptado")
                 self.ultimo_valido[clave] = valor
-        return dict(self.ultimo_valido)
+        self._procesar_extras(pares)
+        return dict(self.ultimo_valido, **self.extras)
+
+    def _rechazar(self, clave, texto, evento, detalle):
+        """Rechazo de una clave: aviso en la ventana y una sola linea de error mientras se repita."""
+        self.rechazos.append(detalle)
+        if self._ultimo_error.get(clave) != texto:
+            self.bitacora.error(COMPONENTE, evento, f"{detalle} resultado=rechazado")
+            self._ultimo_error[clave] = texto
+
+    def _procesar_extras(self, pares):
+        """Claves opcionales: mismas validaciones que las diez, pero su ausencia no es un error
+        mientras el productor nunca las haya enviado (compatibilidad con el formato de diez claves)."""
+        for clave in CLAVES_EXTRA:
+            if clave not in pares:
+                if clave in self.extras:
+                    self.bitacora.info(COMPONENTE, "clave_opcional_retirada",
+                                       f"{clave} el elemento queda sin dato resultado=aceptado")
+                    del self.extras[clave]
+                self._ultimo_error.pop(clave, None)
+                continue
+            try:
+                valor = convertir(clave, pares[clave], self.rangos)
+            except DatoInvalido as error:
+                self._rechazar(clave, pares[clave], error.evento, error.detalle)
+                continue
+            # Consistencia entre claves (la guia pide al validador tipo, rango, unidad y consistencia):
+            # el motor no puede girar con la llave fuera de contacto. Se descarta el contacto y el
+            # cuadro sigue al motor, como con el formato de diez claves (R01).
+            if clave == "contacto" and valor is False and self.ultimo_valido["motor"]:
+                self._rechazar(clave, f"inconsistente:{pares[clave]}", "dato_inconsistente",
+                               "contacto=0 con motor=1 (el motor no gira sin contacto); se usa motor")
+                self.extras.pop(clave, None)
+                continue
+            self._ultimo_error.pop(clave, None)
+            if clave not in self.extras or self.extras[clave] != valor:
+                self.bitacora.info(COMPONENTE, "valor_actualizado", f"{clave}={pares[clave]} resultado=aceptado")
+                self.extras[clave] = valor
 
 
 def publicar(buzon, datos):
@@ -304,9 +374,13 @@ class Consumidor:
             return False
         self.snapshots += 1
         for clave, valor in datos.items():
-            if self.aplicado.get(clave) != valor:
-                self.tablero.aplicar_externo(CLAVES[clave][0], valor)
+            if clave not in self.aplicado or self.aplicado[clave] != valor:
+                self.tablero.aplicar_externo(_tipo(clave)[0], valor)
                 self.aplicado[clave] = valor
+        # Una clave opcional que dejo de llegar vuelve a "sin dato" en el modelo.
+        for clave in [c for c in self.aplicado if c in CLAVES_EXTRA and c not in datos]:
+            self.tablero.aplicar_externo(CLAVES_EXTRA[clave][0], None)
+            del self.aplicado[clave]
         if self.lector is not None:
             rechazos = list(self.lector.rechazos)
             self.tablero.mensaje.configure(

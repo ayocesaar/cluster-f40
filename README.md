@@ -1,7 +1,7 @@
 # Clúster F40 simulado
 
 Simulador del clúster de instrumentos del **Ferrari F40 (1987)**, con una interfaz inspirada en el cuadro del F40 (capota negra, esferas negras con numerales de época, odómetro de tambor), para el proyecto
-final de Sistemas Operativos (UAG), Equipo 3. Los once elementos (diez de la especificación original más el odómetro) se controlan con **datos externos** (un archivo que
+final de Sistemas Operativos (UAG), Equipo 3. Los quince elementos (diez de la especificación original, el odómetro y cuatro adicionales de seguridad y consumo) se controlan con **datos externos** (un archivo que
 el tablero relee sin reiniciar); los eventos y los errores se registran en **bitácoras separadas**. Los rangos y
 umbrales son parámetros didácticos, no calibraciones oficiales del F40.
 
@@ -76,8 +76,14 @@ cluster-f40/
 | 9 | Baja presión de aceite | Testigo de seguridad | calculado de `presion_aceite` |
 | 10 | Falla de frenos | Testigo de seguridad | `falla_frenos` (0/1) |
 | 11 | Odómetro | Información en línea | calculado (`odometro=` se rechaza) |
+| 12 | Puerta abierta (adicional) | Testigo informativo | `puertas` (bits: 1 conductor, 2 pasajero; 0–3) |
+| 13 | Cinturón (adicional) | Testigo de seguridad | `cinturon` (1 = abrochado) |
+| 14 | Combustible (adicional) | Información en línea | `combustible` (0–100 % de 120 L) |
+| 15 | Protección del motor (adicional) | Testigo de seguridad | `falla_motor` (ninguna, sobretemperatura, sobrepresion_turbo, aceite, combustible) |
 
-El motor se enciende con `motor=1`.
+El motor se enciende con `motor=1`. Las claves de los elementos 12–15 y `contacto` (llave) son **opcionales**: un
+archivo con solo las diez claves originales funciona igual que antes (decisión D8). Ver
+[docs/realismo_y_liberacion.md](docs/realismo_y_liberacion.md).
 
 ## Odómetro (elemento 11)
 
@@ -139,6 +145,51 @@ Evidencias: `docs/evidencias/` (resultados, cobertura, capturas, bitácoras de e
 - **Abrir/cerrar tablero:** lanza `main.py` y lo cierra con SIGTERM (cierre ordenado).
 
 El panel es un proceso aparte que escribe `datos/vehiculo.conf` con el mismo candado y la escritura atómica de `tools/escribir_dato.py`: el tablero no cambia. Pruebas: `tests/test_panel.py` (CP-155 a CP-162).
+
+## Realismo y seguridad (Etapa 18)
+
+- **Llave y arranque separados:** `K` pone o quita el contacto (el tablero hace la prueba de testigos de 2 s) y `M`
+  arranca o apaga. Con contacto y motor apagado, el velocímetro, el agua y el odómetro siguen midiendo; RPM, aceite
+  y turbo quedan en 0 (D3).
+- **Puertas y cinturón:** `P`/`O` abren las puertas y `B` abrocha el cinturón. Con una puerta abierta el auto **no
+  avanza** aunque se acelere (interbloqueo) y en movimiento el testigo 12 parpadea en rojo.
+- **Fallas con consecuencias reales** (las decide la ECU simulada, `panel/ecu.py`):
+
+| Falla | Consecuencia | Se repara en TALLER con |
+|---|---|---|
+| Fuga de aceite | Testigo 9; **no arranca**; en marcha vacía el depósito y la ECU corta el motor | Reparar fallas + Rellenar aceite |
+| Radiador | Agua en rojo; a 120 °C la ECU **detiene el motor** y no deja arrancar hasta enfriar bajo 100 °C | Reparar fallas |
+| Turbo (válvula de descarga) | Más de 1.5 bar durante 1 s: **corte del motor** enclavado | Reparar fallas |
+| Frenos | Testigo 10 y el auto **frena al 30 %**; los frenos calientes pierden eficiencia | Reparar fallas |
+| Velocímetro | Indica 5 % menos que la velocidad real (ilegal según UN R39) | Reparar fallas |
+| Sin combustible | El motor se apaga y no arranca | Llenar tanque |
+
+- **Banco de liberación de producción** (pruebas de la época): `python3 tools/banco_liberacion.py` corre 9 pruebas
+  (frenado tipo 0 y tipo I de UN R13-H, velocímetro UN R39, ciclo urbano ECE-15 con el odómetro, prueba de
+  testigos, arranque, enfriamiento, turbo y puertas) y da el dictamen **APTO PARA PRODUCCIÓN** o **RECHAZADO**.
+  `--falla frenos` inyecta una falla; `--evidencia` guarda la matriz falla → prueba en
+  `docs/evidencias/banco_liberacion.txt`. Desde el panel: "Banco con las fallas actuales" y "Ciclo ECE-15 en vivo".
+- Pruebas: `tests/test_realismo.py` y `tests/test_liberacion.py` (CP-163 a CP-183). Fuentes y lo que queda
+  pendiente de verificar: [docs/realismo_y_liberacion.md](docs/realismo_y_liberacion.md).
+
+## Observación del sistema (guía, sección 6)
+
+```bash
+ps -o pid,ppid,stat,%cpu,%mem,rss,vsz,cmd -p $(pgrep -f main.py)
+watch -n 1 "du -h logs/*.log"
+tail -f logs/eventos.log
+wc -l logs/eventos.log logs/errores.log
+```
+
+En el panel, el atajo "ps du wc" corre `ps`, `du` y `wc` sobre el tablero en ejecución (lista de argumentos, sin shell).
+
+## Dependencias y licencias
+
+La aplicación solo usa la biblioteca estándar de Python y Tkinter (Tcl/Tk 8.6). Las pruebas y los informes usan los
+paquetes de `requirements.txt`; su licencia, tomada de los metadatos instalados, queda en
+`docs/evidencias/licencias.txt` (la genera `tools/licencias.py`). Herramientas del sistema: Xvfb (pantalla virtual
+para las pruebas) y LibreOffice (conversión a PDF). El proyecto no usa imágenes, fuentes ni sonidos de terceros: todo
+el dibujo se hace con primitivas de Tkinter y no hay logotipos de la marca.
 
 ## Temas de la materia en el proyecto
 

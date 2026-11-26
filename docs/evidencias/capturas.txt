@@ -1,42 +1,57 @@
 Capturas de pantalla de la interfaz (generadas con tools/capturas.py sobre Xvfb)
 
-01_estado_inicial_seguro.png (1212x684 px, 1780 colores)
+01_estado_inicial_seguro.png (1212x756 px, 1959 colores)
   Descripcion: Estado inicial seguro: motor apagado, agujas en su minimo y testigos apagados
   Casos: CA-01 a CA-10 (paso inicial), CP-68, CP-74 | Requisitos: R01
-  Estado dibujado: 1=0 normal, 2=0 normal, 3=0 normal, 4=40 normal, 5=0 normal, 6=apagado, 7=apagado, 8=apagado, 9=apagado, 10=apagado, 11 odometro=000000
+  Estado dibujado: 1=0 normal, 2=0 normal, 3=0 normal, 4=40 normal, 5=0 normal, 6=apagado, 7=apagado, 8=apagado, 9=apagado, 10=apagado, 11 odometro=000000, llave=OFF, 12=apagado, 13=apagado, 15=apagado, 14=sin dato
 
-02_motor_encendido_valores_normales.png (1212x684 px, 1880 colores)
+02_motor_encendido_valores_normales.png (1212x756 px, 2082 colores)
   Descripcion: Motor encendido con lecturas dentro de rango: sin advertencias
   Casos: CA-01, CA-03, CA-04, CA-05 | Requisitos: R01
-  Estado dibujado: 1=120 normal, 2=5 normal, 3=4500 normal, 4=90 normal, 5=1 normal, 6=apagado, 7=apagado, 8=apagado, 9=apagado, 10=apagado, 11 odometro=000000
+  Estado dibujado: 1=120 normal, 2=5 normal, 3=4500 normal, 4=90 normal, 5=1 normal, 6=apagado, 7=apagado, 8=apagado, 9=apagado, 10=apagado, 11 odometro=000000, llave=MOTOR, 12=apagado, 13=apagado, 15=apagado, 14=sin dato
 
-03_umbrales_de_lecturas.png (1212x684 px, 2176 colores)
+03_umbrales_de_lecturas.png (1212x756 px, 2380 colores)
   Descripcion: Umbrales cruzados: 2 y 5 en ambar, 3 y 4 en rojo
   Casos: CA-02, CA-03, CA-04, CA-05, CP-69 | Requisitos: R03, R04, R05
-  Estado dibujado: 1=250 normal, 2=0.8 ambar, 3=8200 rojo, 4=115 rojo, 5=1.6 ambar, 6=apagado, 7=apagado, 8=apagado, 9=apagado, 10=apagado, 11 odometro=000000
+  Estado dibujado: 1=250 normal, 2=0.8 ambar, 3=8200 rojo, 4=115 rojo, 5=1.6 ambar, 6=apagado, 7=apagado, 8=apagado, 9=apagado, 10=apagado, 11 odometro=000000, llave=MOTOR, 12=apagado, 13=apagado, 15=apagado, 14=sin dato
 
-04_testigo_9_baja_presion_aceite.png (1212x684 px, 1945 colores)
+04_testigo_9_baja_presion_aceite.png (1212x756 px, 2160 colores)
   Descripcion: Presion de aceite bajo 1 bar por 1 s: testigo 9 rojo (critico)
   Casos: CA-09, CP-70 | Requisitos: R02
-  Estado dibujado: 1=0 normal, 2=0.5 ambar, 3=0 normal, 4=90 normal, 5=0 normal, 6=apagado, 7=apagado, 8=apagado, 9=rojo, 10=apagado, 11 odometro=000000
+  Estado dibujado: 1=0 normal, 2=0.5 ambar, 3=0 normal, 4=90 normal, 5=0 normal, 6=apagado, 7=apagado, 8=apagado, 9=rojo, 10=apagado, 11 odometro=000000, llave=MOTOR, 12=apagado, 13=apagado, 15=apagado, 14=sin dato
 
-05_direccional_izq_y_luces_altas.png (1212x684 px, 1946 colores)
+05_direccional_izq_y_luces_altas.png (1212x756 px, 2157 colores)
   Descripcion: Direccional IZQ (6 verde) y luces altas (7 azul fijo)
   Casos: CA-06, CA-07 | Requisitos: R06, R07
-  Estado dibujado: 1=60 normal, 2=0 ambar, 3=0 normal, 4=40 normal, 5=0 normal, 6=verde, 7=azul, 8=apagado, 9=apagado, 10=apagado, 11 odometro=000000
+  Estado dibujado: 1=60 normal, 2=0 ambar, 3=0 normal, 4=40 normal, 5=0 normal, 6=verde, 7=azul, 8=apagado, 9=apagado, 10=apagado, 11 odometro=000000, llave=MOTOR, 12=apagado, 13=apagado, 15=apagado, 14=sin dato
 
-06_emergencia_con_precedencia.png (1212x684 px, 1933 colores)
+06_emergencia_con_precedencia.png (1212x756 px, 2144 colores)
   Descripcion: Emergencia activa con direccional puesto: 8 ambar y 6 oculto (D7)
   Casos: CA-08, CP-71 | Requisitos: R06, R07
-  Estado dibujado: 1=0 normal, 2=0 ambar, 3=0 normal, 4=40 normal, 5=0 normal, 6=apagado, 7=apagado, 8=ambar, 9=apagado, 10=apagado, 11 odometro=000000
+  Estado dibujado: 1=0 normal, 2=0 ambar, 3=0 normal, 4=40 normal, 5=0 normal, 6=apagado, 7=apagado, 8=ambar, 9=apagado, 10=apagado, 11 odometro=000000, llave=MOTOR, 12=apagado, 13=apagado, 15=apagado, 14=sin dato
 
-07_falla_frenos_motor_apagado.png (1212x684 px, 1783 colores)
+07_falla_frenos_motor_apagado.png (1212x756 px, 1974 colores)
   Descripcion: Falla de frenos con motor apagado: testigo 10 rojo (critico, D1)
   Casos: CA-10, CP-76 | Requisitos: R08
-  Estado dibujado: 1=0 normal, 2=0 normal, 3=0 normal, 4=40 normal, 5=0 normal, 6=apagado, 7=apagado, 8=apagado, 9=apagado, 10=rojo, 11 odometro=000000
+  Estado dibujado: 1=0 normal, 2=0 normal, 3=0 normal, 4=40 normal, 5=0 normal, 6=apagado, 7=apagado, 8=apagado, 9=apagado, 10=rojo, 11 odometro=000000, llave=OFF, 12=apagado, 13=apagado, 15=apagado, 14=sin dato
 
-08_entrada_rechazada.png (1212x684 px, 1993 colores)
+08_entrada_rechazada.png (1212x756 px, 2172 colores)
   Descripcion: Valor fuera de rango (9001 RPM) enviado por programa: mensaje en pantalla
   Casos: CP-77 | Requisitos: -
-  Estado dibujado: 1=0 normal, 2=0 normal, 3=0 normal, 4=40 normal, 5=0 normal, 6=apagado, 7=apagado, 8=apagado, 9=apagado, 10=apagado, 11 odometro=000000
+  Estado dibujado: 1=0 normal, 2=0 normal, 3=0 normal, 4=40 normal, 5=0 normal, 6=apagado, 7=apagado, 8=apagado, 9=apagado, 10=apagado, 11 odometro=000000, llave=OFF, 12=apagado, 13=apagado, 15=apagado, 14=sin dato
   Mensaje en pantalla: Entrada rechazada: rpm fuera de rango [0, 9000]: 9001
+
+10_prueba_de_testigos.png (1212x756 px, 2127 colores)
+  Descripcion: Llave en contacto: prueba de testigos, todos encendidos durante 2 s
+  Casos: CP-166 | Requisitos: R13-H 5.2.21.4
+  Estado dibujado: 1=0 normal, 2=0 normal, 3=0 normal, 4=40 normal, 5=0 normal, 6=verde, 7=azul, 8=ambar, 9=rojo, 10=rojo, 11 odometro=000000, llave=CONTACTO, 12=ambar, 13=rojo, 15=rojo, 14=62 % reserva=si
+
+11_proteccion_por_sobretemperatura.png (1212x756 px, 2330 colores)
+  Descripcion: Motor detenido por la ECU: agua a 121 C, testigo 15 con la causa, cinturon sin abrochar en movimiento y combustible en reserva
+  Casos: CP-165, CP-168, CP-169, CP-170 | Requisitos: R04, R10, R11, R12
+  Estado dibujado: 1=40 normal, 2=0 normal, 3=0 normal, 4=121 rojo, 5=0 normal, 6=apagado, 7=apagado, 8=apagado, 9=apagado, 10=apagado, 11 odometro=000000, llave=CONTACTO, 12=apagado, 13=rojo, 15=rojo, 14=9 % reserva=si
+
+12_puerta_abierta_detenido.png (1212x756 px, 2178 colores)
+  Descripcion: Puerta del conductor abierta con el auto detenido: testigo 12 ambar fijo
+  Casos: CP-167 | Requisitos: R09
+  Estado dibujado: 1=0 normal, 2=1.5 normal, 3=1000 normal, 4=88 normal, 5=0 normal, 6=apagado, 7=apagado, 8=apagado, 9=apagado, 10=apagado, 11 odometro=000000, llave=MOTOR, 12=ambar, 13=apagado, 15=apagado, 14=62 % reserva=no
