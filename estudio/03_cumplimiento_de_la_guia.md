@@ -91,4 +91,3 @@ Reglas de entrega: dependencias y licencias en el README y en `docs/evidencias/l
 2. Ensayar la demostración con el guion de `02_guia_de_estudio.md`.
 3. Revisión cruzada, escenario sorpresa y observaciones del profesor de la práctica del odómetro: pendientes (no han ocurrido).
 4. Fuentes que siguen pendientes (Etapa 22 verificó la Directiva 71/320/CEE de 1987, la 75/443/CEE, la tolerancia de UN R84 y los datos del fabricante; faltan FMVSS 208 de 1987, el origen de la frenada y de las relaciones de marcha y las rpm del limitador): `docs/realismo_y_liberacion.md`, sección 6.
-5. Decidir con el profesor la discrepancia de R03: la especificación pone el rojo en 8000 rpm y la línea roja real del F40 es 7750 rpm (se conserva la especificación).

@@ -130,8 +130,6 @@ En la Etapa 22 se verificó lo que estaba pendiente (sección 5): la Directiva 7
 - **Origen de dos datos del F40:** la frenada de 119 ft (una fuente abierta que no nombra la prueba) y las relaciones de
   marcha (dos fuentes secundarias). El diferencial (3.62 según el foro) no se usa.
 - **Las rpm del limitador real:** ninguna fuente las da; el modelo corta a 8200 rpm para que se vea R03.
-- **R03 contra el auto real:** la especificación pone el rojo del tacómetro en 8000 rpm y la línea roja real es 7750 rpm.
-  Se conserva la especificación (y sus pruebas); queda para decidir con el profesor.
 - Si el F40 de 1987 tenía testigo de puerta o de cinturón, y la lista exacta de testigos del cuadro original (el manual
   técnico no se pudo consultar): los elementos 12 y 13 se presentan como adicionales.
 - Las cifras eléctricas (batería de 40 Ah, alternador de 70 A, cargas, 10.5 V de corte) son genéricas de un sistema de
@@ -139,6 +137,10 @@ En la Etapa 22 se verificó lo que estaba pendiente (sección 5): la Directiva 7
 - **Fuentes que se contradicen:** supercars.net da llantas delanteras 235/45 ZR17 y frenos con servo; ADAC (datos del
   fabricante) da 245/40 ZR17 y la revista de Ferrari dice que no tenía servofreno. Se usan ADAC y Ferrari.
 - El interbloqueo de puertas y las protecciones de la ECU son medidas del equipo, no del auto original.
+
+**Decidido (27-nov-2026):** la especificación pone el rojo del tacómetro en 8000 rpm (R03) y la línea roja real del F40
+es 7750 rpm. El equipo decidió conservar la especificación: R03 sigue en 8000 rpm y sus pruebas no cambian. Las
+velocidades por marcha del modelo sí usan los 7750 rpm reales.
 
 ## 7. Cómo demostrarlo en la exposición (3 minutos)
 

@@ -227,7 +227,7 @@ Respuesta corta: en vivo, con el panel: "Dato corrupto" o "Borrar archivo". El t
 - Las categorías de los elementos 2, 3 y 5 están por confirmar con el profesor.
 - El modelo del panel es didáctico: el frenado, el consumo y las velocidades por marcha se calibraron con datos publicados (Etapa 22); las temperaturas, el sistema eléctrico y la curva de par entre sus dos puntos verificados son aproximados.
 - El banco usa UN R13-H y, desde la Etapa 22, también el criterio de la Directiva 71/320/CEE vigente en 1987 (texto consolidado de 1986). Sigue pendiente el texto de FMVSS 208 de 1987. Las protecciones y el interbloqueo de puertas son del equipo, no del F40 original.
-- La especificación pone el rojo del tacómetro en 8000 rpm (R03) y la línea roja real del F40 es 7750 rpm: se conserva la especificación y queda para decidir con el profesor.
+- La especificación pone el rojo del tacómetro en 8000 rpm (R03) y la línea roja real del F40 es 7750 rpm: el equipo decidió conservar la especificación.
 - Siguen pendientes la revisión cruzada, el escenario sorpresa y el acceso por Wi-Fi.
 - Las cifras eléctricas son genéricas de un sistema de 12 V y la batería se descarga 60 veces más rápido para la demostración (D14).
 
@@ -315,6 +315,7 @@ Respuesta corta: en vivo, con el panel: "Dato corrupto" o "Borrar archivo". El t
 - El texto de FMVSS 208 de 1987: se leyó el de 1996.
 - La prueba de origen de la frenada y de las relaciones de marcha: son fuentes secundarias.
 - Las rpm del limitador real.
-- Una discrepancia que no se cambió: la especificación pone el rojo del tacómetro en 8000 rpm (R03) y la línea roja real del F40 es 7750 rpm.
+
+**¿Por qué el tacómetro se pone rojo en 8000 rpm si la línea roja real es 7750?** Porque así lo pide la especificación (R03) y el equipo decidió respetarla: el umbral es un requisito del proyecto y tiene sus pruebas. El dato real sí se usa en el modelo: las velocidades por marcha se calculan a 7750 rpm.
 
 Todo está en `docs/realismo_y_liberacion.md`, secciones 5 y 6.

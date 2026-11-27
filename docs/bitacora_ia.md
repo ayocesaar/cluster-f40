@@ -399,3 +399,6 @@
   decidir con el profesor.
 - Pruebas nuevas: CP-210 a CP-214 (tests/test_verificacion.py). Pruebas anteriores: sin cambios (huella
   sha256).
+- 27-nov-2026, decisión del equipo: R03 se conserva en 8000 rpm (la especificación) aunque la línea roja real del
+  F40 es 7750 rpm. Lo que sigue sin verificar (FMVSS 208 de 1987, la figura de tolerancias de R84, el origen de la
+  frenada y de las relaciones, el limitador real) no cambia ningún criterio ni resultado y queda marcado como pendiente.
